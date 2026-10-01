@@ -15,10 +15,10 @@ from collection.models import CollectionRecord, CollectionStatus
 from audit_logs.models import AuditLog
 
 class Command(BaseCommand):
-    help = 'Seeds realistic hospital waste management demo data for SIH 2026 WasteGuard prototype'
+    help = 'Seeds realistic hospital waste management demo data for SIH 2026 HazGuard prototype'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.WARNING('Starting WasteGuard Demo Data Seeding...'))
+        self.stdout.write(self.style.WARNING('Starting HazGuard Demo Data Seeding...'))
 
         # 1. Create Role Accounts
         users_def = [
@@ -49,38 +49,48 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS(f"User ready: {u['username']} (Role: {u['role']}, EmpID: {u['emp_id']})"))
 
-        # 2. Containers Setup (24 Realistic Hospital Bins)
+        # 2. Containers Setup (Exactly 5 WasteGuard Automated Sorting Stations)
+        Container.objects.all().delete()
+        Action.objects.all().delete()
+        Alert.objects.all().delete()
+
         containers_def = [
-            {'id': 'H-014', 'name': 'Emergency Red Bin 2', 'ward': 'Emergency Ward', 'loc': 'Triage Bay 3', 'cat': WasteCategory.HAZARDOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-002', 'name': 'ICU Biohazard Container A', 'ward': 'ICU', 'loc': 'Isolation Room 102', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-008', 'name': 'Surgery Sharps Collector 1', 'ward': 'Surgery Wing', 'loc': 'Operating Theater 4', 'cat': WasteCategory.SHARPS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-019', 'name': 'Oncology Cytotoxic Station', 'ward': 'Oncology Unit', 'loc': 'Chemo Preparation Room', 'cat': WasteCategory.CYTOTOXIC, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-021', 'name': 'Ward 3 General Point B', 'ward': 'Ward 3', 'loc': 'General Corridor West', 'cat': WasteCategory.GENERAL, 'status': ContainerStatus.MAINTENANCE, 'dev': DeviceStatus.OFFLINE},
-            {'id': 'H-001', 'name': 'ICU Waste Point 1', 'ward': 'ICU', 'loc': 'Bedside Station 01', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-003', 'name': 'Ward 3 Infectious Bin', 'ward': 'Ward 3', 'loc': 'Nursing Station 3', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-004', 'name': 'Emergency Yellow Bin 1', 'ward': 'Emergency Ward', 'loc': 'Trauma Care Bay 1', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-005', 'name': 'Surgery Waste Bin OT-1', 'ward': 'Surgery Wing', 'loc': 'Operating Theater 1', 'cat': WasteCategory.ANATOMICAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-006', 'name': 'Surgery Waste Bin OT-2', 'ward': 'Surgery Wing', 'loc': 'Operating Theater 2', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-007', 'name': 'ICU Bedside Bin 04', 'ward': 'ICU', 'loc': 'Ventilator Unit 4', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-009', 'name': 'Oncology Waste Bin 2', 'ward': 'Oncology Unit', 'loc': 'Infusion Bay 2', 'cat': WasteCategory.CYTOTOXIC, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-010', 'name': 'Pediatric Ward Waste', 'ward': 'Pediatric Ward', 'loc': 'Play Area Station', 'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-011', 'name': 'Radiology Waste Station', 'ward': 'Radiology Dept', 'loc': 'CT Control Room', 'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-012', 'name': 'Pathology Lab Bin A', 'ward': 'Pathology Laboratory', 'loc': 'Blood Specimen Lab', 'cat': WasteCategory.HAZARDOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-013', 'name': 'Pathology Lab Bin B', 'ward': 'Pathology Laboratory', 'loc': 'Tissue Processing Lab', 'cat': WasteCategory.ANATOMICAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-015', 'name': 'Dialysis Unit Bin 1', 'ward': 'Dialysis Unit', 'loc': 'Hemodialysis Room', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-016', 'name': 'Dialysis Unit Bin 2', 'ward': 'Dialysis Unit', 'loc': 'Dialysis Station 4', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-017', 'name': 'Isolation Ward Bin 101', 'ward': 'Isolation Unit', 'loc': 'Negative Pressure Room 1', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-018', 'name': 'Isolation Ward Bin 102', 'ward': 'Isolation Unit', 'loc': 'Negative Pressure Room 2', 'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-020', 'name': 'Maternity Ward Bin', 'ward': 'Maternity Ward', 'loc': 'Delivery Room 1', 'cat': WasteCategory.ANATOMICAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-022', 'name': 'OPD Complex Bin 1', 'ward': 'Outpatient Dept', 'loc': 'Main Waiting Hall', 'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-023', 'name': 'OPD Complex Bin 2', 'ward': 'Outpatient Dept', 'loc': 'Injection Room', 'cat': WasteCategory.SHARPS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
-            {'id': 'H-024', 'name': 'Central Waste Holding A', 'ward': 'Central Biohazard Storage', 'loc': 'Basement Dock 2', 'cat': WasteCategory.HAZARDOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE},
+            {
+                'id': 'STATION-01', 'name': 'WasteGuard Station 01', 'ward': 'Central Garden Zone', 'loc': 'Central Garden',
+                'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'wet': 42.0, 'dry': 68.0, 'hazard': 24.0, 'current': 'Dry', 'last': '2 min ago',
+                'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
+            },
+            {
+                'id': 'STATION-02', 'name': 'WasteGuard Station 02', 'ward': 'Cafeteria & Dining', 'loc': 'Cafeteria',
+                'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'wet': 78.0, 'dry': 85.0, 'hazard': 12.0, 'current': 'Wet', 'last': '1 min ago',
+                'mr_pending': True, 'mr_count': 2, 'mr_reason': 'Low-confidence classification detected'
+            },
+            {
+                'id': 'STATION-03', 'name': 'WasteGuard Station 03', 'ward': 'Academic Wing', 'loc': 'Academic Block',
+                'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'wet': 30.0, 'dry': 55.0, 'hazard': 10.0, 'current': 'Dry', 'last': '4 min ago',
+                'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
+            },
+            {
+                'id': 'STATION-04', 'name': 'WasteGuard Station 04', 'ward': 'Hostel Complex', 'loc': 'Hostel',
+                'cat': WasteCategory.HAZARDOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'wet': 65.0, 'dry': 72.0, 'hazard': 40.0, 'current': 'Hazard', 'last': '3 min ago',
+                'mr_pending': True, 'mr_count': 1, 'mr_reason': 'Manual review pending'
+            },
+            {
+                'id': 'STATION-05', 'name': 'WasteGuard Station 05', 'ward': 'Parking & Transport', 'loc': 'Parking Area',
+                'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'wet': 20.0, 'dry': 45.0, 'hazard': 5.0, 'current': 'Dry', 'last': '10 min ago',
+                'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
+            }
         ]
 
         now = timezone.now()
 
         for cdata in containers_def:
-            container, _ = Container.objects.get_or_create(
+            container, _ = Container.objects.update_or_create(
                 container_id=cdata['id'],
                 defaults={
                     'name': cdata['name'],
@@ -89,89 +99,29 @@ class Command(BaseCommand):
                     'waste_category': cdata['cat'],
                     'status': cdata['status'],
                     'device_status': cdata['dev'],
-                    'capacity_liters': 60.0
+                    'capacity_liters': 180.0,
+                    'wet_fill_pct': cdata['wet'],
+                    'dry_fill_pct': cdata['dry'],
+                    'hazard_fill_pct': cdata['hazard'],
+                    'current_waste': cdata['current'],
+                    'last_processed': cdata['last'],
+                    'manual_review_pending': cdata['mr_pending'],
+                    'manual_review_count': cdata['mr_count'],
+                    'manual_review_reason': cdata['mr_reason'],
                 }
             )
 
-            # Assign telemetry profile based on container ID
-            if cdata['id'] == 'H-014':
-                # Critical/High Risk Bin: Gas anomaly + Moisture + Hazardous vision
-                fill = 87.0
-                weight = 24.2
-                temp = 31.2
-                humidity = 68.0
-                gas = 420.0
-                moisture = 72.0
-                v_class = VisionClass.HAZARD
-                v_conf = 94.0
-                v_contam = 85.0
-                v_unk = 3.0
-                v_exc = "Abnormal gas VOC spike with chemical odor indicator"
-            elif cdata['id'] == 'H-002':
-                # High Risk Biohazard Bin
-                fill = 91.0
-                weight = 26.5
-                temp = 33.5
-                humidity = 62.0
-                gas = 280.0
-                moisture = 58.0
-                v_class = VisionClass.BIOHAZARD
-                v_conf = 91.0
-                v_contam = 60.0
-                v_unk = 4.0
-                v_exc = "High-concentration infectious fluid detected"
-            elif cdata['id'] == 'H-008':
-                # Sharps transfer bin
-                fill = 84.0
-                weight = 19.8
-                temp = 26.0
-                humidity = 50.0
-                gas = 90.0
-                moisture = 20.0
-                v_class = VisionClass.SHARPS
-                v_conf = 88.0
-                v_contam = 25.0
-                v_unk = 2.0
-                v_exc = "Uncapped surgical needles visual detection"
-            elif cdata['id'] == 'H-019':
-                # AI uncertainty bin
-                fill = 45.0
-                weight = 8.5
-                temp = 25.0
-                humidity = 48.0
-                gas = 110.0
-                moisture = 15.0
-                v_class = VisionClass.UNKNOWN
-                v_conf = 52.0
-                v_contam = 40.0
-                v_unk = 24.0
-                v_exc = "Obscured vision sensor lens / unclassified packaging"
-            elif cdata['id'] == 'H-021':
-                # Offline bin
-                fill = 60.0
-                weight = 12.0
-                temp = 24.0
-                humidity = 50.0
-                gas = 80.0
-                moisture = 10.0
-                v_class = VisionClass.NORMAL
-                v_conf = 90.0
-                v_contam = 0.0
-                v_unk = 1.0
-                v_exc = "Sensor telemetry timeout > 2 hours"
-            else:
-                # Normal baseline bins
-                fill = random.uniform(25.0, 82.0)
-                weight = round(fill * 0.25, 1)
-                temp = random.uniform(23.0, 27.5)
-                humidity = random.uniform(45.0, 55.0)
-                gas = random.uniform(40.0, 140.0)
-                moisture = random.uniform(10.0, 35.0)
-                v_class = VisionClass.NORMAL
-                v_conf = random.uniform(88.0, 98.0)
-                v_contam = random.uniform(0.0, 10.0)
-                v_unk = random.uniform(1.0, 5.0)
-                v_exc = None
+            fill = max(cdata['wet'], cdata['dry'], cdata['hazard'])
+            weight = round(fill * 0.35, 1)
+            temp = 26.5
+            humidity = 55.0
+            gas = 120.0
+            moisture = 30.0
+            v_class = VisionClass.NORMAL
+            v_conf = 92.0
+            v_contam = 5.0
+            v_unk = 2.0
+            v_exc = cdata['mr_reason'] if cdata['mr_pending'] else None
 
             # Create Sensor Reading
             reading = SensorReading.objects.create(
@@ -259,7 +209,7 @@ class Command(BaseCommand):
             action="SYSTEM_INITIALIZED",
             entity="System",
             entity_id="GLOBAL",
-            metadata={'message': 'WasteGuard Hospital System initialized successfully with demo thresholds.'}
+            metadata={'message': 'HazGuard Hospital System initialized successfully with demo thresholds.'}
         )
         AuditLog.objects.create(
             user=user_objects['safety_officer'],
@@ -284,7 +234,7 @@ class Command(BaseCommand):
         )
 
         self.stdout.write(self.style.SUCCESS('\n======================================================='))
-        self.stdout.write(self.style.SUCCESS('WasteGuard Demo Data Successfully Seeded!'))
+        self.stdout.write(self.style.SUCCESS('HazGuard Demo Data Successfully Seeded!'))
         self.stdout.write(self.style.SUCCESS('Demo Accounts Available:'))
         self.stdout.write(self.style.SUCCESS('  1. ADMIN:          username="admin"          password="password123"'))
         self.stdout.write(self.style.SUCCESS('  2. SUPERVISOR:     username="supervisor"     password="password123"'))

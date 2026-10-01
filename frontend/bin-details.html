@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Container Details | WasteGuard</title>
+  <title>Container Details | HazGuard</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/components.css">
@@ -26,26 +26,26 @@
         <div class="sidebar-brand-icon">WG</div>
         <div>
           <div class="sidebar-brand-text">WasteGuard</div>
-          <div class="sidebar-brand-sub">Hospital Operations</div>
+          <div class="sidebar-brand-sub">Campus Automated Stations</div>
         </div>
       </div>
       <nav class="sidebar-nav">
         <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="bins.html" class="nav-item active"><span class="nav-icon">🗑️</span> Waste Containers</a>
-        <a href="actions.html" class="nav-item"><span class="nav-icon">⚡</span> Action Queue</a>
-        <a href="alerts.html" class="nav-item"><span class="nav-icon">🔔</span> Alerts Matrix</a>
-        <a href="collection.html" class="nav-item"><span class="nav-icon">🚛</span> Collection Management</a>
-        <a href="analytics.html" class="nav-item"><span class="nav-icon">📈</span> Safety Analytics</a>
+        <a href="bins.html" class="nav-item active"><span class="nav-icon">🏢</span> Waste Stations</a>
+        <a href="actions.html" class="nav-item"><span class="nav-icon">⚠️</span> Manual Reviews</a>
+        <a href="alerts.html" class="nav-item"><span class="nav-icon">🔔</span> Station Alerts</a>
+        <a href="collection.html" class="nav-item"><span class="nav-icon">🚛</span> Collection Dispatches</a>
+        <a href="analytics.html" class="nav-item"><span class="nav-icon">📈</span> Waste Analytics</a>
         <div class="nav-section-title">ADMINISTRATION</div>
-        <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR"><span class="nav-icon">⚙️</span> System Settings</a>
+        <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR"><span class="nav-icon">⚙️</span> Station Settings</a>
       </nav>
     </aside>
 
     <div class="main-wrapper">
       <header class="top-header">
         <div class="header-title-group">
-          <h1>Container Deep Inspection: <span id="detail-id" style="color:var(--accent-teal);">H-014</span></h1>
-          <p id="detail-name">Emergency Red Waste Container 2</p>
+          <h1>Station Inspection: <span id="detail-id" style="color:var(--accent-teal);">STATION-01</span></h1>
+          <p id="detail-name">WasteGuard Station 01</p>
         </div>
         <div class="header-user-profile">
           <div class="user-info-text">
@@ -58,129 +58,113 @@
       </header>
 
       <main class="page-content" id="bin-details-container">
-        <!-- Container Header Metadata Strip -->
+        <!-- Station Header Metadata Strip -->
         <div class="card" style="margin-bottom:20px; padding:16px;">
           <div class="flex-between">
-            <div style="display:flex; gap:20px; align-items:center;">
+            <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
               <div>
-                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Hospital Ward</span>
-                <div style="font-weight:700; font-size:15px;" id="detail-ward">Emergency Ward</div>
+                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Station Location</span>
+                <div style="font-weight:700; font-size:15px;" id="detail-location">📍 Central Garden</div>
               </div>
               <div>
-                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Location</span>
-                <div style="font-weight:600; font-size:14px;" id="detail-location">Triage Bay 3</div>
+                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Status</span>
+                <div style="font-weight:600; font-size:14px;" id="detail-device-status"><span class="badge badge-low">ONLINE</span></div>
               </div>
               <div>
-                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Waste Category</span>
-                <div style="font-weight:600; font-size:14px;" id="detail-category">HAZARDOUS</div>
+                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Last Activity</span>
+                <div style="font-weight:600; font-size:14px;" id="detail-last-activity">2 min ago</div>
               </div>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-              <span id="detail-device-status"></span>
-              <span id="detail-risk-badge"></span>
+              <div>
+                <span class="text-muted" style="font-size:11px; text-transform:uppercase;">Processing Activity</span>
+                <div style="font-weight:600; font-size:14px; color:var(--accent-teal);" id="detail-processing">Automated Tri-Bin Sorting Active</div>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="detail-grid">
-          <!-- Left Column: 3 Data Tiers -->
+          <!-- Left Column: Station Info, 3 Bins, Waste Classification -->
           <div>
-            <!-- Tier 1: Sensor Fact -->
-            <div class="tier-box tier-fact card" style="margin-bottom:20px;">
-              <div class="tier-label">1. SENSOR FACTS (Empirical Physical Telemetry)</div>
-              <div class="sensor-metric-grid" style="margin-top:12px;">
-                <div class="sensor-metric-box">
-                  <div class="sensor-metric-lbl">Fill Level</div>
-                  <div class="sensor-metric-val" id="fact-fill">87%</div>
+            <!-- Three-Bin Fill Levels Box -->
+            <div class="card" style="margin-bottom:20px; border-left:4px solid var(--accent-teal);">
+              <h3 class="card-title" style="margin-bottom:12px;">Three-Bin Destination Fill Levels</h3>
+              
+              <div class="bin-status-container" style="padding:16px; gap:12px;">
+                <!-- Wet Bin -->
+                <div class="bin-fill-row" style="font-size:14px;">
+                  <span style="color:#10b981; width:100px; font-weight:700;">🟢 Wet Bin</span>
+                  <div class="bin-fill-bar-bg" style="height:10px;"><div class="bin-fill-bar-fill" id="fill-bar-wet" style="width:42%; background:#10b981;"></div></div>
+                  <span id="fill-val-wet" style="font-weight:800; min-width:45px; text-align:right;">42%</span>
                 </div>
+                <!-- Dry Bin -->
+                <div class="bin-fill-row" style="font-size:14px;">
+                  <span style="color:#f59e0b; width:100px; font-weight:700;">🟡 Dry Bin</span>
+                  <div class="bin-fill-bar-bg" style="height:10px;"><div class="bin-fill-bar-fill" id="fill-bar-dry" style="width:68%; background:#f59e0b;"></div></div>
+                  <span id="fill-val-dry" style="font-weight:800; min-width:45px; text-align:right;">68%</span>
+                </div>
+                <!-- Hazard Bin -->
+                <div class="bin-fill-row" style="font-size:14px;">
+                  <span style="color:#ef4444; width:100px; font-weight:700;">🔴 Hazard Bin</span>
+                  <div class="bin-fill-bar-bg" style="height:10px;"><div class="bin-fill-bar-fill" id="fill-bar-hazard" style="width:24%; background:#ef4444;"></div></div>
+                  <span id="fill-val-hazard" style="font-weight:800; min-width:45px; text-align:right;">24%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Waste Classification Stream -->
+            <div class="card" style="margin-bottom:20px;">
+              <h3 class="card-title" style="margin-bottom:6px;">Recent Waste Classification Stream</h3>
+              <p class="card-subtitle" style="margin-bottom:12px;">Latest item classifications processed at this station</p>
+              
+              <div style="display:flex; flex-direction:column; gap:10px;" id="classification-stream-list">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                  <div><strong>Plastic bottle</strong> <span style="color:var(--text-secondary); font-size:12px;">(Confidence: 96%)</span></div>
+                  <span class="badge" style="background:#fef3c7; color:#d97706; font-weight:700;">Dry</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                  <div><strong>Food waste</strong> <span style="color:var(--text-secondary); font-size:12px;">(Confidence: 94%)</span></div>
+                  <span class="badge" style="background:#d1fae5; color:#059669; font-weight:700;">Wet</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                  <div><strong>Hazardous chemical container</strong> <span style="color:var(--text-secondary); font-size:12px;">(Confidence: 92%)</span></div>
+                  <span class="badge" style="background:#fee2e2; color:#dc2626; font-weight:700;">Hazard</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#fffbe6; border:1px solid #ffe58f; border-radius:6px;">
+                  <div><strong>Uncertain packaging item</strong> <span style="color:#d48806; font-size:12px;">(Confidence: 54% - Low)</span></div>
+                  <span class="badge" style="background:#faad14; color:#fff; font-weight:700;">Manual Review</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Station Sensor Telemetry & Audit Log -->
+          <div>
+            <div class="card" style="margin-bottom:20px;">
+              <h3 class="card-title" style="margin-bottom:12px;">Station Telemetry Facts</h3>
+              <div class="sensor-metric-grid">
                 <div class="sensor-metric-box">
-                  <div class="sensor-metric-lbl">Weight</div>
+                  <div class="sensor-metric-lbl">Total Weight</div>
                   <div class="sensor-metric-val" id="fact-weight">24.2 kg</div>
                 </div>
                 <div class="sensor-metric-box">
                   <div class="sensor-metric-lbl">Temperature</div>
-                  <div class="sensor-metric-val" id="fact-temp">31.2°C</div>
+                  <div class="sensor-metric-val" id="fact-temp">26.5°C</div>
                 </div>
                 <div class="sensor-metric-box">
                   <div class="sensor-metric-lbl">Humidity</div>
-                  <div class="sensor-metric-val" id="fact-humidity">68%</div>
+                  <div class="sensor-metric-val" id="fact-humidity">55%</div>
                 </div>
                 <div class="sensor-metric-box">
                   <div class="sensor-metric-lbl">VOC Gas</div>
-                  <div class="sensor-metric-val" id="fact-gas">420 ppm</div>
+                  <div class="sensor-metric-val" id="fact-gas">120 ppm</div>
                 </div>
-                <div class="sensor-metric-box">
-                  <div class="sensor-metric-lbl">Moisture</div>
-                  <div class="sensor-metric-val" id="fact-moisture">72%</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tier 2: AI Vision Inference -->
-            <div class="tier-box tier-inference card" style="margin-bottom:20px;">
-              <div class="tier-label">2. AI VISION INFERENCE (Probabilistic Analysis)</div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <div>
-                  <div style="font-size:12px; color:var(--text-secondary);">Classification Prediction:</div>
-                  <div style="font-size:20px; font-weight:800; color:var(--accent-teal);" id="vision-class">HAZARD</div>
-                </div>
-                <div style="text-align:right;">
-                  <div style="font-size:12px; color:var(--text-secondary);">Confidence:</div>
-                  <div style="font-size:20px; font-weight:800; color:var(--text-primary);" id="vision-confidence">94%</div>
-                </div>
-              </div>
-
-              <div style="display:flex; gap:20px; margin-top:12px; font-size:12px; color:var(--text-secondary);">
-                <div>Contamination Likelihood: <strong id="vision-contamination">85%</strong></div>
-                <div>Unknown Probability: <strong id="vision-unknown">3%</strong></div>
-              </div>
-              
-              <div style="margin-top:10px; font-size:12px; background:#fff; padding:8px 12px; border-radius:4px; border:1px solid #cbd5e1;">
-                <strong>Exception Note:</strong> <span id="vision-exception">Abnormal gas indicator + chemical odor indicator</span>
-              </div>
-            </div>
-
-            <!-- Tier 3: Operational Decision -->
-            <div class="tier-box tier-decision card">
-              <div class="tier-label">3. OPERATIONAL DECISION (Recommended Action)</div>
-              
-              <div style="margin-top:12px;">
-                <div class="flex-between" style="margin-bottom:6px;">
-                  <span style="font-weight:700; font-size:13px;">Calculated Handling Risk Score</span>
-                  <span style="font-weight:800; font-size:16px;" id="risk-score-value">82 / 100</span>
-                </div>
-                <div style="width:100%; height:10px; background:#e2e8f0; border-radius:5px; overflow:hidden; margin-bottom:16px;">
-                  <div id="risk-score-bar" style="width:82%; height:100%; background:var(--status-critical);"></div>
-                </div>
-              </div>
-
-              <div style="background:#fff; border:1px solid #fcd34d; border-radius:6px; padding:16px; margin-bottom:16px;">
-                <div style="font-size:12px; font-weight:700; color:var(--text-secondary);">RECOMMENDED ACTION:</div>
-                <div style="font-size:22px; font-weight:800; color:var(--status-critical);" id="decision-action-name">ISOLATE</div>
-                <div style="font-size:13px; color:var(--text-primary); margin-top:6px;">
-                  <strong>Reason:</strong> <span id="decision-reason">Abnormal gas indicator + high moisture + hazardous visual classification</span>
-                </div>
-              </div>
-
-              <button class="btn btn-danger btn-lg" id="btn-execute-action" style="width:100%;">
-                CONFIRM ACTION: ISOLATE
-              </button>
-            </div>
-          </div>
-
-          <!-- Right Column: Sensor Graphs & Audit Timeline -->
-          <div>
-            <div class="card" style="margin-bottom:20px;">
-              <h3 class="card-title" style="margin-bottom:12px;">Sensor Trend Graph</h3>
-              <div id="sensor-history-chart">
-                <div class="text-muted">Loading sparkline chart...</div>
               </div>
             </div>
 
             <div class="card">
-              <h3 class="card-title" style="margin-bottom:12px;">Traceability Audit Timeline</h3>
+              <h3 class="card-title" style="margin-bottom:12px;">Station Activity Log</h3>
               <div id="audit-timeline-container">
-                <div class="text-muted">Loading audit logs...</div>
+                <div class="text-muted">Loading station activity...</div>
               </div>
             </div>
           </div>
@@ -188,6 +172,7 @@
       </main>
     </div>
   </div>
+
 
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>

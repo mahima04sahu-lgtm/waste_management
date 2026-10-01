@@ -1,5 +1,5 @@
 # ===================================================================
-# WasteGuard: Intelligent Hospital Waste Management System
+# HazGuard: Intelligent Hospital Waste Management System
 # Comprehensive Python Package Dependencies (SIH 2026 Production)
 # ===================================================================
 

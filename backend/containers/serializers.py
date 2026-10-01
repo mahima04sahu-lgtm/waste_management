@@ -1,25 +1,30 @@
 from rest_framework import serializers
 from .models import Container
+from analytics.services import get_time_to_fill_prediction
 
 class ContainerSerializer(serializers.ModelSerializer):
     latest_reading = serializers.SerializerMethodField()
     latest_risk = serializers.SerializerMethodField()
     latest_vision = serializers.SerializerMethodField()
     latest_action = serializers.SerializerMethodField()
+    time_to_fill_prediction = serializers.SerializerMethodField()
 
     class Meta:
         model = Container
         fields = [
             'id', 'container_id', 'name', 'hospital', 'location', 'ward',
             'status', 'capacity_liters', 'device_status', 'waste_category',
+            'wet_fill_pct', 'dry_fill_pct', 'hazard_fill_pct',
+            'current_waste', 'last_processed',
+            'manual_review_pending', 'manual_review_count', 'manual_review_reason',
             'created_at', 'updated_at',
-            'latest_reading', 'latest_risk', 'latest_vision', 'latest_action'
+            'latest_reading', 'latest_risk', 'latest_vision', 'latest_action',
+            'time_to_fill_prediction'
         ]
 
-    def get_latest_reading(self):
-        reading = self.context.get('reading')
-        if not reading and hasattr(self, 'instance') and self.instance:
-            reading = self.instance.sensor_readings.first()
+
+    def get_latest_reading(self, obj):
+        reading = obj.sensor_readings.first()
         if reading:
             return {
                 'id': reading.id,
@@ -74,3 +79,7 @@ class ContainerSerializer(serializers.ModelSerializer):
                 'created_at': action.created_at,
             }
         return None
+
+    def get_time_to_fill_prediction(self, obj):
+        return get_time_to_fill_prediction(obj)
+

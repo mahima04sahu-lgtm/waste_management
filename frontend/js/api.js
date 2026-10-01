@@ -1,4 +1,4 @@
-/* WasteGuard Centralized REST API Client */
+/* HazGuard Centralized REST API Client */
 
 const getApiBase = () => {
   // If opened directly from file system or a different dev server port (e.g. 5500)
@@ -42,7 +42,7 @@ class ApiClient {
         localStorage.removeItem('wg_token');
         localStorage.removeItem('wg_user');
         if (!window.location.pathname.includes('login.html') && !window.location.pathname.includes('index.html')) {
-          window.location.href = '/login.html';
+          window.location.href = 'login.html';
         }
         throw new Error('Unauthorized session. Please log in again.');
       }

@@ -1,4 +1,4 @@
-/* WasteGuard Auth & User Roles Manager */
+/* HazGuard Auth & User Roles Manager */
 
 class AuthManager {
   static getCurrentUser() {
@@ -16,7 +16,7 @@ class AuthManager {
   static checkAuthGuard() {
     const isPublicPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
     if (!this.isAuthenticated() && !isPublicPage) {
-      window.location.href = '/login.html';
+      window.location.href = 'login.html';
       return false;
     }
     return true;
@@ -29,7 +29,7 @@ class AuthManager {
       localStorage.setItem('wg_user', JSON.stringify(response.user));
       Components.showToast('Login successful. Redirecting to Dashboard...', 'success');
       setTimeout(() => {
-        window.location.href = '/dashboard.html';
+        window.location.href = 'dashboard.html';
       }, 500);
       return response.user;
     }
@@ -42,7 +42,7 @@ class AuthManager {
     } catch(e) {}
     localStorage.removeItem('wg_token');
     localStorage.removeItem('wg_user');
-    window.location.href = '/login.html';
+    window.location.href = 'login.html';
   }
 
   static renderUserNav() {

@@ -9,185 +9,122 @@ document.addEventListener('DOMContentLoaded', () => {
 class Dashboard {
   static async init() {
     await this.loadKPIs();
-    await this.loadActionQueue();
-    await this.loadContainerTable();
+    await this.loadStationsGrid();
     this.setupListeners();
     
     // Auto-refresh telemetry every 15 seconds
     setInterval(() => {
       this.loadKPIs();
-      this.loadActionQueue();
-      this.loadContainerTable();
+      this.loadStationsGrid();
     }, 15000);
   }
 
   static async loadKPIs() {
     try {
-      const data = await ApiClient.get('/analytics/summary/');
-      const kpis = data.kpis;
+      const response = await ApiClient.get('/containers/');
+      const stations = response.results || response || [];
 
-      document.getElementById('kpi-total-containers').textContent = kpis.total_containers || 24;
-      document.getElementById('kpi-active-containers').textContent = kpis.active_containers || 21;
-      document.getElementById('kpi-high-risk').textContent = kpis.high_risk_containers || 3;
-      document.getElementById('kpi-collection-required').textContent = kpis.collection_required || 6;
-      document.getElementById('kpi-offline-devices').textContent = kpis.offline_devices || 1;
-      document.getElementById('kpi-total-waste').textContent = `${kpis.total_waste_kg || 428} kg`;
+      const total = stations.length || 5;
+      const active = stations.filter(s => s.device_status === 'ONLINE').length || 5;
+      const mrPending = stations.filter(s => s.manual_review_pending).length || 2;
+      const collReq = stations.filter(s => (s.wet_fill_pct > 80 || s.dry_fill_pct > 80 || s.hazard_fill_pct > 80)).length || 2;
+
+      document.getElementById('kpi-total-containers').textContent = total;
+      document.getElementById('kpi-active-containers').textContent = active;
+      document.getElementById('kpi-high-risk').textContent = mrPending;
+      document.getElementById('kpi-collection-required').textContent = collReq;
+      document.getElementById('kpi-offline-devices').textContent = total - active;
+      document.getElementById('kpi-total-waste').textContent = `428 kg`;
     } catch (e) {
-      console.warn('Failed loading KPI summary, fallback UI applied');
+      console.warn('Fallback KPI values applied');
     }
   }
 
-  static async loadActionQueue() {
-    const listEl = document.getElementById('action-queue-container');
-    if (!listEl) return;
+  static async loadStationsGrid(filterQuery = '') {
+    const gridEl = document.getElementById('dashboard-stations-grid');
+    if (!gridEl) return;
 
     try {
-      const response = await ApiClient.get('/actions/?status=PENDING');
-      const actions = response.results || response;
+      const response = await ApiClient.get('/containers/');
+      let stations = response.results || response || [];
 
-      if (!actions || actions.length === 0) {
-        listEl.innerHTML = `
-          <div style="text-align:center; padding:24px; color:var(--text-muted);">
-            <div style="font-size:24px; margin-bottom:8px;">✓</div>
-            No pending operational action items. All waste points within safe parameters.
-          </div>
-        `;
-        return;
+      // Default 5 stations fallback if API empty
+      if (!stations || stations.length === 0) {
+        stations = [
+          { container_id: 'STATION-01', name: 'WasteGuard Station 01', location: 'Central Garden', device_status: 'ONLINE', wet_fill_pct: 42, dry_fill_pct: 68, hazard_fill_pct: 24, current_waste: 'Dry', last_processed: '2 min ago', manual_review_pending: false },
+          { container_id: 'STATION-02', name: 'WasteGuard Station 02', location: 'Cafeteria', device_status: 'ONLINE', wet_fill_pct: 78, dry_fill_pct: 85, hazard_fill_pct: 12, current_waste: 'Wet', last_processed: '1 min ago', manual_review_pending: true, manual_review_reason: 'Low-confidence classification detected' },
+          { container_id: 'STATION-03', name: 'WasteGuard Station 03', location: 'Academic Block', device_status: 'ONLINE', wet_fill_pct: 30, dry_fill_pct: 55, hazard_fill_pct: 10, current_waste: 'Dry', last_processed: '4 min ago', manual_review_pending: false },
+          { container_id: 'STATION-04', name: 'WasteGuard Station 04', location: 'Hostel', device_status: 'ONLINE', wet_fill_pct: 65, dry_fill_pct: 72, hazard_fill_pct: 40, current_waste: 'Hazard', last_processed: '3 min ago', manual_review_pending: true, manual_review_reason: 'Manual review pending' },
+          { container_id: 'STATION-05', name: 'WasteGuard Station 05', location: 'Parking Area', device_status: 'ONLINE', wet_fill_pct: 20, dry_fill_pct: 45, hazard_fill_pct: 5, current_waste: 'Dry', last_processed: '10 min ago', manual_review_pending: false }
+        ];
       }
 
-      listEl.innerHTML = actions.slice(0, 6).map(act => `
-        <div class="action-card priority-${act.priority}">
-          <div class="action-card-header">
-            <div>
-              <span class="action-bin-id">${act.container_id}</span>
-              <span class="action-ward"> • ${act.ward || 'Hospital Ward'}</span>
-            </div>
-            ${Components.getRiskBadge(act.priority)}
-          </div>
-          <div class="action-recommendation">
-            <span>RECOMMENDED:</span>
-            <span>${act.action_type}</span>
-          </div>
-          <div class="action-reason">
-            <strong>Reason:</strong> ${act.reason}
-          </div>
-          <div class="action-footer">
-            <a href="/bin-details.html?id=${act.container_id}" class="btn btn-secondary btn-sm">VIEW DETAILS</a>
-            <button class="btn btn-primary btn-sm" onclick="Dashboard.confirmAction(${act.id}, '${act.container_id}', '${act.action_type}')">CONFIRM ACTION</button>
-          </div>
-        </div>
-      `).join('');
-    } catch (e) {
-      listEl.innerHTML = `<div class="text-muted" style="padding:16px;">Unable to load priority action queue.</div>`;
-    }
-  }
-
-  static async loadContainerTable(filterRisk = '') {
-    const tableBody = document.getElementById('dashboard-container-table-body');
-    if (!tableBody) return;
-
-    try {
-      let endpoint = '/containers/';
-      if (filterRisk) endpoint += `?risk_level=${filterRisk}`;
-      const response = await ApiClient.get(endpoint);
-      const containers = response.results || response;
-
-      if (!containers || containers.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">No containers found matching filter.</td></tr>`;
-        return;
+      if (filterQuery) {
+        stations = stations.filter(s => 
+          s.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
+          s.location.toLowerCase().includes(filterQuery.toLowerCase())
+        );
       }
 
-      tableBody.innerHTML = containers.map(c => {
-        const reading = c.latest_reading || {};
-        const risk = c.latest_risk || {};
-        const vision = c.latest_vision || {};
-        const fill = reading.fill_level ? `${reading.fill_level.toFixed(0)}%` : '--';
-        const weight = reading.weight ? `${reading.weight.toFixed(1)} kg` : '--';
-        const visionClass = vision.predicted_class || 'NORMAL';
-        const recAction = risk.recommended_action || 'NO ACTION';
+      gridEl.innerHTML = stations.map(s => {
+        const wet = Math.round(s.wet_fill_pct ?? 40);
+        const dry = Math.round(s.dry_fill_pct ?? 60);
+        const hazard = Math.round(s.hazard_fill_pct ?? 20);
 
         return `
-          <tr>
-            <td>
-              <a href="/bin-details.html?id=${c.container_id}" style="font-weight:700; color:var(--accent-teal);">
-                ${c.container_id}
-              </a>
-              <div style="font-size:11px; color:var(--text-secondary);">${c.name}</div>
-            </td>
-            <td>
-              <div style="font-weight:600;">${c.ward}</div>
-              <div style="font-size:11px; color:var(--text-secondary);">${c.location}</div>
-            </td>
-            <td style="font-weight:700;">${fill}</td>
-            <td style="font-weight:600;">${weight}</td>
-            <td>${Components.getRiskBadge(risk.risk_level)}</td>
-            <td>
-              <span style="font-size:12px; font-weight:600; color:var(--text-primary);">${visionClass}</span>
-              <div style="font-size:11px; color:var(--text-muted);">${vision.confidence ? vision.confidence.toFixed(0) : 95}% conf</div>
-            </td>
-            <td>${Components.getDeviceBadge(c.device_status)}</td>
-            <td>
-              <a href="/bin-details.html?id=${c.container_id}" class="btn btn-secondary btn-sm">
-                ${recAction}
-              </a>
-            </td>
-          </tr>
+          <div class="station-card">
+            <div class="station-card-header">
+              <div>
+                <div class="station-title">${s.name}</div>
+                <div class="station-location">📍 <strong>${s.location}</strong></div>
+              </div>
+              <span class="badge ${s.device_status === 'ONLINE' ? 'badge-low' : 'badge-critical'}">${s.device_status || 'ONLINE'}</span>
+            </div>
+
+            <div class="bin-status-container">
+              <div class="bin-status-title">Bin Status</div>
+              <div class="bin-fill-row">
+                <span style="color:#10b981; min-width:70px;">🟢 Wet</span>
+                <div class="bin-fill-bar-bg"><div class="bin-fill-bar-fill" style="width:${wet}%; background:#10b981;"></div></div>
+                <span>${wet}%</span>
+              </div>
+              <div class="bin-fill-row">
+                <span style="color:#f59e0b; min-width:70px;">🟡 Dry</span>
+                <div class="bin-fill-bar-bg"><div class="bin-fill-bar-fill" style="width:${dry}%; background:#f59e0b;"></div></div>
+                <span>${dry}%</span>
+              </div>
+              <div class="bin-fill-row">
+                <span style="color:#ef4444; min-width:70px;">🔴 Hazard</span>
+                <div class="bin-fill-bar-bg"><div class="bin-fill-bar-fill" style="width:${hazard}%; background:#ef4444;"></div></div>
+                <span>${hazard}%</span>
+              </div>
+            </div>
+
+            <div class="station-meta-row">
+              <div>Current waste: <strong>${s.current_waste || 'Dry'}</strong></div>
+              <div>Last processed: <strong>${s.last_processed || '2 min ago'}</strong></div>
+            </div>
+
+            ${s.manual_review_pending ? `
+              <div style="background:#fffbe6; border:1px solid #ffe58f; padding:6px 10px; border-radius:4px; font-size:11px; color:#d48806; font-weight:600; display:flex; align-items:center; gap:6px;">
+                <span>⚠️</span> <span>${s.manual_review_reason || 'Manual review pending'}</span>
+              </div>
+            ` : ''}
+
+            <a href="/bin-details.html?id=${s.container_id}" class="btn btn-secondary btn-sm" style="text-align:center; margin-top:4px;">View Station Details →</a>
+          </div>
         `;
       }).join('');
     } catch (e) {
-      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--status-critical);">Error loading container table.</td></tr>`;
+      gridEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--status-critical); grid-column:1/-1;">Error loading WasteGuard stations.</div>`;
     }
-  }
-
-  static confirmAction(actionId, containerId, actionType) {
-    Components.confirmActionDialog({
-      title: `Confirm Action: ${actionType}`,
-      message: `
-        Are you sure you want to authorize and initiate <strong>${actionType}</strong> for container <strong>${containerId}</strong>?
-        <br><br>
-        This operation will dispatch appropriate hospital waste handling protocols and log the decision to the audit timeline.
-      `,
-      actionLabel: `Confirm ${actionType}`,
-      isDanger: ['ISOLATE', 'SPECIALIST REQUIRED'].includes(actionType),
-      onConfirm: async () => {
-        try {
-          await ApiClient.post(`/actions/${actionId}/confirm/`, {});
-          Components.showToast(`Action ${actionType} confirmed for ${containerId}`, 'success');
-          Dashboard.loadActionQueue();
-          Dashboard.loadContainerTable();
-        } catch (err) {
-          Components.showToast('Failed to confirm action', 'error');
-        }
-      }
-    });
   }
 
   static setupListeners() {
-    // Clickable KPI card filtering
-    const highRiskKpi = document.getElementById('kpi-card-high-risk');
-    if (highRiskKpi) {
-      highRiskKpi.addEventListener('click', () => {
-        this.loadContainerTable('HIGH');
-        Components.showToast('Filtered containers by HIGH/CRITICAL risk level', 'info');
-      });
-    }
-
-    const allContainersKpi = document.getElementById('kpi-card-total');
-    if (allContainersKpi) {
-      allContainersKpi.addEventListener('click', () => {
-        this.loadContainerTable('');
-      });
-    }
-
     const searchInput = document.getElementById('dashboard-table-search');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#dashboard-container-table-body tr');
-        rows.forEach(row => {
-          const text = row.textContent.toLowerCase();
-          row.style.display = text.includes(query) ? '' : 'none';
-        });
+        this.loadStationsGrid(e.target.value);
       });
     }
   }

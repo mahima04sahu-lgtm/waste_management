@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waste Containers | WasteGuard</title>
+  <title>Waste Containers | HazGuard</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/components.css">
@@ -16,26 +16,26 @@
         <div class="sidebar-brand-icon">WG</div>
         <div>
           <div class="sidebar-brand-text">WasteGuard</div>
-          <div class="sidebar-brand-sub">Hospital Operations</div>
+          <div class="sidebar-brand-sub">Campus Automated Stations</div>
         </div>
       </div>
       <nav class="sidebar-nav">
         <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="bins.html" class="nav-item active"><span class="nav-icon">🗑️</span> Waste Containers</a>
-        <a href="actions.html" class="nav-item"><span class="nav-icon">⚡</span> Action Queue</a>
-        <a href="alerts.html" class="nav-item"><span class="nav-icon">🔔</span> Alerts Matrix</a>
-        <a href="collection.html" class="nav-item"><span class="nav-icon">🚛</span> Collection Management</a>
-        <a href="analytics.html" class="nav-item"><span class="nav-icon">📈</span> Safety Analytics</a>
+        <a href="bins.html" class="nav-item active"><span class="nav-icon">🏢</span> Waste Stations</a>
+        <a href="actions.html" class="nav-item"><span class="nav-icon">⚠️</span> Manual Reviews</a>
+        <a href="alerts.html" class="nav-item"><span class="nav-icon">🔔</span> Station Alerts</a>
+        <a href="collection.html" class="nav-item"><span class="nav-icon">🚛</span> Collection Dispatches</a>
+        <a href="analytics.html" class="nav-item"><span class="nav-icon">📈</span> Waste Analytics</a>
         <div class="nav-section-title">ADMINISTRATION</div>
-        <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR"><span class="nav-icon">⚙️</span> System Settings</a>
+        <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR"><span class="nav-icon">⚙️</span> Station Settings</a>
       </nav>
     </aside>
 
     <div class="main-wrapper">
       <header class="top-header">
         <div class="header-title-group">
-          <h1>Waste Container Registry</h1>
-          <p>Full List & Real-time Inspection of Hospital Biohazard Containers</p>
+          <h1>WasteGuard Stations Registry</h1>
+          <p>Campus Automated Sorting Stations Network &amp; Live 3-Bin Telemetry</p>
         </div>
         <div class="header-user-profile">
           <div class="user-info-text">
@@ -50,60 +50,32 @@
       <main class="page-content">
         <div class="card" style="margin-bottom:20px; padding:16px;">
           <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
-            <input type="text" id="filter-search" class="form-control" style="max-width:250px;" placeholder="Search ID, Location or Name...">
+            <input type="text" id="filter-search" class="form-control" style="max-width:280px;" placeholder="Search Station, Location or ID...">
             
-            <select id="filter-ward" class="form-control" style="max-width:180px;">
-              <option value="">All Wards / Depts</option>
-              <option value="ICU">ICU</option>
-              <option value="Emergency Ward">Emergency Ward</option>
-              <option value="Surgery Wing">Surgery Wing</option>
-              <option value="Ward 3">Ward 3</option>
-              <option value="Oncology Unit">Oncology Unit</option>
-              <option value="Isolation Unit">Isolation Unit</option>
-              <option value="Pathology Laboratory">Pathology Lab</option>
-            </select>
-
-            <select id="filter-risk" class="form-control" style="max-width:160px;">
-              <option value="">All Risk Levels</option>
-              <option value="CRITICAL">CRITICAL</option>
-              <option value="HIGH">HIGH</option>
-              <option value="MEDIUM">MEDIUM</option>
-              <option value="LOW">LOW</option>
+            <select id="filter-ward" class="form-control" style="max-width:200px;">
+              <option value="">All Campus Locations</option>
+              <option value="Central Garden">Central Garden</option>
+              <option value="Cafeteria">Cafeteria</option>
+              <option value="Academic Block">Academic Block</option>
+              <option value="Hostel">Hostel</option>
+              <option value="Parking Area">Parking Area</option>
             </select>
 
             <select id="filter-status" class="form-control" style="max-width:160px;">
               <option value="">All Device Status</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="MAINTENANCE">MAINTENANCE</option>
+              <option value="ONLINE">ONLINE</option>
+              <option value="OFFLINE">OFFLINE</option>
             </select>
           </div>
         </div>
 
-        <div class="card">
-          <div class="table-responsive">
-            <table class="clinical-table">
-              <thead>
-                <tr>
-                  <th>Container ID</th>
-                  <th>Name &amp; Hospital</th>
-                  <th>Ward</th>
-                  <th>Location Room</th>
-                  <th>Fill Level</th>
-                  <th>Weight</th>
-                  <th>Risk Level</th>
-                  <th>Device Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="bins-table-body">
-                <tr><td colspan="9" style="text-align:center; padding:24px;">Loading container list...</td></tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="station-grid" id="stations-list-grid">
+          <div style="text-align:center; padding:30px; grid-column:1/-1; color:var(--text-muted);">Loading WasteGuard Stations...</div>
         </div>
       </main>
     </div>
   </div>
+
 
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>

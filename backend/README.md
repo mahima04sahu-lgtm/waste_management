@@ -1,4 +1,4 @@
-# 🛡️ WasteGuard Backend - Django REST Framework API
+# 🛡️ HazGuard Backend - Django REST Framework API
 
 > **SIH 2026 Hospital Operations & Waste Handling Backend**
 

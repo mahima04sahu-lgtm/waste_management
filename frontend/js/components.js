@@ -1,4 +1,4 @@
-/* WasteGuard Component UI Utilities */
+/* HazGuard Component UI Utilities */
 
 class Components {
   static getRiskBadge(level) {

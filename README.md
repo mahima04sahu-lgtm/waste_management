@@ -1,4 +1,4 @@
-# 🛡️ WasteGuard: Intelligent Hospital Waste Handling & Worker Safety System
+# 🛡️ HazGuard: Intelligent Hospital Waste Handling & Worker Safety System
 
 > **SIH 2026 Official Software Prototype**  
 > A serious **hospital operations platform** designed to monitor biomedical waste containers, identify abnormal biohazard conditions, prioritize collection, reduce unnecessary manual exposure, and safely dispatch isolation and specialist handling protocols.
@@ -21,7 +21,7 @@
 
 ## 🔬 System Overview
 
-WasteGuard is designed specifically for **hospital waste-management departments**, biomedical safety officers, facility managers, and healthcare operators. Unlike consumer IoT dustbin applications, WasteGuard converts raw sensor telemetry and AI vision classifications into **prioritized operational decisions** backed by clinical rationale.
+HazGuard is designed specifically for **hospital waste-management departments**, biomedical safety officers, facility managers, and healthcare operators. Unlike consumer IoT dustbin applications, HazGuard converts raw sensor telemetry and AI vision classifications into **prioritized operational decisions** backed by clinical rationale.
 
 ### Key Capabilities:
 - **Real-Time Telemetry Processing**: Continuous tracking of fill level, weight, temperature, humidity, VOC gas indicators, and moisture.
@@ -35,7 +35,7 @@ WasteGuard is designed specifically for **hospital waste-management departments*
 
 ## ⚖️ Core Operational Paradigm
 
-To enforce clinical safety standards, WasteGuard strictly demarcates three data tiers:
+To enforce clinical safety standards, HazGuard strictly demarcates three data tiers:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -258,4 +258,4 @@ Use any of these demo accounts to test role-based capabilities:
 ---
 
 ## 📜 License
-SIH 2026 Project Prototype — Built for Intelligent Hospital Waste Handling & Worker Safety System (WasteGuard).
+SIH 2026 Project Prototype — Built for Intelligent Hospital Waste Handling & Worker Safety System (HazGuard).

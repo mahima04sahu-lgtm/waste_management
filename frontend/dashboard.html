@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | WasteGuard Hospital Safety Platform</title>
+  <title>Dashboard | WasteGuard Campus Platform</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/components.css">
@@ -17,7 +17,7 @@
         <div class="sidebar-brand-icon">WG</div>
         <div>
           <div class="sidebar-brand-text">WasteGuard</div>
-          <div class="sidebar-brand-sub">Hospital Operations</div>
+          <div class="sidebar-brand-sub">Campus Automated Stations</div>
         </div>
       </div>
       <nav class="sidebar-nav">
@@ -25,24 +25,24 @@
           <span class="nav-icon">📊</span> Dashboard
         </a>
         <a href="bins.html" class="nav-item">
-          <span class="nav-icon">🗑️</span> Waste Containers
+          <span class="nav-icon">🏢</span> Waste Stations
         </a>
         <a href="actions.html" class="nav-item">
-          <span class="nav-icon">⚡</span> Action Queue
+          <span class="nav-icon">⚠️</span> Manual Reviews
         </a>
         <a href="alerts.html" class="nav-item">
-          <span class="nav-icon">🔔</span> Alerts Matrix
+          <span class="nav-icon">🔔</span> Station Alerts
         </a>
         <a href="collection.html" class="nav-item">
-          <span class="nav-icon">🚛</span> Collection Management
+          <span class="nav-icon">🚛</span> Collection & Dispatches
         </a>
         <a href="analytics.html" class="nav-item">
-          <span class="nav-icon">📈</span> Safety Analytics
+          <span class="nav-icon">📈</span> Waste Analytics
         </a>
 
         <div class="nav-section-title">ADMINISTRATION</div>
         <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR">
-          <span class="nav-icon">⚙️</span> System Settings
+          <span class="nav-icon">⚙️</span> Station Settings
         </a>
       </nav>
     </aside>
@@ -53,7 +53,7 @@
       <header class="top-header">
         <div class="header-title-group">
           <h1>WasteGuard Operational Dashboard</h1>
-          <p>Hospital Waste Safety, Real-Time Risk Monitoring & Dispatch</p>
+          <p>Campus Automated Sorting Stations &amp; Real-Time Network Monitoring</p>
         </div>
         <div class="header-user-profile">
           <div class="user-info-text">
@@ -70,90 +70,78 @@
         <!-- KPI Cards Row -->
         <div class="kpi-grid">
           <div class="kpi-card" id="kpi-card-total">
-            <div class="kpi-label">Total Containers</div>
-            <div class="kpi-value" id="kpi-total-containers">24</div>
-            <div class="kpi-sub">Registered Waste Points</div>
+            <div class="kpi-label">WasteGuard Stations</div>
+            <div class="kpi-value" id="kpi-total-containers">5</div>
+            <div class="kpi-sub">Campus Deployed Units</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Active & Online</div>
-            <div class="kpi-value" id="kpi-active-containers" style="color:var(--status-low);">21</div>
-            <div class="kpi-sub">Live Telemetry Active</div>
+            <div class="kpi-label">Active &amp; Online</div>
+            <div class="kpi-value" id="kpi-active-containers" style="color:var(--status-low);">5</div>
+            <div class="kpi-sub">Live Sorting Active</div>
           </div>
-          <div class="kpi-card" id="kpi-card-high-risk" style="border-left:4px solid var(--status-critical);">
-            <div class="kpi-label" style="color:var(--status-critical);">High Risk</div>
-            <div class="kpi-value" id="kpi-high-risk" style="color:var(--status-critical);">3</div>
-            <div class="kpi-sub">Immediate Attention</div>
+          <div class="kpi-card" id="kpi-card-high-risk" style="border-left:4px solid #faad14;">
+            <div class="kpi-label" style="color:#d48806;">Manual Reviews</div>
+            <div class="kpi-value" id="kpi-high-risk" style="color:#d48806;">2</div>
+            <div class="kpi-sub">Classification Verification</div>
           </div>
           <div class="kpi-card" style="border-left:4px solid var(--status-high);">
             <div class="kpi-label" style="color:var(--status-high);">Collection Required</div>
-            <div class="kpi-value" id="kpi-collection-required" style="color:var(--status-high);">6</div>
-            <div class="kpi-sub">Fill &gt; 80% or Action Pending</div>
+            <div class="kpi-value" id="kpi-collection-required" style="color:var(--status-high);">2</div>
+            <div class="kpi-sub">Bin Fill &gt; 80%</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Offline Devices</div>
-            <div class="kpi-value" id="kpi-offline-devices" style="color:var(--status-offline);">1</div>
-            <div class="kpi-sub">Sensor Disconnected</div>
+            <div class="kpi-label">Offline Stations</div>
+            <div class="kpi-value" id="kpi-offline-devices" style="color:var(--status-offline);">0</div>
+            <div class="kpi-sub">All Stations Online</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Total Waste Handled</div>
+            <div class="kpi-label">Total Waste Processed</div>
             <div class="kpi-value" id="kpi-total-waste">428 kg</div>
-            <div class="kpi-sub">Current Shift Volume</div>
+            <div class="kpi-sub">Automated Sorting Today</div>
           </div>
         </div>
 
-        <!-- Split Grid: Priority Action Queue & Containers Overview Table -->
-        <div class="dashboard-split">
-          <!-- Left Column: Priority Action Queue -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <h2 class="card-title">Priority Action Queue</h2>
-                  <p class="card-subtitle">Operational handling recommendations by severity</p>
-                </div>
-                <a href="actions.html" style="font-size:12px; font-weight:600;">View All →</a>
+        <!-- Manual Review Alerts Section -->
+        <div class="manual-review-alert-card" id="manual-review-alert-section">
+          <div class="manual-review-header">
+            <span>⚠️</span> <span>Manual Review Required</span>
+          </div>
+          <div class="manual-review-list" id="manual-review-list-body">
+            <div class="manual-review-item">
+              <div>
+                <strong>Station 02 — Cafeteria</strong><br>
+                <span style="font-size:12px; color:#d48806;">Low-confidence classification detected — 2 items awaiting verification</span>
               </div>
-              <div class="action-queue-list" id="action-queue-container">
-                <div class="text-muted" style="padding:16px;">Loading operational action queue...</div>
+              <a href="bin-details.html?id=STATION-02" class="btn btn-secondary btn-sm">Review Station 02 →</a>
+            </div>
+            <div class="manual-review-item">
+              <div>
+                <strong>Station 04 — Hostel</strong><br>
+                <span style="font-size:12px; color:#d48806;">Manual review pending — 1 item</span>
               </div>
+              <a href="bin-details.html?id=STATION-04" class="btn btn-secondary btn-sm">Review Station 04 →</a>
             </div>
           </div>
+        </div>
 
-          <!-- Right Column: Containers Overview Table -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <h2 class="card-title">Hospital Containers Overview</h2>
-                  <p class="card-subtitle">Live container status, telemetry readings &amp; AI classification</p>
-                </div>
-                <input type="text" id="dashboard-table-search" class="form-control" style="width:200px; font-size:12px;" placeholder="Search Container or Ward...">
-              </div>
-              <div class="table-responsive">
-                <table class="clinical-table">
-                  <thead>
-                    <tr>
-                      <th>Container</th>
-                      <th>Location / Ward</th>
-                      <th>Fill</th>
-                      <th>Weight</th>
-                      <th>Risk</th>
-                      <th>AI Status</th>
-                      <th>Device</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dashboard-container-table-body">
-                    <tr><td colspan="8" style="text-align:center; padding:20px;">Loading live container registry...</td></tr>
-                  </tbody>
-                </table>
-              </div>
+        <!-- WasteGuard Stations Overview Grid (Station 01 | Station 02 | Station 03 | Station 04) -->
+        <div class="card" style="margin-top:16px;">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">WasteGuard Automated Sorting Stations</h2>
+              <p class="card-subtitle">Live 3-bin status (Wet / Dry / Hazard) and processing activity per station</p>
             </div>
+            <input type="text" id="dashboard-table-search" class="form-control" style="width:240px; font-size:12px;" placeholder="Search Station or Location...">
+          </div>
+          
+          <div class="station-grid" id="dashboard-stations-grid">
+            <div style="text-align:center; padding:30px; grid-column:1/-1; color:var(--text-muted);">Loading WasteGuard Stations...</div>
           </div>
         </div>
       </main>
     </div>
   </div>
+
 
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>

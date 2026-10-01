@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-wasteguard-sih2026-hospital-safety-secret-key')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-hazguard-sih2026-hospital-safety-secret-key')
 
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     
-    # WasteGuard Apps
+    # HazGuard Apps
     'users.apps.UsersConfig',
     'containers.apps.ContainersConfig',
     'sensors.apps.SensorsConfig',

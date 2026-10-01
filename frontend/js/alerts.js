@@ -1,4 +1,4 @@
-/* WasteGuard Alerts Matrix Controller */
+/* HazGuard Alerts Matrix Controller */
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!window.location.pathname.endsWith('alerts.html')) return;

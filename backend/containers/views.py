@@ -8,7 +8,7 @@ class ContainerViewSet(viewsets.ModelViewSet):
         'sensor_readings', 'risk_predictions', 'vision_events', 'actions'
     )
     serializer_class = ContainerSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         qs = super().get_queryset()

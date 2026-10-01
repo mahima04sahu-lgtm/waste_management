@@ -9,7 +9,7 @@ from audit_logs.services import log_audit
 class ActionViewSet(viewsets.ModelViewSet):
     queryset = Action.objects.all().select_related('container', 'assigned_to')
     serializer_class = ActionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         qs = super().get_queryset()

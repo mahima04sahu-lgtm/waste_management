@@ -1,4 +1,4 @@
-/* WasteGuard Priority Action Queue Controller */
+/* WasteGuard Station Action Queue Controller */
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!window.location.pathname.endsWith('actions.html')) return;
@@ -27,7 +27,7 @@ class ActionsManager {
       const actions = response.results || response;
 
       if (!actions || actions.length === 0) {
-        containerEl.innerHTML = `<div class="card" style="padding:24px; text-align:center; color:var(--text-muted);">No action queue items matching filter.</div>`;
+        containerEl.innerHTML = `<div class="card" style="padding:24px; text-align:center; color:var(--text-muted);">No manual review items matching filter. All stations operating nominally.</div>`;
         return;
       }
 
@@ -36,7 +36,7 @@ class ActionsManager {
           <div class="action-card-header">
             <div>
               <span class="action-bin-id">${act.container_id}</span>
-              <span class="action-ward"> • ${act.ward || 'Hospital Ward'} (${act.location || 'Location'})</span>
+              <span class="action-ward"> • ${act.location || 'Campus Location'}</span>
             </div>
             ${Components.getRiskBadge(act.priority)}
           </div>
@@ -50,10 +50,10 @@ class ActionsManager {
           <div class="flex-between" style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border-light);">
             <div style="font-size:12px; color:var(--text-secondary);">
               Status: <strong style="color:var(--text-primary);">${act.status}</strong> 
-              ${act.assigned_username ? ` • Assigned to: <strong>${act.assigned_username}</strong>` : ''}
+              ${act.assigned_username ? ` • Assigned: <strong>${act.assigned_username}</strong>` : ''}
             </div>
             <div style="display:flex; gap:8px;">
-              <a href="/bin-details.html?id=${act.container_id}" class="btn btn-secondary btn-sm">Inspect Bin</a>
+              <a href="/bin-details.html?id=${act.container_id}" class="btn btn-secondary btn-sm">Inspect Station</a>
               ${act.status === 'PENDING' ? `
                 <button class="btn btn-primary btn-sm" onclick="ActionsManager.confirmActionItem(${act.id}, '${act.container_id}', '${act.action_type}')">
                   Acknowledge & Confirm

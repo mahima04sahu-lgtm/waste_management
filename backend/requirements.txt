@@ -23,6 +23,11 @@ urllib3>=2.0.0
 # --- AI Vision & Image Processing ---
 pillow>=10.0.0
 numpy>=1.26.0
+ultralytics>=8.0.0
+
+# --- Predictive Machine Learning & Analytics ---
+xgboost>=2.0.0
+scikit-learn>=1.3.0
 
 # --- Real-Time Telemetry & Background Tasks ---
 channels>=4.0.0
@@ -33,6 +38,7 @@ redis>=5.0.1
 # --- Hospital Analytics & Report Export ---
 pandas>=2.1.0
 openpyxl>=3.1.2
+markdown>=3.5.0
 
 # --- Security & JWT Auth ---
 PyJWT>=2.8.0

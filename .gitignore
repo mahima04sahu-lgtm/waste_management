@@ -61,3 +61,20 @@ Thumbs.db
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+
+# AI / Computer Vision Model Weights & Runs
+*.pt
+*.pth
+*.onnx
+*.weights
+runs/
+.ultralytics/
+
+# Node Dependencies
+node_modules/
+npm-debug.log*
+
+# System & Local Scratch Files
+.agents/
+scratch/
+

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | WasteGuard Campus Operations</title>
   <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
     .login-wrapper {
@@ -45,6 +46,18 @@
     .role-pill:hover {
       background: var(--accent-teal-light);
       border-color: var(--accent-teal);
+      transform: translateY(-1px);
+    }
+    .login-error-banner {
+      display: none;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -59,10 +72,13 @@
         </div>
       </div>
 
+      <!-- Error notification banner -->
+      <div id="login-error-banner" class="login-error-banner"></div>
+
       <form id="login-form">
         <div class="form-group">
           <label class="form-label" for="username">Employee ID / Username</label>
-          <input type="text" id="username" class="form-control" placeholder="e.g. EMP-003 or raj_sharma" required>
+          <input type="text" id="username" class="form-control" placeholder="e.g. admin or raj_sharma" required>
         </div>
 
         <div class="form-group">
@@ -75,27 +91,32 @@
           <label for="remember" style="font-size:12px; color:var(--text-secondary); cursor:pointer;">Remember active hospital session</label>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width:100%; padding:10px; font-size:14px;">
-          Authenticate & Sign In
+        <button type="submit" id="btn-submit-login" class="btn btn-primary" style="width:100%; padding:10px; font-size:14px; justify-content:center;">
+          <span>🔐</span> Authenticate &amp; Sign In
         </button>
       </form>
 
       <div class="demo-role-pills">
-        <div class="role-pill" onclick="quickFill('admin')">
+        <div class="role-pill" onclick="quickLogin('admin')">
           <strong>ADMIN</strong><br>Dr. Alok Verma
         </div>
-        <div class="role-pill" onclick="quickFill('supervisor')">
+        <div class="role-pill" onclick="quickLogin('supervisor')">
           <strong>SUPERVISOR</strong><br>Sunita Rao
         </div>
-        <div class="role-pill" onclick="quickFill('raj_sharma')">
+        <div class="role-pill" onclick="quickLogin('raj_sharma')">
           <strong>OPERATOR</strong><br>Raj Sharma
         </div>
-        <div class="role-pill" onclick="quickFill('safety_officer')">
+        <div class="role-pill" onclick="quickLogin('safety_officer')">
           <strong>SAFETY OFFICER</strong><br>Priya Mehta
         </div>
       </div>
+      <div style="font-size:11px; text-align:center; color:var(--text-muted); margin-top:8px;">
+        💡 Click any demo role pill above for instant 1-click login!
+      </div>
     </div>
   </div>
+
+  <div id="toast-container" class="toast-container"></div>
 
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>
@@ -104,17 +125,52 @@
     function quickFill(user) {
       document.getElementById('username').value = user;
       document.getElementById('password').value = 'password123';
+      hideError();
+    }
+
+    async function quickLogin(user) {
+      quickFill(user);
+      await performLogin(user, 'password123');
+    }
+
+    function showError(msg) {
+      const banner = document.getElementById('login-error-banner');
+      banner.textContent = msg;
+      banner.style.display = 'block';
+    }
+
+    function hideError() {
+      const banner = document.getElementById('login-error-banner');
+      banner.style.display = 'none';
+      banner.textContent = '';
+    }
+
+    async function performLogin(username, password) {
+      hideError();
+      const btn = document.getElementById('btn-submit-login');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>⏳</span> Authenticating...';
+      btn.disabled = true;
+
+      try {
+        await AuthManager.login(username, password);
+      } catch (err) {
+        console.error('Login error:', err);
+        const msg = err.message || 'Invalid credentials or connection error. Please try again.';
+        showError(msg);
+        if (window.Components && Components.showToast) {
+          Components.showToast(msg, 'critical');
+        }
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
     }
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const u = document.getElementById('username').value;
+      const u = document.getElementById('username').value.trim();
       const p = document.getElementById('password').value;
-      try {
-        await AuthManager.login(u, p);
-      } catch (err) {
-        // Handled by api.js toast
-      }
+      await performLogin(u, p);
     });
   </script>
 </body>

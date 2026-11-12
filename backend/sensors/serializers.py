@@ -7,7 +7,8 @@ class SensorReadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SensorReading
         fields = [
-            'id', 'container', 'container_id', 'timestamp', 'weight',
-            'fill_level', 'temperature', 'humidity', 'gas_indicator',
-            'moisture', 'device_status'
+            'id', 'container', 'container_id', 'timestamp',
+            'proximity_detected', 'temperature', 'humidity',
+            'gas_indicator', 'moisture', 'device_status',
+            'weight', 'fill_level'
         ]

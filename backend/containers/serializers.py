@@ -1,27 +1,23 @@
 from rest_framework import serializers
 from .models import Container
-from analytics.services import get_time_to_fill_prediction
 
 class ContainerSerializer(serializers.ModelSerializer):
     latest_reading = serializers.SerializerMethodField()
     latest_risk = serializers.SerializerMethodField()
     latest_vision = serializers.SerializerMethodField()
     latest_action = serializers.SerializerMethodField()
-    time_to_fill_prediction = serializers.SerializerMethodField()
 
     class Meta:
         model = Container
         fields = [
             'id', 'container_id', 'name', 'hospital', 'location', 'ward',
             'status', 'capacity_liters', 'device_status', 'waste_category',
+            'proximity_detected', 'current_waste', 'last_processed',
             'wet_fill_pct', 'dry_fill_pct', 'hazard_fill_pct',
-            'current_waste', 'last_processed',
             'manual_review_pending', 'manual_review_count', 'manual_review_reason',
             'created_at', 'updated_at',
-            'latest_reading', 'latest_risk', 'latest_vision', 'latest_action',
-            'time_to_fill_prediction'
+            'latest_reading', 'latest_risk', 'latest_vision', 'latest_action'
         ]
-
 
     def get_latest_reading(self, obj):
         reading = obj.sensor_readings.first()
@@ -29,13 +25,14 @@ class ContainerSerializer(serializers.ModelSerializer):
             return {
                 'id': reading.id,
                 'timestamp': reading.timestamp,
-                'weight': reading.weight,
-                'fill_level': reading.fill_level,
+                'proximity_detected': reading.proximity_detected,
                 'temperature': reading.temperature,
                 'humidity': reading.humidity,
-                'gas_indicator': reading.gas_indicator,
+                'gas_indicator': getattr(reading, 'gas_indicator', 120.0),
                 'moisture': reading.moisture,
                 'device_status': reading.device_status,
+                'weight': reading.weight,
+                'fill_level': reading.fill_level,
             }
         return None
 
@@ -62,7 +59,8 @@ class ContainerSerializer(serializers.ModelSerializer):
                 'exception_reason': vision.exception_reason,
                 'timestamp': vision.timestamp,
             }
-        return {'predicted_class': 'NORMAL', 'confidence': 95.0, 'contamination_score': 0, 'unknown_probability': 2}
+        return None  # No classifier active on this branch — do not fabricate confidence values
+
 
     def get_latest_action(self, obj):
         action = obj.actions.exclude(status='COMPLETED').first()
@@ -79,7 +77,4 @@ class ContainerSerializer(serializers.ModelSerializer):
                 'created_at': action.created_at,
             }
         return None
-
-    def get_time_to_fill_prediction(self, obj):
-        return get_time_to_fill_prediction(obj)
 

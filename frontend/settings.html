@@ -3,31 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Settings | HazGuard</title>
+  <title>Settings | WasteGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/wg-main.css">
 </head>
 <body>
   <div class="app-container">
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">WG</div>
+        <div class="sidebar-logo">WG</div>
         <div>
-          <div class="sidebar-brand-text">WasteGuard</div>
-          <div class="sidebar-brand-sub">Campus Automated Stations</div>
+          <div class="sidebar-name">WasteGuard</div>
+          <div class="sidebar-tagline">Campus Operations</div>
         </div>
       </div>
       <nav class="sidebar-nav">
         <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="bins.html" class="nav-item"><span class="nav-icon">🏢</span> Waste Stations</a>
-        <a href="actions.html" class="nav-item"><span class="nav-icon">⚠️</span> Manual Reviews</a>
-        <a href="alerts.html" class="nav-item"><span class="nav-icon">🔔</span> Station Alerts</a>
-        <a href="collection.html" class="nav-item"><span class="nav-icon">🚛</span> Collection Dispatches</a>
-        <a href="analytics.html" class="nav-item"><span class="nav-icon">📈</span> Waste Analytics</a>
-        <div class="nav-section-title">ADMINISTRATION</div>
-        <a href="settings.html" class="nav-item active" data-role-min="SUPERVISOR"><span class="nav-icon">⚙️</span> Station Settings</a>
+        <a href="reviews.html" class="nav-item"><span class="nav-icon">🔍</span> Manual Reviews</a>
+        <a href="history.html" class="nav-item"><span class="nav-icon">📋</span> Activity History</a>
+        <a href="bins.html" class="nav-item"><span class="nav-icon">🏢</span> Station Management</a>
+        <div class="nav-divider"></div>
+        <a href="settings.html" class="nav-item active"><span class="nav-icon">⚙️</span> Settings</a>
       </nav>
     </aside>
 
@@ -70,20 +71,27 @@
             <span class="text-muted" style="font-size:11px;">Flag liquid spill hazard.</span>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Fill Level Auto-Collection Threshold (%)</label>
-            <input type="number" class="form-control" value="80" readonly>
-            <span class="text-muted" style="font-size:11px;">Auto-generate COLLECTION REQUIRED action.</span>
-          </div>
-
           <button class="btn btn-primary" onclick="Components.showToast('System settings updated successfully.', 'success')">Save Configuration</button>
         </div>
 
         <div class="card" style="max-width:650px;">
-          <h3 class="card-title" style="margin-bottom:12px;">ESP32 Hardware Ingestion Endpoint</h3>
-          <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
-            IoT Sensor Data API Endpoint:<br>
-            <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/devices/sensor-data/</code>
+          <h3 class="card-title" style="margin-bottom:12px;">Hardware &amp; Sensor Ingestion Endpoints</h3>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6; display:flex; flex-direction:column; gap:12px;">
+            <div>
+              <strong>1. Telemetry Ingestion (ESP32 / Sensors):</strong><br>
+              <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/devices/sensor-data/</code><br>
+              <span class="text-muted" style="font-size:11px;">Payload fields: <code>container_id</code>, <code>proximity_detected</code>, <code>temperature</code>, <code>humidity</code>, <code>gas_indicator</code>, <code>moisture</code></span>
+            </div>
+            <div>
+              <strong>2. Compartment Selection / Activation:</strong><br>
+              <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/containers/&lt;id&gt;/select-category/</code><br>
+              <span class="text-muted" style="font-size:11px;">Payload fields: <code>category</code> (DRY, WET, HAZARDOUS)</span>
+            </div>
+            <div>
+              <strong>3. Proximity Presence Trigger:</strong><br>
+              <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/containers/&lt;id&gt;/set-proximity/</code><br>
+              <span class="text-muted" style="font-size:11px;">Payload fields: <code>detected</code> (true / false)</span>
+            </div>
           </div>
         </div>
       </main>

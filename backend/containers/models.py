@@ -10,10 +10,12 @@ class DeviceStatus(models.TextChoices):
     OFFLINE = 'OFFLINE', 'Offline'
 
 class WasteCategory(models.TextChoices):
+    DRY = 'DRY', 'Dry Waste'
+    WET = 'WET', 'Wet Waste'
+    HAZARDOUS = 'HAZARDOUS', 'Hazardous Waste'
     GENERAL = 'GENERAL', 'General Non-Hazardous'
     INFECTIOUS = 'INFECTIOUS', 'Infectious Biomedical'
     SHARPS = 'SHARPS', 'Sharps Waste'
-    HAZARDOUS = 'HAZARDOUS', 'Chemical / Hazardous'
     CYTOTOXIC = 'CYTOTOXIC', 'Cytotoxic Waste'
     ANATOMICAL = 'ANATOMICAL', 'Anatomical Waste'
 
@@ -26,7 +28,8 @@ class Container(models.Model):
     status = models.CharField(max_length=20, choices=ContainerStatus.choices, default=ContainerStatus.ACTIVE)
     capacity_liters = models.FloatField(default=60.0)
     device_status = models.CharField(max_length=20, choices=DeviceStatus.choices, default=DeviceStatus.ONLINE)
-    waste_category = models.CharField(max_length=30, choices=WasteCategory.choices, default=WasteCategory.INFECTIOUS)
+    waste_category = models.CharField(max_length=30, choices=WasteCategory.choices, default=WasteCategory.DRY)
+    proximity_detected = models.BooleanField(default=False, help_text='Proximity sensor detected object presence')
     
     # WasteGuard Station 3-Bin & Manual Review Fields
     wet_fill_pct = models.FloatField(default=42.0)

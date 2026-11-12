@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from containers.models import Container
+from containers.models import Container, WasteCategory
 
 class ActionType(models.TextChoices):
     HANDLE_NOW = 'HANDLE NOW', 'Handle Now (Collection Required)'
@@ -32,6 +32,13 @@ class Action(models.Model):
     reason = models.TextField(help_text='Reason for recommended action')
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_actions')
     status = models.CharField(max_length=20, choices=ActionStatus.choices, default=ActionStatus.PENDING)
+    review_category = models.CharField(
+        max_length=30,
+        choices=WasteCategory.choices,
+        blank=True,
+        default='',
+        help_text='Waste category this review is associated with (DRY/WET/HAZARDOUS), if applicable'
+    )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 

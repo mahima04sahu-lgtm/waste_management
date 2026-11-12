@@ -145,3 +145,11 @@ RISK_THRESHOLDS = {
     'MOISTURE_HIGH': 70.0,
     'FILL_HIGH_PERCENT': 80.0,
 }
+
+# Review / Classification Confidence Thresholds (Configurable)
+# NOTE: Auto-flagging based on confidence requires a future vision classifier
+# that writes VisionEvent rows. This threshold has no runtime effect currently.
+REVIEW_THRESHOLDS = {
+    'CONFIDENCE_LOW_PCT': 60.0,  # Flag for review if classifier confidence < this value
+}
+

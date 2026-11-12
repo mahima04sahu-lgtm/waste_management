@@ -3,7 +3,8 @@
   /* Surface & Background Palette */
   --bg-main: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-sidebar: #0f172a;
+  --bg-sidebar: #0e1a14;
+  --sidebar-border: #1a2f24;
   --bg-header: #ffffff;
   
   /* Text Colors */
@@ -12,10 +13,23 @@
   --text-muted: #94a3b8;
   --text-inverse: #ffffff;
 
-  /* Clinical Accents & System Colors */
-  --accent-teal: #0284c7;
-  --accent-teal-hover: #0369a1;
-  --accent-teal-light: #e0f2fe;
+  /* Industrial Emerald & System Accents */
+  --accent-teal: #059669;
+  --accent-teal-hover: #047857;
+  --accent-teal-light: #ecfdf5;
+
+  /* Waste Stream Brand Colors */
+  --stream-dry: #0284c7;
+  --stream-dry-bg: #f0f9ff;
+  --stream-dry-border: #bae6fd;
+
+  --stream-wet: #16a34a;
+  --stream-wet-bg: #f0fdf4;
+  --stream-wet-border: #bbf7d0;
+
+  --stream-hazard: #dc2626;
+  --stream-hazard-bg: #fef2f2;
+  --stream-hazard-border: #fecaca;
   
   /* Operational Status Colors */
   --status-critical: #dc2626;

@@ -12,6 +12,7 @@ class ActionSerializer(serializers.ModelSerializer):
         model = Action
         fields = [
             'id', 'container', 'container_id', 'container_name', 'ward', 'location',
-            'action_type', 'priority', 'reason', 'assigned_to', 'assigned_username',
+            'action_type', 'priority', 'reason', 'review_category',
+            'assigned_to', 'assigned_username',
             'status', 'created_at', 'completed_at'
         ]

@@ -28,14 +28,14 @@ def calculate_container_risk(container, sensor_reading=None, vision_event=None):
             'reason': 'Telemetry connection offline. Physical sensor inspection required.'
         }
 
-    # 2. Gas / VOC Sensor Check
-    gas_val = sensor_reading.gas_indicator if sensor_reading else 0.0
-    if gas_val >= 400:
-        score += 35
-        reasons.append("Abnormal elevated VOC/gas indicator (>400 ppm)")
-    elif gas_val >= 250:
-        score += 20
-        reasons.append("Elevated VOC gas readings")
+    # 2. Gas / VOC Accumulation Check
+    gas_val = getattr(sensor_reading, 'gas_indicator', 120.0) if sensor_reading else 120.0
+    if gas_val >= 400.0:
+        score += 30
+        reasons.append(f"Abnormal elevated VOC/gas indicator ({gas_val:.0f} ppm)")
+    elif gas_val >= 250.0:
+        score += 15
+        reasons.append(f"Elevated VOC gas readings ({gas_val:.0f} ppm)")
 
     # 3. Temperature Check
     temp_val = sensor_reading.temperature if sensor_reading else 25.0
@@ -55,34 +55,16 @@ def calculate_container_risk(container, sensor_reading=None, vision_event=None):
         score += 10
         reasons.append("Moderate moisture level detected")
 
-    # 5. Fill Level Check
-    fill_val = sensor_reading.fill_level if sensor_reading else 0.0
-    weight_val = sensor_reading.weight if sensor_reading else 0.0
-    if fill_val >= 90.0:
-        score += 20
-        reasons.append(f"Overfilled status ({fill_val:.0f}%, {weight_val:.1f} kg)")
-    elif fill_val >= 80.0:
-        score += 10
-        reasons.append(f"High fill level ({fill_val:.0f}%)")
-
-    # 6. AI Vision Classification Check
-    v_class = vision_event.predicted_class if vision_event else VisionClass.NORMAL
-    v_conf = vision_event.confidence if vision_event else 90.0
-    v_unk = vision_event.unknown_probability if vision_event else 0.0
-
-    if v_class in [VisionClass.HAZARD, VisionClass.BIOHAZARD]:
-        if v_conf >= 80.0:
-            score += 30
-            reasons.append(f"AI Vision classified hazardous biomedical waste ({v_class}, {v_conf:.0f}% confidence)")
+    # 5. Waste Stream Hazard Awareness
+    is_hazard_stream = (getattr(container, 'current_waste', '').lower() in ['hazard', 'hazardous'] or
+                        getattr(container, 'waste_category', '') == 'HAZARDOUS')
+    if is_hazard_stream:
+        if gas_val >= 250.0 or moist_val >= 50.0:
+            score += 25
+            reasons.append("Hazardous waste stream with elevated VOC / moisture activity")
         else:
-            score += 20
-            reasons.append(f"Possible hazardous contents ({v_class})")
-    elif v_class == VisionClass.SHARPS:
-        score += 15
-        reasons.append("Sharps biohazard classification detected")
-    elif v_class == VisionClass.UNKNOWN or v_conf < 65.0 or v_unk > 20.0:
-        score += 15
-        reasons.append(f"AI Vision uncertainty ({v_conf:.0f}% confidence, {v_unk:.0f}% unknown probability)")
+            score += 10
+            reasons.append("Hazardous waste segregation stream active")
 
     # Normalize score 0 - 100
     risk_score = min(100, score)
@@ -98,23 +80,19 @@ def calculate_container_risk(container, sensor_reading=None, vision_event=None):
         risk_level = RiskLevel.LOW
 
     # Recommended Action Engine logic
-    if risk_level == RiskLevel.CRITICAL or (v_class == VisionClass.HAZARD and gas_val >= 350):
+    if risk_level == RiskLevel.CRITICAL:
         recommended_action = 'ISOLATE'
-    elif v_class == VisionClass.BIOHAZARD and risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
+    elif is_hazard_stream and risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
         recommended_action = 'SPECIALIST REQUIRED'
-    elif v_class == VisionClass.SHARPS and risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
-        recommended_action = 'MECHANICALLY TRANSFER'
-    elif v_class == VisionClass.UNKNOWN or v_conf < 65.0 or v_unk > 20.0:
+    elif risk_level == RiskLevel.HIGH:
         recommended_action = 'INSPECT'
-    elif fill_val >= 80.0:
-        recommended_action = 'HANDLE NOW'
     elif risk_level == RiskLevel.MEDIUM:
         recommended_action = 'INSPECT'
     else:
-        recommended_action = 'HANDLE LATER' if fill_val >= 50.0 else 'NO ACTION'
+        recommended_action = 'NO ACTION'
 
     if not reasons:
-        reason_text = "All sensor telemetry and AI vision metrics within normal baseline operational limits."
+        reason_text = "All station sensor telemetry within normal operational baseline limits."
     else:
         reason_text = " + ".join(reasons)
 

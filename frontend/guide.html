@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HazGuard / WasteGuard - Technical Documentation & Implementation Guide</title>
+<title>WasteGuard - Technical Documentation & System Guide</title>
 <style>
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -76,382 +76,391 @@
   }
   @media print {
     .print-btn { display: none !important; }
-    body { max-width: 100%; margin: 15mm; padding: 0; }
-    h1, h2, h3 { page-break-after: avoid; }
-    pre, table { page-break-inside: avoid; }
+    body { margin: 0; padding: 0; max-width: 100%; }
+    pre { white-space: pre-wrap; word-break: break-all; }
   }
 </style>
 </head>
 <body>
-<button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
-<pre style='white-space: pre-wrap;'># 🛡️ HazGuard / WasteGuard: Comprehensive Technical &amp; Architectural Guide
-&gt; **Smart India Hackathon (SIH 2026) Official Software Prototype**  
-&gt; *Intelligent Hospital &amp; Campus Waste Handling, Predictive Telemetry &amp; Worker Safety Operations Platform*
 
----
+<button class="print-btn" onclick="window.print()">🖨️ Export / Print to PDF</button>
 
-## 📋 Table of Contents
-1. [Executive Summary &amp; Problem Statement](#1-executive-summary--problem-statement)
-2. [The 3-Tier Operational Paradigm](#2-the-3-tier-operational-paradigm)
-3. [Full System Architecture &amp; Technology Stack](#3-full-system-architecture--technology-stack)
-4. [In-Platform AI Computer Vision &amp; Worker Scanner (YOLOv8)](#4-in-platform-ai-computer-vision--worker-scanner-yolov8)
-   - [Why Prototype Works Without Physical Cameras](#why-prototype-works-without-physical-cameras)
-   - [Frontend WebRTC &amp; Canvas Capture Flow](#frontend-webrtc--canvas-capture-flow)
-   - [Human &amp; Background Furniture Filtering Algorithm](#human--background-furniture-filtering-algorithm)
-   - [Hand-Held Spatial ROI Prioritization Formula](#hand-held-spatial-roi-prioritization-formula)
-   - [Clinical Waste Stream Mapping &amp; Worker PPE Protocol](#clinical-waste-stream-mapping--worker-ppe-protocol)
-5. [Predictive Machine Learning Subsystem (XGBoost)](#5-predictive-machine-learning-subsystem-xgboost)
-   - [Dataset &amp; 15 Engineered Features](#dataset--15-engineered-features)
-   - [Model Architecture &amp; Hyperparameters](#model-architecture--hyperparameters)
-   - [Performance Benchmarks (R² = 97.92%, MAE = 6.67 hrs)](#performance-benchmarks)
-   - [Dual-Layer Business Threshold Override](#dual-layer-business-threshold-override)
-   - [Automated Verification Suite](#automated-verification-suite)
-6. [Database Schema &amp; Event Audit Trail](#6-database-schema--event-audit-trail)
-7. [Step-by-Step Code Walkthrough](#7-step-by-step-code-walkthrough)
-8. [Live Demonstration &amp; Judge Presentation Script](#8-live-demonstration--judge-presentation-script)
-9. [Judge Defense &amp; Technical Q&amp;A](#9-judge-defense--technical-qa)
-10. [How to Export This Guide to PDF](#10-how-to-export-this-guide-to-pdf)
+<h1>🛡️ WasteGuard: Comprehensive Technical &amp; Architectural Guide</h1>
+<blockquote>
+  <strong>Smart India Hackathon (SIH 2026) Official Software Prototype</strong><br>
+  <em>Campus &amp; Healthcare Automated Waste Segregation, Proximity Sensing &amp; Environmental Telemetry Platform</em>
+</blockquote>
 
----
+<hr>
 
-## 1. Executive Summary &amp; Problem Statement
+<h2>📋 Table of Contents</h2>
+<ol>
+  <li><a href="#1-executive-summary--problem-statement">Executive Summary &amp; Problem Statement</a></li>
+  <li><a href="#2-waste-segregation-architecture-dry-wet-hazardous">Waste Segregation Architecture (Dry, Wet, Hazardous)</a></li>
+  <li><a href="#3-proximity-sensing--presence-detection">Proximity Sensing &amp; Presence Detection</a></li>
+  <li><a href="#4-hardware-telemetry--environmental-safety-monitoring">Hardware Telemetry &amp; Environmental Safety Monitoring</a></li>
+  <li><a href="#5-risk-evaluation--automated-operational-decision-engine">Risk Evaluation &amp; Automated Operational Decision Engine</a></li>
+  <li><a href="#6-system-architecture--technology-stack">System Architecture &amp; Technology Stack</a></li>
+  <li><a href="#7-database-schema--event-audit-trail">Database Schema &amp; Event Audit Trail</a></li>
+  <li><a href="#8-hardware-integration--rest-api-specifications">Hardware Integration &amp; REST API Specifications</a></li>
+  <li><a href="#9-live-demonstration--judge-presentation-script">Live Demonstration &amp; Judge Presentation Script</a></li>
+  <li><a href="#10-judge-defense--technical-qa">Judge Defense &amp; Technical Q&amp;A</a></li>
+</ol>
 
-### The Problem
-Traditional biomedical and campus waste management faces three fatal bottlenecks:
-1. **Unnecessary Human Contact:** Sanitary workers manually inspect containers without knowing what is inside, leading to accidental needle-pricks (sharps injuries), toxic gas inhalation, and infection exposure.
-2. **Static Route Schedules:** Garbage trucks and collection crews follow fixed schedules regardless of whether a bin is 10% full or overflowing at 95%, causing overflow biohazards and wasted transport fuel.
-3. **Hardware Dependency Trap:** Most smart-bin projects fail because they rely on fragile, expensive sensors mounted inside bins that break when liquids or heavy items are dumped onto them.
+<hr>
 
-### The HazGuard Solution
-HazGuard is a **decision-support platform** that decouples software intelligence from physical hardware:
-- **78% Reduction in Worker Exposure:** Workers use an in-browser AI scanner that identifies waste *before* touch, instructing them which bin to use and what protective equipment (PPE) to wear.
-- **Predictive Dispatch:** An XGBoost machine learning model predicts *exactly how many hours remain* until a container reaches 80% fill capacity.
-- **Hardware-Resilient:** Operates seamlessly via mobile phone/laptop webcams, with or without physical IoT telemetry.
+<h2 id="1-executive-summary--problem-statement">1. Executive Summary &amp; Problem Statement</h2>
 
----
+<h3>The Problem</h3>
+<p>Traditional campus and healthcare facility waste handling faces three persistent challenges:</p>
+<ol>
+  <li><strong>Unnecessary Manual Contact &amp; Exposure:</strong> Personnel often interact with bins without prior knowledge of active status, exposing them to contaminated surfaces, sharps, or hazardous chemical fumes.</li>
+  <li><strong>Cross-Contamination of Waste Streams:</strong> Mixing dry recyclables with organic wet waste or hazardous clinical materials compromises disposal pipelines and inflates waste-processing costs.</li>
+  <li><strong>Lack of Real-Time Station Telemetry:</strong> Operations managers have no live visibility into station device health, proximity trigger frequency, or hazardous conditions such as flammable VOC gas buildup or moisture leaks.</li>
+</ol>
 
-## 2. The 3-Tier Operational Paradigm
+<h3>The WasteGuard Solution</h3>
+<p>WasteGuard provides a centralized operations and telemetry platform that monitors station status and controls segregation streams:</p>
+<ul>
+  <li><strong>Defined Segregation Streams:</strong> Dedicated partitioning for <strong>Dry</strong>, <strong>Wet</strong>, and <strong>Hazardous</strong> waste streams across campus stations.</li>
+  <li><strong>Proximity-Based Presence Detection:</strong> Optical/ultrasonic proximity telemetry detects approaching objects or personnel at bin hoppers in real time.</li>
+  <li><strong>Environmental Hazard Monitoring:</strong> Real-time intake of VOC gas concentration, temperature, moisture, and humidity to detect biological decomposition, hazardous fumes, or liquid spills.</li>
+  <li><strong>Automated Risk Engine &amp; Alerts:</strong> Deterministic evaluation converts telemetry spikes into automated supervisor alerts, required PPE advisories, and maintenance dispatches.</li>
+</ul>
 
-To maintain clinical and operational rigor, HazGuard categorizes all data into three distinct tiers:
+<hr>
 
-```
+<h2 id="2-waste-segregation-architecture-dry-wet-hazardous">2. Waste Segregation Architecture (Dry, Wet, Hazardous)</h2>
+
+<p>WasteGuard classifies all incoming station operations into three defined streams:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Waste Stream</th>
+      <th>Color Code</th>
+      <th>Representative Materials</th>
+      <th>Station Handling Protocol</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Dry Waste</strong></td>
+      <td>Blue (<code>#0284c7</code>)</td>
+      <td>Paper, cardboard, clean plastics, bottles, packaging, aluminum cans</td>
+      <td>Standard transfer to campus recycling center. Normal nitrile gloves recommended.</td>
+    </tr>
+    <tr>
+      <td><strong>Wet Waste</strong></td>
+      <td>Green (<code>#16a34a</code>)</td>
+      <td>Food scraps, cafeteria leftovers, fruit/vegetable peels, biodegradable organics</td>
+      <td>Direct routing to composting / bio-methanation facility. Moisture-resistant sanitation gloves.</td>
+    </tr>
+    <tr>
+      <td><strong>Hazardous Waste</strong></td>
+      <td>Red (<code>#dc2626</code>)</td>
+      <td>Chemical residues, broken glass, sharps, biomedical scraps, cytotoxic items</td>
+      <td>Immediate segregation protocol. Heavy puncture-resistant gloves and safety eyewear mandatory.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Stream Selection &amp; Activation</h3>
+<p>Stations can have their active segregation stream selected or updated through:</p>
+<ol>
+  <li><strong>Physical Selector Switches / Microcontroller Inputs:</strong> Hardware sends the active stream via the telemetry ingestion API.</li>
+  <li><strong>Operations Dashboard Web Control:</strong> Supervisors or operators can manually switch the stream via the station control panel (<code>POST /api/containers/&lt;id&gt;/select-category/</code>).</li>
+</ol>
+
+<hr>
+
+<h2 id="3-proximity-sensing--presence-detection">3. Proximity Sensing &amp; Presence Detection</h2>
+
+<pre>
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ TIER 1: SENSOR FACTS (Empirical Physical Telemetry)                         │
-│ • Fill Level (%) across 3 compartments: Wet, Dry, Hazard                    │
-│ • Physical Weight (kg), Temperature (°C), Humidity (%)                      │
-│ • Air Quality / VOC Toxic Gas Concentration (ppm), Moisture Spill Index     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ TIER 2: AI INFERENCES (Probabilistic Analysis)                              │
-│ • YOLOv8 Object Classification: Bottle, Syringe, Food Scrap, Scissors       │
-│ • Confidence Score: 0.0% – 100.0%                                           │
-│ • XGBoost Remaining Hours to 80% Capacity: e.g. 30.7 hrs                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ TIER 3: OPERATIONAL DECISIONS (Actionable Protocols)                        │
-│ • Worker PPE Guideline: &quot;Nitrile Gloves + Forceps + Eye Shield Required&quot;    │
-│ • Destination Compartment: &quot;Yellow Puncture-Proof Sharps Bin&quot;               │
-│ • Facility Action: &quot;ISOLATE CONTAINER&quot; / &quot;COLLECTION REQUIRED&quot;              │
+│                       STATION INTAKE PROXIMITY EVENT                        │
+│                                                                             │
+│    [ Approaching Object / Hand ] ──&gt; [ Proximity Sensor (IR / Ultrasonic) ] │
+│                                                      │                      │
+│                                                      ▼                      │
+│                                            ESP32 / Microcontroller          │
+│                                                      │                      │
+│                                            HTTP POST JSON Telemetry         │
+│                                                      │                      │
+│                                                      ▼                      │
+│                                            WasteGuard Cloud / Django        │
+│                                                      │                      │
+│                                ┌─────────────────────┴──────────────────┐   │
+│                                ▼                                        ▼   │
+│                      [ Container Status ]                     [ Real-Time   │
+│                      proximity_detected=True                  Dashboard HUD]│
 └─────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 3. Full System Architecture &amp; Technology Stack
-
-| Layer | Technology | Role in HazGuard |
-| :--- | :--- | :--- |
-| **Frontend Core** | HTML5, CSS3, Vanilla JS (ES6+) | Ultra-responsive clinical operations dashboard; zero framework bloat |
-| **Live Stream** | WebRTC MediaStream API | In-browser camera capture from phones, tablets, or laptops |
-| **Overlay Engine** | HTML5 2D Canvas | Real-time bounding box and HUD reticle rendering at 30+ FPS |
-| **Backend API** | Python 3.12, Django 5.0, DRF | RESTful endpoints, Role-Based Access Control, audit trail |
-| **Object Detection** | YOLOv8 Nano (`yolov8n`) | Real-time multi-object computer vision running on CPU |
-| **Forecasting Model** | XGBoost Regressor (`XGBRegressor`) | Time-to-fill capacity regression on 90-day time-series |
-| **Database** | SQLite3 (Local) / PostgreSQL | Station states, sensor history, vision events, audit logs |
-| **Security** | Django Token Auth | Cryptographic bearer tokens per employee role |
-
----
-
-## 4. In-Platform AI Computer Vision &amp; Worker Scanner (YOLOv8)
-
-### Why Prototype Works Without Physical Cameras
-Rather than requiring expensive mounted CCTV rigs, any field worker or hackathon judge can open **`http://localhost:3000/scanner.html`** on a phone or laptop. The browser camera acts as a smart handheld scanner.
-
-### Frontend WebRTC &amp; Canvas Capture Flow
-```javascript
-// 1. Request camera stream (frontend/js/scanner.js)
-const stream = await navigator.mediaDevices.getUserMedia({
-  video: { facingMode: &#x27;environment&#x27;, width: { ideal: 1280 }, height: { ideal: 720 } }
-});
-videoElement.srcObject = stream;
-
-// 2. Extract frame to hidden in-memory canvas
-const tempCanvas = document.createElement(&#x27;canvas&#x27;);
-tempCanvas.width = videoElement.videoWidth;
-tempCanvas.height = videoElement.videoHeight;
-tempCanvas.getContext(&#x27;2d&#x27;).drawImage(videoElement, 0, 0);
-
-// 3. Convert to lightweight Base64 string for REST transmission
-const base64Payload = tempCanvas.toDataURL(&#x27;image/jpeg&#x27;, 0.85);
-```
-
-### Human &amp; Background Furniture Filtering Algorithm
-When testing in front of a laptop webcam, standard YOLO models detect the human user (`person`, COCO class 0) and room background (`chair`, `laptop`). 
-
-HazGuard solves this with an **exclusion mask** in `backend/vision/scanner_service.py`:
-
-```python
-IGNORED_CLASSES = {
-    &#x27;person&#x27;, &#x27;chair&#x27;, &#x27;couch&#x27;, &#x27;sofa&#x27;, &#x27;bed&#x27;, &#x27;dining table&#x27;, &#x27;tv&#x27;, &#x27;tvmonitor&#x27;,
-    &#x27;laptop&#x27;, &#x27;window&#x27;, &#x27;door&#x27;, &#x27;wall&#x27;, &#x27;potted plant&#x27;, &#x27;curtain&#x27;, &#x27;bench&#x27;, 
-    &#x27;backpack&#x27;, &#x27;handbag&#x27;, &#x27;tie&#x27;, &#x27;suitcase&#x27;, &#x27;sink&#x27;, &#x27;toilet&#x27;, &#x27;refrigerator&#x27;
-}
-
-for box in boxes:
-    class_name = model.names[int(box.cls[0])].lower().strip()
-    
-    # ❌ Filter out humans and room furniture immediately
-    if class_name in IGNORED_CLASSES:
-        continue
-
-    # ❌ Filter out boxes covering &gt; 85% of screen (walls/fixtures)
-    if (box_w * box_h) / (img_w * img_h) &gt; 0.85:
-        continue
-```
-
-### Hand-Held Spatial ROI Prioritization Formula
-When a worker holds an object in front of the camera, the object sits near the **center of the frame**. The service computes the Euclidean distance $d$ from the bounding box center $(x_c, y_c)$ to the frame center $(W/2, H/2)$:
-
-$$d = \sqrt{(x_c - W/2)^2 + (y_c - H/2)^2}$$
-
-The spatial weight $W_{\text{center}}$ is normalized between $0.2$ and $1.0$:
-
-$$W_{\text{center}} = \max\left(0.2, 1.0 - \frac{d}{d_{\max}}\right)$$
-
-The final candidate ranking score is:
-
-$$\text{Priority Score} = \text{Confidence} \times W_{\text{center}} + \text{Hazard Bonus (50 if Sharps/Chemical)}$$
-
-*Result:* Objects held directly inside the central target reticle take priority over any clutter in the corners.
-
-### Clinical Waste Stream Mapping &amp; Worker PPE Protocol
-
-```python
-WASTE_CATEGORY_MAP = {
-    &#x27;bottle&#x27;: {
-        &#x27;category&#x27;: &#x27;DRY&#x27;,
-        &#x27;label&#x27;: &#x27;Plastic / Glass Bottle&#x27;,
-        &#x27;bin_name&#x27;: &#x27;Blue / Dry Waste Compartment&#x27;,
-        &#x27;bin_color&#x27;: &#x27;#0284c7&#x27;,
-        &#x27;icon&#x27;: &#x27;🍾&#x27;,
-        &#x27;ppe&#x27;: [&#x27;Standard Nitrile Gloves&#x27;],
-        &#x27;guideline&#x27;: &#x27;Recyclable container. Safe for normal mechanical or manual transfer into Dry compartment.&#x27;
-    },
-    &#x27;banana&#x27;: {
-        &#x27;category&#x27;: &#x27;WET&#x27;,
-        &#x27;label&#x27;: &#x27;Banana Peel / Organic Scrap&#x27;,
-        &#x27;bin_name&#x27;: &#x27;Green / Wet Organic Compartment&#x27;,
-        &#x27;bin_color&#x27;: &#x27;#16a34a&#x27;,
-        &#x27;icon&#x27;: &#x27;🍌&#x27;,
-        &#x27;ppe&#x27;: [&#x27;Waterproof Sanitation Gloves&#x27;],
-        &#x27;guideline&#x27;: &#x27;Rapidly biodegradable organic waste. Transfer immediately to Wet stream.&#x27;
-    },
-    &#x27;scissors&#x27;: {
-        &#x27;category&#x27;: &#x27;HAZARD&#x27;,
-        &#x27;label&#x27;: &#x27;Sharps / Surgical Scissors&#x27;,
-        &#x27;bin_name&#x27;: &#x27;Yellow Puncture-Proof Sharps Bin&#x27;,
-        &#x27;bin_color&#x27;: &#x27;#dc2626&#x27;,
-        &#x27;icon&#x27;: &#x27;✂️&#x27;,
-        &#x27;ppe&#x27;: [&#x27;Heavy Puncture-Resistant Nitrile Gloves&#x27;, &#x27;Safety Goggles&#x27;],
-        &#x27;guideline&#x27;: &#x27;⚠️ SHARPS INJURY HAZARD. Never compress or touch blade directly. Deposit in puncture-proof bin.&#x27;
-    }
-}
-```
-
----
-
-## 5. Predictive Machine Learning Subsystem (XGBoost)
-
-Located in `backend/analytics/train_xgboost.py` and `backend/analytics/services.py`.
-
-### Dataset &amp; 15 Engineered Features
-Trained on a 90-day chronological time-series sensor dataset (`robobin_sensor_data_90days.csv`, 742 training samples, 186 test samples):
-
-```python
-FEATURE_COLS = [
-    &#x27;fill_level_pct&#x27;,               # Current fill % (0-100)
-    &#x27;waste_weight_kg&#x27;,              # Current weight (kg)
-    &#x27;waste_added_kg&#x27;,               # Weight added in last transaction
-    &#x27;temperature_c&#x27;,                # Bin ambient temperature
-    &#x27;humidity_pct&#x27;,                 # Bin humidity level
-    &#x27;lid_open_count&#x27;,               # Cumulative lid opening events
-    &#x27;hour_num&#x27;,                     # Hour of the day (0-23)
-    &#x27;day_of_week_num&#x27;,              # Day of the week (0-6)
-    &#x27;waste_added_24h_kg&#x27;,           # Trailing 24-hour waste accumulation
-    &#x27;waste_added_7d_kg&#x27;,            # Trailing 7-day waste accumulation
-    &#x27;avg_daily_waste_7d_kg&#x27;,        # Rolling 7-day average daily intake
-    &#x27;avg_fill_7d_pct&#x27;,              # Rolling 7-day average fill level
-    &#x27;fill_change_7d_pct_points&#x27;,    # 7-day delta fill rate
-    &#x27;daily_fill_rate_pct_points&#x27;,   # Daily velocity (%/day)
-    &#x27;hazard_level_encoded&#x27;          # Encoded risk category (0, 1, 2, 3)
-]
-
-TARGET_COL = &#x27;target_hours_to_80pct&#x27; # Continuous hours until fill reaches 80%
-```
-
-### Model Architecture &amp; Hyperparameters
-```python
-import xgboost as xgb
-
-model = xgb.XGBRegressor(
-    n_estimators=150,
-    learning_rate=0.05,
-    max_depth=5,
-    subsample=0.8,
-    colsample_bytree=0.8,
-    random_state=42
-)
-```
-
-### Performance Benchmarks
-- **R² Score (Coefficient of Determination):** **`0.9792` (97.92% accuracy)**
-- **Mean Absolute Error (MAE):** **`6.67 hours`**
-- **Root Mean Squared Error (RMSE):** **`8.23 hours`**
-
-### Dual-Layer Business Threshold Override
-A purely statistical model can generate a non-zero prediction even when a container is already completely full. HazGuard implements a **business logic override guard**:
-
-```python
-if current_fill_level &gt;= 80.0:
-    return {
-        &#x27;predicted_hours_to_80&#x27;: 0.0,
-        &#x27;threshold_reached&#x27;: True,
-        &#x27;status&#x27;: &#x27;80% Fill Threshold Already Reached&#x27;,
-        &#x27;recommendation&#x27;: &#x27;Collection Required&#x27;,
-        &#x27;priority&#x27;: &#x27;HIGH&#x27; if current_fill_level &lt; 85.0 else &#x27;CRITICAL&#x27;
-    }
-else:
-    # Run XGBoost model prediction
-    pred_hours = float(model.predict(features_df)[0])
-    return {
-        &#x27;predicted_hours_to_80&#x27;: max(0.5, round(pred_hours, 1)),
-        &#x27;threshold_reached&#x27;: False,
-        &#x27;recommendation&#x27;: &#x27;Schedule Pickup Soon&#x27; if pred_hours &lt;= 24.0 else &#x27;Normal Monitoring&#x27;
-    }
-```
-
-### Automated Verification Suite (`test_cases_verification.py`)
-- **Test 1 (Fill = 85%):** Correctly overrides to 0.0 hrs and flags `Collection Required` (PASS).
-- **Test 2 (Fill = 70%):** Predicts remaining capacity time ≈ 30.7 hrs (PASS).
-- **Test 3 (Fill = 40%):** Predicts longer horizon ≈ 109.9 hrs (PASS).
-- **Test 4 (Multi-variable shift):** Changing temperature and weight at fixed 60% fill dynamically alters prediction by 16.2 hrs (PASS).
-
----
-
-## 6. Database Schema &amp; Event Audit Trail
-
-### `Container` Model (`backend/containers/models.py`)
-- `container_id`: e.g. `&#x27;STATION-01&#x27;`, unique station identifier.
-- `wet_fill_pct`, `dry_fill_pct`, `hazard_fill_pct`: Three independent telemetry levels.
-- `device_status`: `ONLINE` / `OFFLINE`.
-- `current_waste`: Latest sorting category (`Dry`, `Wet`, `Hazard`).
-- `manual_review_pending`: Boolean flag raised when low AI confidence or high hazard is detected.
-
-### `VisionEvent` Model (`backend/vision/models.py`)
-- `container`: Foreign key to target station.
-- `predicted_class`: `NORMAL`, `BIOHAZARD`, `SHARPS`, `HAZARD`, `UNKNOWN`.
-- `confidence`: Confidence score (0–100%).
-- `contamination_score`: Cross-contamination likelihood index.
-- `exception_reason`: Clinical safety note.
-
-### `AuditLog` Model (`backend/audit_logs/models.py`)
-- Immutable hospital compliance record containing `timestamp`, `user`, `action` (`AI_CAMERA_SCAN`, `COLLECTION_VERIFIED`), `entity_id`, and full JSON `metadata`.
-
----
-
-## 7. Step-by-Step Code Walkthrough
-
-### 1. Ingestion Endpoint (`backend/vision/views.py`)
-```python
-class ScanWasteView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        image_data = request.data.get(&#x27;image&#x27;)
-        container_id = request.data.get(&#x27;container_id&#x27;, &#x27;STATION-01&#x27;)
-        
-        # 1. Execute vision inference
-        analysis = WasteScannerService.analyze_frame(image_data)
-
-        # 2. Sync to target station ONLY if an actual item was detected
-        if analysis.get(&#x27;detected&#x27;, True):
-            target = Container.objects.filter(container_id=container_id).first()
-            target.current_waste = analysis[&#x27;primary_category&#x27;].capitalize()
-            target.last_processed = &#x27;Just now (AI Scan)&#x27;
-            if analysis[&#x27;primary_category&#x27;] == &#x27;HAZARD&#x27;:
-                target.manual_review_pending = True
-            target.save()
-
-            # 3. Log immutable audit entry
-            AuditLog.objects.create(
-                user=request.user if request.user.is_authenticated else None,
-                action=&#x27;AI_CAMERA_SCAN&#x27;,
-                entity=&#x27;Container&#x27;,
-                entity_id=target.container_id,
-                metadata={&#x27;label&#x27;: analysis[&#x27;primary_label&#x27;], &#x27;category&#x27;: analysis[&#x27;primary_category&#x27;]}
-            )
-
-        return Response(analysis, status=status.HTTP_200_OK)
-```
-
----
-
-## 8. Live Demonstration &amp; Judge Presentation Script
-
-### 🎤 Suggested 2-Minute Presentation Pitch
-
-&gt; *&quot;Respected Evaluators, traditional smart waste systems fail because they only notify supervisors when a container is already full, and they expose sanitary workers to dangerous unknown biohazards.*
-&gt;
-&gt; *We built **HazGuard**: a dual-intelligence operations platform combining **Predictive XGBoost Telemetry** with **Computer Vision Worker Assistance**.*
-&gt;
-&gt; *(Point to Screen at `localhost:3000/scanner.html`)*
-&gt; *Our prototype requires **zero expensive sensor hardware** during initial deployment. Here, an operator opens our web platform on any mobile phone.*
-&gt;
-&gt; *(Hold up an Apple or Food Wrapper)*
-&gt; *The system detects the organic scrap $\to$ categorizes it as **WET WASTE** $\to$ directs the worker to the **Green Compost Compartment**.*
-&gt;
-&gt; *(Hold up a pair of Scissors or Pen)*
-&gt; *The moment a sharp or biohazardous item appears, the screen immediately turns **RED** $\to$ issues a **SHARPS INJURY WARNING** $\to$ commands the worker to wear puncture-resistant gloves and use mechanical tongs.*
-&gt;
-&gt; *(Point to Dashboard at `localhost:3000/dashboard.html`)*
-&gt; *Simultaneously, our background XGBoost model evaluates 15 time-series features across 5 campus stations, predicting fill thresholds with **97.92% accuracy** and achieving a documented **78% reduction in manual worker exposure**.&quot;*
-
----
-
-## 9. Judge Defense &amp; Technical Q&amp;A
-
-#### Q1: &quot;Why did you use YOLOv8 instead of a standard CNN classifier?&quot;
-&gt; *&quot;A standard CNN like MobileNet classifies an entire image into a single label. If a worker holds an apple core in front of a room background, a CNN often classifies the background room or worker&#x27;s shirt instead. YOLOv8 performs **object localization with bounding boxes**, enabling our spatial algorithm to isolate and prioritize the item held directly in the user&#x27;s hand.&quot;*
-
-#### Q2: &quot;Can you run this on low-cost edge devices without a GPU?&quot;
-&gt; *&quot;Yes. We specifically selected **YOLOv8 Nano (`yolov8n`)**, which has only 3.2 million parameters. Running on a standard Intel Core i5 CPU without a dedicated GPU, it generates inferences in under 120 milliseconds.&quot;*
-
-#### Q3: &quot;What happens if the camera disconnects or the network drops?&quot;
-&gt; *&quot;Our architecture strictly decouples Camera Vision from Station Telemetry. If the camera stream is unavailable, the backend continues operating on physical sensor readings and XGBoost time-to-fill estimations. When sensors are offline, the camera scanner operates independently.&quot;*
-
-#### Q4: &quot;How does the system ensure safety compliance in hospitals?&quot;
-&gt; *&quot;Every single scan, risk recalculation, and disposal confirmation is automatically recorded in an immutable `AuditLog` table with timestamp, user ID, and confidence payload, ensuring complete regulatory compliance under Bio-Medical Waste Management Rules.&quot;*
-
----
-
-## 10. How to Export This Guide to PDF
-
-1. **Option A (Via Browser — Fastest):**
-   - Open this file in your browser or IDE.
-   - Press **`Ctrl + P`** (Print).
-   - Select Destination: **&quot;Save as PDF&quot;**.
-   - Enable **&quot;Background graphics&quot;** for clean formatting $\to$ Click **Save**.
-2. **Option B (Via VS Code Extension):**
-   - Install the **Markdown PDF** or **Markdown Preview Enhanced** extension.
-   - Right-click inside `HAZGUARD_SYSTEM_GUIDE.md` $\to$ Select **Markdown PDF: Export (pdf)**.
 </pre>
+
+<h3>Purpose &amp; Behavior</h3>
+<ul>
+  <li>Proximity sensors detect physical presence at the station opening.</li>
+  <li>When an object or user approaches the hopper, the sensor registers an event (<code>proximity_detected = True</code>).</li>
+  <li>The station status badge immediately transitions from <strong>CLEAR / IDLE</strong> (<code>#94a3b8</code>) to <strong>OBJECT DETECTED</strong> (<code>#15803d</code>), signaling active engagement.</li>
+</ul>
+
+<blockquote>
+  <strong>Technical Scope Clarification:</strong><br>
+  Proximity sensing detects <strong>physical presence only</strong> (whether an object or person is at the intake). It does <strong>not</strong> identify or classify the material composition of the waste. Stream selection is managed through hardware stream switches or operator selection.
+</blockquote>
+
+<hr>
+
+<h2 id="4-hardware-telemetry--environmental-safety-monitoring">4. Hardware Telemetry &amp; Environmental Safety Monitoring</h2>
+
+<p>Each WasteGuard station continuously transmits empirical sensor facts to the backend:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Telemetry Metric</th>
+      <th>Unit</th>
+      <th>Normal Range</th>
+      <th>Critical Threshold</th>
+      <th>Safety Implication</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Proximity State</strong></td>
+      <td>Boolean</td>
+      <td><code>False</code> (Idle)</td>
+      <td><code>True</code> (Present)</td>
+      <td>Detects active disposal events and intake usage patterns</td>
+    </tr>
+    <tr>
+      <td><strong>VOC / Gas Indicator</strong></td>
+      <td>ppm</td>
+      <td>0 – 250 ppm</td>
+      <td>&ge; 350 ppm</td>
+      <td>Detects toxic fume accumulation, anaerobic decomposition, or chemical spills</td>
+    </tr>
+    <tr>
+      <td><strong>Ambient Temperature</strong></td>
+      <td>°C</td>
+      <td>18.0 – 32.0 °C</td>
+      <td>&ge; 38.0 °C</td>
+      <td>Detects exothermic reactions, direct sun overheating, or combustion risk</td>
+    </tr>
+    <tr>
+      <td><strong>Relative Humidity</strong></td>
+      <td>%</td>
+      <td>30 – 65 %</td>
+      <td>&ge; 80 %</td>
+      <td>Indicates condensation or excessive moisture saturation</td>
+    </tr>
+    <tr>
+      <td><strong>Moisture Index</strong></td>
+      <td>%</td>
+      <td>0 – 40 %</td>
+      <td>&ge; 75 %</td>
+      <td>Detects liquid spills, leaks, or cross-contamination in dry compartments</td>
+    </tr>
+    <tr>
+      <td><strong>Device Status</strong></td>
+      <td>Enum</td>
+      <td><code>ONLINE</code></td>
+      <td><code>OFFLINE</code></td>
+      <td>Hardware heartbeat monitoring; raises alert if communication is lost</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="5-risk-evaluation--automated-operational-decision-engine">5. Risk Evaluation &amp; Automated Operational Decision Engine</h2>
+
+<p>Located in <code>backend/risk/services.py</code>.</p>
+
+<p>Whenever a station transmits telemetry, the risk engine calculates an operational safety score (0 – 100) based on physical sensor thresholds and current stream configuration:</p>
+
+<pre><code class="language-python">def calculate_container_risk(container, sensor_reading=None, vision_event=None):
+    score = 0
+    reasons = []
+
+    # 1. Device Communication Check
+    if container.device_status == 'OFFLINE':
+        return {'risk_score': 50, 'risk_level': 'MEDIUM', 'recommended_action': 'INSPECT'}
+
+    # 2. Gas / VOC Accumulation Check
+    if gas_val >= 400:
+        score += 35
+        reasons.append("Abnormal elevated VOC/gas indicator (>400 ppm)")
+    elif gas_val >= 250:
+        score += 20
+        reasons.append("Elevated VOC gas readings")
+
+    # 3. Temperature Anomalies
+    if temp_val >= 38.0:
+        score += 25
+        reasons.append(f"Abnormal container temperature ({temp_val:.1f}°C)")
+    elif temp_val >= 32.0:
+        score += 15
+        reasons.append(f"Elevated temperature ({temp_val:.1f}°C)")
+
+    # 4. Moisture & Liquid Spill Check
+    if moist_val >= 75.0:
+        score += 25
+        reasons.append("High moisture / liquid hazard detected")
+
+    # 5. Waste Stream Hazard Awareness
+    if container.waste_category == 'HAZARDOUS':
+        score += 10
+        if gas_val >= 250 or moist_val >= 50.0:
+            score += 25
+            reasons.append("Hazardous stream with elevated volatile activity")
+
+    return {
+        'risk_score': min(100, score),
+        'risk_level': 'CRITICAL' if score >= 80 else 'HIGH' if score >= 60 else 'MEDIUM' if score >= 35 else 'LOW',
+        'recommended_action': 'ISOLATE' if score >= 80 else 'INSPECT' if score >= 35 else 'NO ACTION'
+    }
+</code></pre>
+
+<hr>
+
+<h2 id="6-system-architecture--technology-stack">6. System Architecture &amp; Technology Stack</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Layer</th>
+      <th>Technology</th>
+      <th>Role in WasteGuard</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Frontend Core</strong></td>
+      <td>HTML5, CSS3, Vanilla JS (ES6+)</td>
+      <td>Real-time campus operations dashboard; zero framework bloat</td>
+    </tr>
+    <tr>
+      <td><strong>Backend API</strong></td>
+      <td>Python 3.12, Django 5.0, DRF</td>
+      <td>RESTful endpoints, station telemetry processing, Role-Based Access Control</td>
+    </tr>
+    <tr>
+      <td><strong>Risk Engine</strong></td>
+      <td>Deterministic Threshold Evaluator</td>
+      <td>Evaluates environmental sensors to determine hazard levels and required actions</td>
+    </tr>
+    <tr>
+      <td><strong>Database</strong></td>
+      <td>SQLite3 (Local) / PostgreSQL</td>
+      <td>Station records, sensor telemetry logs, risk history, audit trails</td>
+    </tr>
+    <tr>
+      <td><strong>Security</strong></td>
+      <td>Django Token Auth</td>
+      <td>Cryptographic bearer tokens per user role (Admin, Supervisor, Operator)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="7-database-schema--event-audit-trail">7. Database Schema &amp; Event Audit Trail</h2>
+
+<h3><code>Container</code> Model (<code>backend/containers/models.py</code>)</h3>
+<ul>
+  <li><code>container_id</code>: Unique station identifier (e.g. <code>'STATION-01'</code>).</li>
+  <li><code>device_status</code>: Current hardware connectivity (<code>ONLINE</code> / <code>OFFLINE</code>).</li>
+  <li><code>proximity_detected</code>: Real-time flag indicating object/hand presence at intake.</li>
+  <li><code>waste_category</code>: Active segregation stream (<code>DRY</code>, <code>WET</code>, <code>HAZARDOUS</code>).</li>
+  <li><code>current_waste</code>: Formatted stream display (<code>Dry</code>, <code>Wet</code>, <code>Hazard</code>).</li>
+  <li><code>last_processed</code>: Description or timestamp of latest transaction.</li>
+</ul>
+
+<h3><code>SensorReading</code> Model (<code>backend/sensors/models.py</code>)</h3>
+<ul>
+  <li><code>proximity_detected</code>: Presence boolean at time of transmission.</li>
+  <li><code>temperature</code>: Ambient temperature in °C.</li>
+  <li><code>humidity</code>: Relative humidity percentage.</li>
+  <li><code>gas_indicator</code>: VOC gas level in ppm.</li>
+  <li><code>moisture</code>: Moisture level percentage.</li>
+</ul>
+
+<hr>
+
+<h2 id="8-hardware-integration--rest-api-specifications">8. Hardware Integration &amp; REST API Specifications</h2>
+
+<h3>1. Ingest IoT Telemetry</h3>
+<pre><code>POST /api/devices/sensor-data/
+Content-Type: application/json
+
+{
+  "container_id": "STATION-01",
+  "proximity_detected": true,
+  "temperature": 26.4,
+  "humidity": 55.0,
+  "gas_indicator": 140.0,
+  "moisture": 25.0,
+  "device_status": "ONLINE"
+}</code></pre>
+
+<h3>2. Select Waste Stream Category</h3>
+<pre><code>POST /api/containers/&lt;id&gt;/select-category/
+Content-Type: application/json
+
+{
+  "category": "HAZARDOUS"
+}</code></pre>
+
+<h3>3. Toggle Proximity Presence</h3>
+<pre><code>POST /api/containers/&lt;id&gt;/set-proximity/
+Content-Type: application/json
+
+{
+  "proximity_detected": true
+}</code></pre>
+
+<h3>4. Fetch Analytics Summary</h3>
+<pre><code>GET /api/analytics/summary/</code></pre>
+
+<hr>
+
+<h2 id="9-live-demonstration--judge-presentation-script">9. Live Demonstration &amp; Judge Presentation Script</h2>
+
+<h3>🎤 Suggested 2-Minute Presentation Pitch</h3>
+<blockquote>
+  <em>"Respected Evaluators, traditional campus waste management suffers from two critical failure modes: manual exposure to unknown hazardous waste, and zero real-time operational visibility into station health and containment risks.<br><br>
+  We built <strong>WasteGuard</strong>: a responsive campus waste segregation and IoT telemetry platform that provides live visibility into waste streams, proximity presence, and station environmental health.<br><br>
+  Across our 5 campus stations, WasteGuard tracks the active segregation stream—<strong>Dry Recyclables</strong>, <strong>Wet Organics</strong>, and <strong>Hazardous Materials</strong>.<br><br>
+  When an individual approaches a station hopper, our physical proximity sensors detect the presence. The dashboard instantly reflects the active status, transitioning from <strong>CLEAR / IDLE</strong> to <strong>OBJECT DETECTED</strong>.<br><br>
+  Operators or automated hopper switches can designate the intake stream. Selecting <strong>Hazardous Stream</strong> immediately updates station protocols, requiring mandatory protective equipment.<br><br>
+  Simultaneously, our risk engine evaluates VOC gas levels, moisture, and temperature. If VOC levels exceed safety thresholds, WasteGuard generates an automated supervisor alert and isolation action before workers are exposed.<br><br>
+  By combining simple, robust proximity presence detection with real-time environmental telemetry, WasteGuard delivers a practical, hardware-resilient solution ready for campus deployment."</em>
+</blockquote>
+
+<hr>
+
+<h2 id="10-judge-defense--technical-qa">10. Judge Defense &amp; Technical Q&amp;A</h2>
+
+<h4>Q1: "Does the proximity sensor identify what kind of waste is being deposited?"</h4>
+<blockquote>
+  <em>"No. The proximity sensor functions strictly as an <strong>object and presence detection mechanism</strong> at the intake opening. It tells the system that an object or hand is present at the hopper. Waste stream categorization is handled via station stream selection switches or operator designation. This intentional architectural decoupling keeps hardware costs low and avoids fragile sensing components."</em>
+</blockquote>
+
+<h4>Q2: "Why did you choose this architecture over complex camera recognition inside the bins?"</h4>
+<blockquote>
+  <em>"Optical camera lenses placed inside or directly over waste bins rapidly succumb to dust, liquid splatters, humidity condensation, and low-light degradation. By focusing on robust proximity presence sensing and environmental sensors (VOC gas, temperature, moisture), WasteGuard operates reliably in demanding physical environments without requiring optical maintenance."</em>
+</blockquote>
+
+<h4>Q3: "How does the system handle high-risk situations like chemical fumes or toxic gas?"</h4>
+<blockquote>
+  <em>"Our modular risk engine in <code>backend/risk/services.py</code> monitors real-time VOC gas levels. If volatile gas concentrations exceed 350 ppm, the platform automatically flags the station as <code>HIGH</code> or <code>CRITICAL</code> risk, generates an immediate <code>GAS_ANOMALY</code> alert, and creates an <code>ISOLATE</code> action for facility supervisors."</em>
+</blockquote>
+
+<h4>Q4: "How does an ESP32 or external microcontroller communicate with WasteGuard?"</h4>
+<blockquote>
+  <em>"Microcontrollers communicate over standard HTTP REST via <code>POST /api/devices/sensor-data/</code>. The payload is a compact JSON object containing the station identifier, proximity state boolean, and sensor readings. The server responds with <code>201 Created</code> and the evaluated risk status."</em>
+</blockquote>
+
 </body>
 </html>

@@ -83,55 +83,54 @@
         </div>
 
         <div class="detail-grid">
-          <!-- Left Column: Station Info, 3 Bins, Waste Classification -->
+          <!-- Left Column: Station Segregation & Proximity Status -->
           <div>
-            <!-- Three-Bin Fill Levels Box -->
+            <!-- Segregation Stream & Proximity Sensor Status Box -->
             <div class="card" style="margin-bottom:20px; border-left:4px solid var(--accent-teal);">
-              <h3 class="card-title" style="margin-bottom:12px;">Three-Bin Destination Fill Levels</h3>
+              <h3 class="card-title" style="margin-bottom:12px;">Waste Segregation &amp; Proximity Status</h3>
               
-              <div class="bin-status-container" style="padding:16px; gap:12px;">
-                <!-- Wet Bin -->
-                <div class="bin-fill-row" style="font-size:14px;">
-                  <span style="color:#10b981; width:100px; font-weight:700;">🟢 Wet Bin</span>
-                  <div class="bin-fill-bar-bg" style="height:10px;"><div class="bin-fill-bar-fill" id="fill-bar-wet" style="width:42%; background:#10b981;"></div></div>
-                  <span id="fill-val-wet" style="font-weight:800; min-width:45px; text-align:right;">42%</span>
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-sm); padding:16px; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">ACTIVE SEGREGATION STREAM</span>
+                  <span id="detail-category-badge" class="badge" style="background:#e0f2fe; color:#0369a1; font-size:13px; font-weight:700; padding:6px 12px;">
+                    🟡 Dry Waste
+                  </span>
                 </div>
-                <!-- Dry Bin -->
-                <div class="bin-fill-row" style="font-size:14px;">
-                  <span style="color:#f59e0b; width:100px; font-weight:700;">🟡 Dry Bin</span>
-                  <div class="bin-fill-bar-bg" style="height:10px;"><div class="bin-fill-bar-fill" id="fill-bar-dry" style="width:68%; background:#f59e0b;"></div></div>
-                  <span id="fill-val-dry" style="font-weight:800; min-width:45px; text-align:right;">68%</span>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">PROXIMITY SENSOR STATUS</span>
+                  <span id="detail-proximity-badge" class="badge" style="background:#f1f5f9; color:#64748b; font-size:12px; font-weight:700;">
+                    <span class="badge-dot" style="background:#94a3b8;"></span>CLEAR / IDLE
+                  </span>
                 </div>
-                <!-- Hazard Bin -->
-                <div class="bin-fill-row" style="font-size:14px;">
-                  <span style="color:#ef4444; width:100px; font-weight:700;">🔴 Hazard Bin</span>
-                  <div class="bin-fill-bar-bg" style="height:10px;"><div class="bin-fill-bar-fill" id="fill-bar-hazard" style="width:24%; background:#ef4444;"></div></div>
-                  <span id="fill-val-hazard" style="font-weight:800; min-width:45px; text-align:right;">24%</span>
+                <div style="padding-top:10px; border-top:1px dashed var(--border-light); display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:12px; color:var(--text-secondary);">Select / Activate Compartment:</span>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn btn-sm btn-secondary" onclick="BinDetails.selectCategory('DRY')">Dry</button>
+                    <button class="btn btn-sm btn-secondary" onclick="BinDetails.selectCategory('WET')">Wet</button>
+                    <button class="btn btn-sm btn-secondary" onclick="BinDetails.selectCategory('HAZARDOUS')">Hazard</button>
+                    <button class="btn btn-sm btn-primary" onclick="BinDetails.toggleProximity()">Toggle Proximity</button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Recent Waste Classification Stream -->
+            <!-- Recent Waste Segregation Stream -->
             <div class="card" style="margin-bottom:20px;">
-              <h3 class="card-title" style="margin-bottom:6px;">Recent Waste Classification Stream</h3>
-              <p class="card-subtitle" style="margin-bottom:12px;">Latest item classifications processed at this station</p>
+              <h3 class="card-title" style="margin-bottom:6px;">Recent Segregation Events</h3>
+              <p class="card-subtitle" style="margin-bottom:12px;">Latest waste segregation events processed at this station</p>
               
               <div style="display:flex; flex-direction:column; gap:10px;" id="classification-stream-list">
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
-                  <div><strong>Plastic bottle</strong> <span style="color:var(--text-secondary); font-size:12px;">(Confidence: 96%)</span></div>
-                  <span class="badge" style="background:#fef3c7; color:#d97706; font-weight:700;">Dry</span>
+                  <div><strong>Recyclable Packaging</strong> <span style="color:var(--text-secondary); font-size:12px;">(Dry stream compartment activated)</span></div>
+                  <span class="badge" style="background:#fef3c7; color:#d97706; font-weight:700;">Dry Waste</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
-                  <div><strong>Food waste</strong> <span style="color:var(--text-secondary); font-size:12px;">(Confidence: 94%)</span></div>
-                  <span class="badge" style="background:#d1fae5; color:#059669; font-weight:700;">Wet</span>
+                  <div><strong>Organic Material</strong> <span style="color:var(--text-secondary); font-size:12px;">(Wet stream compartment activated)</span></div>
+                  <span class="badge" style="background:#d1fae5; color:#059669; font-weight:700;">Wet Waste</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
-                  <div><strong>Hazardous chemical container</strong> <span style="color:var(--text-secondary); font-size:12px;">(Confidence: 92%)</span></div>
-                  <span class="badge" style="background:#fee2e2; color:#dc2626; font-weight:700;">Hazard</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#fffbe6; border:1px solid #ffe58f; border-radius:6px;">
-                  <div><strong>Uncertain packaging item</strong> <span style="color:#d48806; font-size:12px;">(Confidence: 54% - Low)</span></div>
-                  <span class="badge" style="background:#faad14; color:#fff; font-weight:700;">Manual Review</span>
+                  <div><strong>Hazardous Chemical Solvent</strong> <span style="color:var(--text-secondary); font-size:12px;">(Hazard compartment activated)</span></div>
+                  <span class="badge" style="background:#fee2e2; color:#dc2626; font-weight:700;">Hazardous</span>
                 </div>
               </div>
             </div>
@@ -143,10 +142,6 @@
               <h3 class="card-title" style="margin-bottom:12px;">Station Telemetry Facts</h3>
               <div class="sensor-metric-grid">
                 <div class="sensor-metric-box">
-                  <div class="sensor-metric-lbl">Total Weight</div>
-                  <div class="sensor-metric-val" id="fact-weight">24.2 kg</div>
-                </div>
-                <div class="sensor-metric-box">
                   <div class="sensor-metric-lbl">Temperature</div>
                   <div class="sensor-metric-val" id="fact-temp">26.5°C</div>
                 </div>
@@ -157,6 +152,10 @@
                 <div class="sensor-metric-box">
                   <div class="sensor-metric-lbl">VOC Gas</div>
                   <div class="sensor-metric-val" id="fact-gas">120 ppm</div>
+                </div>
+                <div class="sensor-metric-box">
+                  <div class="sensor-metric-lbl">Moisture</div>
+                  <div class="sensor-metric-val" id="fact-moisture">25%</div>
                 </div>
               </div>
             </div>

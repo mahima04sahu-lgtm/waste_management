@@ -57,32 +57,37 @@ class Command(BaseCommand):
         containers_def = [
             {
                 'id': 'STATION-01', 'name': 'WasteGuard Station 01', 'ward': 'Central Garden Zone', 'loc': 'Central Garden',
-                'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'cat': WasteCategory.DRY, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
                 'wet': 42.0, 'dry': 68.0, 'hazard': 24.0, 'current': 'Dry', 'last': '2 min ago',
+                'proximity': True,
                 'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             },
             {
                 'id': 'STATION-02', 'name': 'WasteGuard Station 02', 'ward': 'Cafeteria & Dining', 'loc': 'Cafeteria',
-                'cat': WasteCategory.INFECTIOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'cat': WasteCategory.WET, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
                 'wet': 78.0, 'dry': 85.0, 'hazard': 12.0, 'current': 'Wet', 'last': '1 min ago',
-                'mr_pending': True, 'mr_count': 2, 'mr_reason': 'Low-confidence classification detected'
+                'proximity': True,
+                'mr_pending': True, 'mr_count': 2, 'mr_reason': 'Classification verification requested'
             },
             {
                 'id': 'STATION-03', 'name': 'WasteGuard Station 03', 'ward': 'Academic Wing', 'loc': 'Academic Block',
-                'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'cat': WasteCategory.DRY, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
                 'wet': 30.0, 'dry': 55.0, 'hazard': 10.0, 'current': 'Dry', 'last': '4 min ago',
+                'proximity': False,
                 'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             },
             {
                 'id': 'STATION-04', 'name': 'WasteGuard Station 04', 'ward': 'Hostel Complex', 'loc': 'Hostel',
                 'cat': WasteCategory.HAZARDOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
                 'wet': 65.0, 'dry': 72.0, 'hazard': 40.0, 'current': 'Hazard', 'last': '3 min ago',
-                'mr_pending': True, 'mr_count': 1, 'mr_reason': 'Manual review pending'
+                'proximity': False,
+                'mr_pending': True, 'mr_count': 1, 'mr_reason': 'Hazardous waste stream review'
             },
             {
                 'id': 'STATION-05', 'name': 'WasteGuard Station 05', 'ward': 'Parking & Transport', 'loc': 'Parking Area',
-                'cat': WasteCategory.GENERAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'cat': WasteCategory.DRY, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
                 'wet': 20.0, 'dry': 45.0, 'hazard': 5.0, 'current': 'Dry', 'last': '10 min ago',
+                'proximity': False,
                 'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             }
         ]
@@ -100,6 +105,7 @@ class Command(BaseCommand):
                     'status': cdata['status'],
                     'device_status': cdata['dev'],
                     'capacity_liters': 180.0,
+                    'proximity_detected': cdata.get('proximity', False),
                     'wet_fill_pct': cdata['wet'],
                     'dry_fill_pct': cdata['dry'],
                     'hazard_fill_pct': cdata['hazard'],
@@ -127,6 +133,7 @@ class Command(BaseCommand):
             reading = SensorReading.objects.create(
                 container=container,
                 timestamp=now,
+                proximity_detected=cdata.get('proximity', False),
                 weight=weight,
                 fill_level=fill,
                 temperature=temp,

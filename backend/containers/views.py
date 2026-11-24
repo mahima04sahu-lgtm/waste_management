@@ -43,19 +43,18 @@ class ContainerViewSet(viewsets.ModelViewSet):
     def select_category(self, request, pk=None):
         """
         Hardware/User Category Selection Integration Point:
-        Selects or activates destination bin (DRY, WET, HAZARDOUS).
+        Selects or activates destination bin (METAL, WET, DRY).
         """
         container = self.get_object()
         category = request.data.get('category', '').upper()
         valid_cats = {
             'DRY': ('Dry', WasteCategory.DRY),
             'WET': ('Wet', WasteCategory.WET),
-            'HAZARD': ('Hazard', WasteCategory.HAZARDOUS),
-            'HAZARDOUS': ('Hazard', WasteCategory.HAZARDOUS),
+            'METAL': ('Metal', WasteCategory.METAL),
         }
         if category not in valid_cats:
             return Response(
-                {'error': f"Invalid category '{category}'. Choices: DRY, WET, HAZARDOUS."},
+                {'error': f"Invalid category '{category}'. Choices: METAL, WET, DRY."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 

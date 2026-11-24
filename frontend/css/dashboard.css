@@ -579,9 +579,9 @@
   border-color: var(--stream-wet-border);
 }
 
-.stream-banner.hazardous {
-  background-color: var(--stream-hazard-bg);
-  border-color: var(--stream-hazard-border);
+.stream-banner.metal {
+  background-color: var(--stream-metal-bg, #f8fafc);
+  border-color: var(--stream-metal-border, #cbd5e1);
 }
 
 .stream-title-group {
@@ -604,7 +604,7 @@
 
 .stream-banner.dry .stream-name { color: var(--stream-dry); }
 .stream-banner.wet .stream-name { color: var(--stream-wet); }
-.stream-banner.hazardous .stream-name { color: var(--stream-hazard); }
+.stream-banner.metal .stream-name { color: var(--stream-metal, #475569); }
 
 /* Environmental Telemetry Strip */
 .telemetry-section {
@@ -724,9 +724,9 @@
   color: #ffffff;
 }
 
-.btn-stream.active-hazardous {
-  background-color: #dc2626;
-  border-color: #dc2626;
+.btn-stream.active-metal {
+  background-color: #475569;
+  border-color: #475569;
   color: #ffffff;
 }
 

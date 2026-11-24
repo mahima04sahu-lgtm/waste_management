@@ -85,7 +85,7 @@ class ActionViewSet(viewsets.ModelViewSet):
     def confirm_review(self, request, pk=None):
         """
         Reviewer confirms or corrects the waste category for a flagged review.
-        Accepts optional `corrected_category` (DRY/WET/HAZARDOUS).
+        Accepts optional `corrected_category` (DRY/WET/METAL).
         Updates Container.waste_category if a correction is provided.
         Records decision in activity history (AuditLog).
         """
@@ -93,7 +93,7 @@ class ActionViewSet(viewsets.ModelViewSet):
         user = request.user
         corrected_category = (request.data.get('corrected_category') or '').strip().upper()
 
-        valid_cats = {'DRY', 'WET', 'HAZARDOUS'}
+        valid_cats = {'DRY', 'WET', 'METAL'}
         category_applied = None
 
         if corrected_category and corrected_category in valid_cats:
@@ -106,7 +106,7 @@ class ActionViewSet(viewsets.ModelViewSet):
             category_applied = corrected_category
         elif corrected_category and corrected_category not in valid_cats:
             return Response(
-                {'error': f"Invalid category '{corrected_category}'. Must be DRY, WET, or HAZARDOUS."},
+                {'error': f"Invalid category '{corrected_category}'. Must be DRY, WET, or METAL."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 

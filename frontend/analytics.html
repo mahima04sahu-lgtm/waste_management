@@ -3,142 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Safety Analytics | HazGuard</title>
+  <title>Reports | WasteGuard Prototype</title>
+  <meta name="description" content="WasteGuard single-station Arduino Uno prototype — segregation analytics and summary reports.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
-  <link rel="stylesheet" href="css/dashboard.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/responsive.css">
-  <style>
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 850px) {
-      .analytics-grid { grid-template-columns: 1fr; }
-    }
-    .comparison-card {
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      background: #fff;
-    }
-  </style>
+  <link rel="stylesheet" href="css/wg-main.css">
 </head>
 <body>
-  <div class="app-container">
-    <aside class="sidebar">
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="app-sidebar">
       <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">WG</div>
+        <div class="sidebar-logo">WG</div>
         <div>
-          <div class="sidebar-brand-text">WasteGuard</div>
-          <div class="sidebar-brand-sub">Campus Automated Stations</div>
+          <div class="sidebar-name">WasteGuard</div>
+          <div class="sidebar-tagline">Arduino Prototype</div>
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="bins.html" class="nav-item"><span class="nav-icon">🏢</span> Waste Stations</a>
-        <a href="actions.html" class="nav-item"><span class="nav-icon">⚠️</span> Manual Reviews</a>
-        <a href="alerts.html" class="nav-item"><span class="nav-icon">🔔</span> Station Alerts</a>
-        <a href="collection.html" class="nav-item"><span class="nav-icon">🚛</span> Collection Dispatches</a>
-        <a href="analytics.html" class="nav-item active"><span class="nav-icon">📈</span> Waste Analytics</a>
-        <div class="nav-section-title">ADMINISTRATION</div>
-        <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR"><span class="nav-icon">⚙️</span> Station Settings</a>
+        <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="history.html" class="nav-item" id="nav-history">
+          <span class="nav-icon">📋</span> Segregation History
+        </a>
+        <a href="analytics.html" class="nav-item active" id="nav-analytics">
+          <span class="nav-icon">📈</span> Reports
+        </a>
+        <div class="nav-divider"></div>
+        <a href="settings.html" class="nav-item" id="nav-settings">
+          <span class="nav-icon">⚙️</span> Settings
+        </a>
       </nav>
+      <div class="sidebar-footer">
+        <div class="user-pill" id="sidebar-user-pill">
+          <div class="user-avatar-sm" id="sidebar-avatar">O</div>
+          <div>
+            <div class="user-pill-name" id="sidebar-user-name">Operator</div>
+            <div class="user-pill-role" id="sidebar-user-role">PROTOTYPE LAB</div>
+          </div>
+        </div>
+        <button class="btn-signout" onclick="AuthManager.logout()">Sign Out</button>
+      </div>
     </aside>
 
-    <div class="main-wrapper">
-      <header class="top-header">
-        <div class="header-title-group">
-          <h1>Campus Waste Analytics &amp; Automated Sorting Insights</h1>
-          <p>Wet / Dry / Hazard Distribution, Waste Volume Processed &amp; Manual-Review Trends</p>
+    <!-- Main Content -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title">Prototype Segregation Reports</h1>
         </div>
-        <div class="header-user-profile">
-          <div class="user-info-text">
-            <div class="user-name" id="nav-user-name">Loading...</div>
-            <div class="user-role" id="nav-user-role">OPERATOR</div>
-          </div>
-          <div class="user-avatar" id="nav-user-avatar">U</div>
-          <button class="btn btn-secondary btn-sm" onclick="AuthManager.logout()">Sign Out</button>
+        <div class="topbar-right">
+          <button class="btn-refresh" id="btn-refresh-reports" onclick="ReportsManager.load()">↻ Refresh</button>
         </div>
       </header>
 
       <main class="page-content">
-        <!-- Campus Sorting Efficiency Card -->
-        <div class="card" style="margin-bottom:24px;">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Campus Automated Sorting Overview</h2>
-              <p class="card-subtitle">Performance Metrics: Automated Tri-Bin Sorting vs. Manual Residual Mixed Waste Handling</p>
-            </div>
-            <span class="badge badge-medium">LIVE CAMPUS MONITORING</span>
+        <!-- Station Overview Banner -->
+        <div class="station-hud-banner">
+          <div>
+            <h3 style="font-size:15px; font-weight:700; color:#0f172a;">Single-Station Performance Summary</h3>
+            <p style="font-size:12px; color:#64748b; margin-top:2px;">Station 01 Prototype · Arduino Uno · Inductive Metal &amp; Moisture Sensors</p>
           </div>
-          
-          <div class="analytics-grid" style="margin-top:12px;">
-            <div class="comparison-card" style="border-left:4px solid var(--status-critical); background:#fff5f5;">
-              <div style="font-size:12px; font-weight:800; color:var(--status-critical); text-transform:uppercase; margin-bottom:8px;">
-                TRADITIONAL CAMPUS BINS (UNSORTED RESIDUAL WASTE)
-              </div>
-              <div id="metric-before-inspections">
-                <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
-                  <div>• High residual mixed waste sent to landfill</div>
-                  <div>• 100% manual sorting exposure required</div>
-                  <div>• Frequent overflow incidents</div>
-                </div>
-              </div>
-            </div>
+          <div style="font-size:12px; color:#475569;">
+            Data Mode: <strong style="color:#10b981;">Real Database Telemetry</strong>
+          </div>
+        </div>
 
-            <div class="comparison-card" style="border-left:4px solid var(--status-low); background:#f0fdf4;">
-              <div style="font-size:12px; font-weight:800; color:var(--status-low); text-transform:uppercase; margin-bottom:8px;">
-                WASTEGUARD AUTOMATED STATIONS NETWORK
-              </div>
-              <div id="metric-after-inspections">
-                <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
-                  <div>• <strong>82% Reduction</strong> in residual mixed waste</div>
-                  <div>• Real-time automated Wet / Dry / Hazard classification</div>
-                  <div>• Immediate manual-review alerts for uncertain items</div>
-                </div>
-              </div>
+        <!-- Metric KPI Cards -->
+        <div class="kpi-row" style="margin-bottom:20px;">
+          <div class="kpi-card kpi-total">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="rep-total-events">0</div>
+              <div class="kpi-label">Total Events Logged</div>
+            </div>
+          </div>
+          <div class="kpi-card kpi-metal">
+            <div class="kpi-icon">🔩</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="rep-metal-events">0</div>
+              <div class="kpi-label">Metal Stream Count</div>
+            </div>
+          </div>
+          <div class="kpi-card kpi-wet">
+            <div class="kpi-icon">🍃</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="rep-wet-events">0</div>
+              <div class="kpi-label">Wet Stream Count</div>
+            </div>
+          </div>
+          <div class="kpi-card kpi-dry">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="rep-dry-events">0</div>
+              <div class="kpi-label">Dry (Residual) Count</div>
             </div>
           </div>
         </div>
 
-        <!-- Waste Segregation Stream Breakdown (Dry, Wet, Hazardous) -->
-        <div class="analytics-grid">
-          <div class="card">
-            <h3 class="card-title" style="margin-bottom:12px;">Waste Segregation Stream Breakdown</h3>
-            <div class="table-responsive">
-              <table class="clinical-table">
-                <thead>
-                  <tr>
-                    <th>Segregation Category</th>
-                    <th>Distribution</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="analytics-category-table-body">
-                  <tr><td colspan="3" style="text-align:center; padding:16px;">Loading category data...</td></tr>
-                </tbody>
-              </table>
+        <!-- Rule-Based Sorting Breakdown Table -->
+        <div class="section-card" style="margin-bottom:24px;">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Stream Distribution Breakdown</h2>
+              <p class="section-sub">Actual percentage volume segregated by prototype hardware rules</p>
             </div>
           </div>
+          <div class="events-table-wrap">
+            <table class="events-table">
+              <thead>
+                <tr>
+                  <th>Output Category</th>
+                  <th>Hardware Trigger Mechanism</th>
+                  <th>Events Count</th>
+                  <th>Share (%)</th>
+                </tr>
+              </thead>
+              <tbody id="reports-breakdown-body">
+                <tr><td colspan="4" class="table-loading">Loading report data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-          <div class="card">
-            <h3 class="card-title" style="margin-bottom:12px;">Active Campus Stations by Location</h3>
-            <div class="table-responsive">
-              <table class="clinical-table">
-                <thead>
-                  <tr>
-                    <th>Location</th>
-                    <th>Active Stations</th>
-                    <th>Primary Stream</th>
-                  </tr>
-                </thead>
-                <tbody id="analytics-ward-table-body">
-                  <tr><td colspan="3" style="text-align:center; padding:16px;">Loading location data...</td></tr>
-                </tbody>
-              </table>
+        <!-- Hardware Rule Architecture Card -->
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Implemented Classification Architecture</h2>
+              <p class="section-sub">Deterministic rule sequence executed on incoming sensor signals</p>
+            </div>
+          </div>
+          <div style="padding:18px 20px; font-size:13px; line-height:1.6; color:#334155;">
+            <ol style="margin-left:20px; display:flex; flex-direction:column; gap:10px;">
+              <li>
+                <strong>Priority 1 — Metal Check:</strong> If the inductive metal detection sensor registers a metallic/ferrous object, the item is immediately routed to the <strong>Metal</strong> compartment.
+              </li>
+              <li>
+                <strong>Priority 2 — Moisture / Wetness Check:</strong> If metal is not detected, but the wetness/moisture sensor exceeds the threshold (≥ 45.0%), the item is routed to the <strong>Wet</strong> compartment.
+              </li>
+              <li>
+                <strong>Priority 3 — Residual Dry Waste:</strong> When neither metal nor wetness is detected, the item is directed to the <strong>Dry</strong> compartment (e.g. paper, dry packaging, plastics).
+              </li>
+            </ol>
+            <div style="margin-top:14px; padding:10px 14px; background:#f8fafc; border-left:3px solid #10b981; border-radius:0 6px 6px 0; font-size:12px; color:#475569;">
+              <strong>Scope Notice:</strong> The prototype classifies strictly into Metal, Wet, or Dry based on physical inductive and moisture sensor triggers. It does not perform optical material identification or chemical classification.
             </div>
           </div>
         </div>
@@ -149,6 +160,55 @@
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/analytics.js"></script>
+  <script>
+    const ReportsManager = {
+      async load() {
+        try {
+          const resp = await ApiClient.get('/analytics/summary/?station_id=STATION-01');
+          const kpis = resp.kpis || {};
+          const total = kpis.total_events || 0;
+          const metal = kpis.metal_count || 0;
+          const wet = kpis.wet_count || 0;
+          const dry = kpis.dry_count || 0;
+
+          document.getElementById('rep-total-events').textContent = total;
+          document.getElementById('rep-metal-events').textContent = metal;
+          document.getElementById('rep-wet-events').textContent = wet;
+          document.getElementById('rep-dry-events').textContent = dry;
+
+          const pct = (n) => total > 0 ? ((n / total) * 100).toFixed(1) + '%' : '0.0%';
+
+          const tbody = document.getElementById('reports-breakdown-body');
+          tbody.innerHTML = `
+            <tr>
+              <td><span class="cat-badge cat-metal">🔩 Metal</span></td>
+              <td style="color:#64748b;">Inductive metal detection sensor triggered</td>
+              <td><strong>${metal}</strong></td>
+              <td><span style="font-weight:700; color:#475569;">${pct(metal)}</span></td>
+            </tr>
+            <tr>
+              <td><span class="cat-badge cat-wet">🍃 Wet</span></td>
+              <td style="color:#64748b;">Moisture / conductivity sensor triggered (≥ 45%)</td>
+              <td><strong>${wet}</strong></td>
+              <td><span style="font-weight:700; color:#16a34a;">${pct(wet)}</span></td>
+            </tr>
+            <tr>
+              <td><span class="cat-badge cat-dry">📦 Dry (Residual)</span></td>
+              <td style="color:#64748b;">Residual category (neither metal nor moisture detected)</td>
+              <td><strong>${dry}</strong></td>
+              <td><span style="font-weight:700; color:#0284c7;">${pct(dry)}</span></td>
+            </tr>
+          `;
+        } catch (e) {
+          console.warn('[Reports] Fetch error:', e);
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.AuthManager) AuthManager.renderUserNav();
+      ReportsManager.load();
+    });
+  </script>
 </body>
 </html>

@@ -3,9 +3,9 @@ from containers.models import Container
 
 class VisionClass(models.TextChoices):
     NORMAL = 'NORMAL', 'Normal Waste'
-    BIOHAZARD = 'BIOHAZARD', 'Biohazardous Material'
-    SHARPS = 'SHARPS', 'Sharps / Needles'
-    HAZARD = 'HAZARD', 'Chemical / Dangerous Hazard'
+    METAL = 'METAL', 'Metal Material'
+    WET = 'WET', 'Wet Material'
+    DRY = 'DRY', 'Dry Material'
     UNKNOWN = 'UNKNOWN', 'Unknown / Low Confidence'
 
 class VisionEvent(models.Model):

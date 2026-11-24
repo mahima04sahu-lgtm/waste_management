@@ -44,16 +44,16 @@ class ContainerActionTests(APITestCase):
         self.assertEqual(self.container.current_waste, 'Wet')
         self.assertEqual(self.container.waste_category, WasteCategory.WET)
 
-    def test_select_category_valid_hazardous(self):
+    def test_select_category_valid_metal(self):
         url = f'/api/containers/{self.container.id}/select-category/'
-        response = self.client.post(url, {'category': 'HAZARDOUS'}, format='json')
+        response = self.client.post(url, {'category': 'METAL'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['selected_category'], 'Hazard')
-        self.assertEqual(response.data['waste_category'], WasteCategory.HAZARDOUS)
+        self.assertEqual(response.data['selected_category'], 'Metal')
+        self.assertEqual(response.data['waste_category'], WasteCategory.METAL)
 
         self.container.refresh_from_db()
-        self.assertEqual(self.container.current_waste, 'Hazard')
-        self.assertEqual(self.container.waste_category, WasteCategory.HAZARDOUS)
+        self.assertEqual(self.container.current_waste, 'Metal')
+        self.assertEqual(self.container.waste_category, WasteCategory.METAL)
 
     def test_select_category_invalid(self):
         url = f'/api/containers/{self.container.id}/select-category/'

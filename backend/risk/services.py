@@ -50,21 +50,10 @@ def calculate_container_risk(container, sensor_reading=None, vision_event=None):
     moist_val = sensor_reading.moisture if sensor_reading else 0.0
     if moist_val >= 75.0:
         score += 25
-        reasons.append(f"High moisture / liquid hazard detected ({moist_val:.0f}%)")
+        reasons.append(f"High moisture level detected ({moist_val:.0f}%)")
     elif moist_val >= 55.0:
         score += 10
         reasons.append("Moderate moisture level detected")
-
-    # 5. Waste Stream Hazard Awareness
-    is_hazard_stream = (getattr(container, 'current_waste', '').lower() in ['hazard', 'hazardous'] or
-                        getattr(container, 'waste_category', '') == 'HAZARDOUS')
-    if is_hazard_stream:
-        if gas_val >= 250.0 or moist_val >= 50.0:
-            score += 25
-            reasons.append("Hazardous waste stream with elevated VOC / moisture activity")
-        else:
-            score += 10
-            reasons.append("Hazardous waste segregation stream active")
 
     # Normalize score 0 - 100
     risk_score = min(100, score)
@@ -81,9 +70,7 @@ def calculate_container_risk(container, sensor_reading=None, vision_event=None):
 
     # Recommended Action Engine logic
     if risk_level == RiskLevel.CRITICAL:
-        recommended_action = 'ISOLATE'
-    elif is_hazard_stream and risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
-        recommended_action = 'SPECIALIST REQUIRED'
+        recommended_action = 'INSPECT'
     elif risk_level == RiskLevel.HIGH:
         recommended_action = 'INSPECT'
     elif risk_level == RiskLevel.MEDIUM:

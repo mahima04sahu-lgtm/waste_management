@@ -52,14 +52,14 @@ class DeviceTelemetryTests(APITestCase):
     def test_ingest_telemetry_updates_category_stream(self):
         payload = {
             'container_id': 'STATION-TEST-02',
-            'category': 'Hazardous',
+            'category': 'Metal',
             'proximity_detected': True
         }
         response = self.client.post(self.endpoint, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         container = Container.objects.get(container_id='STATION-TEST-02')
-        self.assertEqual(container.current_waste, 'Hazardous')
+        self.assertEqual(container.current_waste, 'Metal')
 
 
     def test_get_method_not_allowed(self):

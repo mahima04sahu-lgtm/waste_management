@@ -10,6 +10,7 @@ from risk.models import RiskPrediction
 from risk.services import calculate_container_risk
 from actions.models import Action, ActionPriority, ActionStatus
 from alerts.models import Alert, AlertSeverity, AlertType, AlertStatus
+from audit_logs.models import AuditLog
 from audit_logs.services import log_audit
 
 def _parse_bool(val, default=False):
@@ -20,7 +21,7 @@ def _parse_bool(val, default=False):
     if isinstance(val, (int, float)):
         return bool(val)
     if isinstance(val, str):
-        return val.strip().lower() in ('true', '1', 't', 'yes', 'y', 'detected', 'high', 'active')
+        return val.strip().lower() in ('true', '1', 't', 'yes', 'y', 'detected', 'high', 'active', 'metal', 'wet')
     return bool(val)
 
 def _parse_float(val, default=0.0):
@@ -31,7 +32,7 @@ def _parse_float(val, default=0.0):
 
 class DeviceTelemetryView(APIView):
     """
-    Endpoint for IoT ESP32 / Telemetry hardware ingestion:
+    Endpoint for IoT Arduino Uno / Hardware Telemetry ingestion:
     POST /api/devices/sensor-data/
     """
     permission_classes = [permissions.AllowAny]
@@ -46,9 +47,9 @@ class DeviceTelemetryView(APIView):
         container, created = Container.objects.get_or_create(
             container_id=container_id,
             defaults={
-                'name': f'Waste Unit {container_id}',
-                'location': data.get('location', 'General Ward Corridor'),
-                'ward': data.get('ward', 'Emergency Ward'),
+                'name': f'WasteGuard Unit {container_id}',
+                'location': data.get('location', 'Station 01 Prototype'),
+                'ward': data.get('ward', 'Sorting Lab'),
                 'capacity_liters': 60.0
             }
         )
@@ -56,65 +57,79 @@ class DeviceTelemetryView(APIView):
         device_status = str(data.get('device_status', 'ONLINE')).upper()
         container.device_status = device_status
 
+        # Ingest metal detection sensor reading
+        metal_raw = data.get('metal_detected', data.get('metal', data.get('metal_sensor', data.get('inductive', False))))
+        metal_detected = _parse_bool(metal_raw, False)
+
+        # Ingest moisture / wetness sensor reading
+        moisture = _parse_float(data.get('moisture', data.get('moist', data.get('wetness', data.get('soil_moisture', 0.0)))), 0.0)
+        moisture_raw = data.get('moisture_detected', data.get('is_wet'))
+        if moisture_raw is not None:
+            moisture_detected = _parse_bool(moisture_raw, False)
+        else:
+            moisture_detected = (moisture >= 45.0)
+
         # Ingest proximity presence (handles bool, int, string)
         proximity_raw = data.get('proximity_detected', data.get('proximity', data.get('presence', data.get('pir', data.get('ir')))))
         proximity_detected = _parse_bool(proximity_raw, False)
         container.proximity_detected = proximity_detected
 
-        # Optional category update integration point
-        new_category = data.get('waste_category', data.get('category', data.get('stream')))
-        if new_category:
-            cat_str = str(new_category).strip()
-            container.current_waste = cat_str.capitalize()
-            cat_upper = cat_str.upper()
-            if hasattr(WasteCategory, cat_upper):
-                container.waste_category = cat_upper
-            elif 'DRY' in cat_upper:
-                container.waste_category = WasteCategory.DRY
-            elif 'WET' in cat_upper:
-                container.waste_category = WasteCategory.WET
-            elif 'HAZ' in cat_upper:
-                container.waste_category = WasteCategory.HAZARDOUS
+        # =========================================================================
+        # WasteGuard Rule-Based Classification Logic:
+        # 1. Metal detected -> Metal
+        # 2. Otherwise, moisture detected -> Wet
+        # 3. Otherwise -> Dry (Residual category)
+        # =========================================================================
+        explicit_cat = data.get('waste_category', data.get('category', data.get('stream')))
+        if explicit_cat:
+            cat_str = str(explicit_cat).strip().upper()
+            if 'METAL' in cat_str:
+                predicted_category = 'Metal'
+                category_enum = WasteCategory.METAL
+                rule_applied = 'Explicit designation: Metal'
+            elif 'WET' in cat_str:
+                predicted_category = 'Wet'
+                category_enum = WasteCategory.WET
+                rule_applied = 'Explicit designation: Wet'
+            else:
+                predicted_category = 'Dry'
+                category_enum = WasteCategory.DRY
+                rule_applied = 'Explicit designation: Dry'
+        elif metal_detected:
+            predicted_category = 'Metal'
+            category_enum = WasteCategory.METAL
+            rule_applied = 'Metal sensor detected inductive material'
+        elif moisture_detected:
+            predicted_category = 'Wet'
+            category_enum = WasteCategory.WET
+            rule_applied = f'Moisture sensor detected wetness ({moisture:.1f}%)'
+        else:
+            predicted_category = 'Dry'
+            category_enum = WasteCategory.DRY
+            rule_applied = 'Residual category (neither metal nor moisture detected)'
 
-        # Multi-compartment fill level updates (for 3-bin smart stations)
+        container.current_waste = predicted_category
+        container.waste_category = category_enum
+
+        # Multi-compartment fill level updates if provided
         if 'dry_fill_pct' in data:
             container.dry_fill_pct = _parse_float(data.get('dry_fill_pct'), container.dry_fill_pct)
         if 'wet_fill_pct' in data:
             container.wet_fill_pct = _parse_float(data.get('wet_fill_pct'), container.wet_fill_pct)
-        if 'hazard_fill_pct' in data:
-            container.hazard_fill_pct = _parse_float(data.get('hazard_fill_pct'), container.hazard_fill_pct)
+        if 'metal_fill_pct' in data:
+            container.metal_fill_pct = _parse_float(data.get('metal_fill_pct'), getattr(container, 'metal_fill_pct', 0.0))
 
-        # Fill level calculation from ultrasonic sensor distance if distance_cm is provided
-        distance_cm = data.get('distance_cm', data.get('distance'))
         fill_level_raw = data.get('fill_level', data.get('fill', data.get('level')))
-        if fill_level_raw is not None:
-            fill_level = _parse_float(fill_level_raw, 0.0)
-        elif distance_cm is not None:
-            dist = _parse_float(distance_cm, 50.0)
-            bin_height = _parse_float(data.get('bin_height_cm', 100.0), 100.0)
-            fill_level = max(0.0, min(100.0, round((bin_height - dist) / bin_height * 100.0, 1)))
-        else:
-            fill_level = 0.0
+        fill_level = _parse_float(fill_level_raw, 0.0) if fill_level_raw is not None else 0.0
 
-        # If a single fill_level was reported, update active compartment percentage
-        if fill_level > 0:
-            cur_waste_lower = container.current_waste.lower()
-            if 'wet' in cur_waste_lower:
-                container.wet_fill_pct = fill_level
-            elif 'haz' in cur_waste_lower:
-                container.hazard_fill_pct = fill_level
-            else:
-                container.dry_fill_pct = fill_level
-
-        container.last_processed = 'Just now (ESP32 Wi-Fi)' if data.get('is_esp32', True) else 'Just now (Hardware Event)'
+        container.last_processed = timezone.now().strftime('%d %b %Y, %I:%M %p')
         container.save()
 
-        # 2. Store raw SensorReading
+        # 2. Store physical SensorReading
         weight = _parse_float(data.get('weight', data.get('load_cell', 0.0)), 0.0)
         temperature = _parse_float(data.get('temperature', data.get('temp', data.get('temp_c', 24.0))), 24.0)
         humidity = _parse_float(data.get('humidity', data.get('hum', data.get('h', 50.0))), 50.0)
         gas_indicator = _parse_float(data.get('gas_indicator', data.get('gas', data.get('gas_ppm', data.get('voc', 120.0)))), 120.0)
-        moisture = _parse_float(data.get('moisture', data.get('moist', data.get('soil_moisture', 20.0))), 20.0)
 
         reading = SensorReading.objects.create(
             container=container,
@@ -128,12 +143,27 @@ class DeviceTelemetryView(APIView):
             device_status=device_status
         )
 
-        # 3. Retrieve latest vision event if available
+        # 3. Create AuditLog event for Segregation History
+        segregation_event = AuditLog.objects.create(
+            action="SEGREGATION_EVENT",
+            entity="Station",
+            entity_id=container_id,
+            metadata={
+                'metal_detected': metal_detected,
+                'metal_reading': 1 if metal_detected else 0,
+                'moisture_value': moisture,
+                'moisture_detected': moisture_detected,
+                'predicted_category': predicted_category,
+                'rule_applied': rule_applied,
+                'status': 'Completed',
+                'reading_id': reading.id,
+                'device_status': device_status
+            }
+        )
+
+        # 4. Optional Risk Engine Evaluation (Maintains compatibility)
         vision_event = container.vision_events.first()
-
-        # 4. Calculate Risk
         risk_result = calculate_container_risk(container, reading, vision_event)
-
         risk_pred = RiskPrediction.objects.create(
             container=container,
             risk_score=risk_result['risk_score'],
@@ -142,17 +172,16 @@ class DeviceTelemetryView(APIView):
             reason=risk_result['reason']
         )
 
-        # 5. Generate / Update Action
-        priority = ActionPriority.LOW
-        if risk_result['risk_level'] == 'CRITICAL':
-            priority = ActionPriority.CRITICAL
-        elif risk_result['risk_level'] == 'HIGH':
-            priority = ActionPriority.HIGH
-        elif risk_result['risk_level'] == 'MEDIUM':
-            priority = ActionPriority.MEDIUM
-
         action_item = None
         if risk_result['recommended_action'] not in ['NO ACTION']:
+            priority = ActionPriority.LOW
+            if risk_result['risk_level'] == 'CRITICAL':
+                priority = ActionPriority.CRITICAL
+            elif risk_result['risk_level'] == 'HIGH':
+                priority = ActionPriority.HIGH
+            elif risk_result['risk_level'] == 'MEDIUM':
+                priority = ActionPriority.MEDIUM
+
             action_item = Action.objects.create(
                 container=container,
                 action_type=risk_result['recommended_action'],
@@ -161,7 +190,6 @@ class DeviceTelemetryView(APIView):
                 status=ActionStatus.PENDING
             )
 
-        # 6. Generate Alert if high risk or abnormal gas/temp
         created_alert = None
         if risk_result['risk_level'] in ['HIGH', 'CRITICAL'] or gas_indicator >= 350.0:
             severity = AlertSeverity.CRITICAL if (risk_result['risk_level'] == 'CRITICAL' or gas_indicator >= 400.0) else AlertSeverity.HIGH
@@ -175,28 +203,30 @@ class DeviceTelemetryView(APIView):
                 status=AlertStatus.NEW
             )
 
-        # 7. Audit Log Entry
         log_audit(
             action="TELEMETRY_RECEIVED",
             entity="Container",
             entity_id=container_id,
             metadata={
-                'proximity_detected': proximity_detected,
-                'gas_indicator': gas_indicator,
-                'temperature': temperature,
-                'humidity': humidity,
+                'metal_detected': metal_detected,
                 'moisture': moisture,
-                'fill_level': fill_level,
-                'risk_score': risk_result['risk_score'],
-                'risk_level': risk_result['risk_level'],
-                'recommended_action': risk_result['recommended_action']
+                'predicted_category': predicted_category,
+                'rule_applied': rule_applied,
+                'device_status': device_status
             }
         )
 
         return Response({
             'status': 'success',
             'container_id': container_id,
-            'timestamp': reading.timestamp,
+            'event_id': segregation_event.id,
+            'timestamp': segregation_event.timestamp,
+            'segregation': {
+                'category': predicted_category,
+                'rule_applied': rule_applied,
+                'metal_detected': metal_detected,
+                'moisture': moisture
+            },
             'risk_assessment': {
                 'score': risk_result['risk_score'],
                 'level': risk_result['risk_level'],
@@ -209,15 +239,24 @@ class DeviceTelemetryView(APIView):
 
 class DevicePingView(APIView):
     """
-    Lightweight ping endpoint for ESP32 Wi-Fi hardware health check:
-    GET /api/devices/ping/
+    Lightweight ping endpoint for Arduino Uno / Hardware health check:
+    GET or POST /api/devices/ping/?container_id=STATION-01
     """
     permission_classes = [permissions.AllowAny]
 
-    def get(self, request):
+    def _handle_ping(self, request):
+        data = request.data if request.method == 'POST' else request.query_params
+        station_id = data.get('container_id') or data.get('station_id') or data.get('device_id') or 'STATION-01'
+        container = Container.objects.filter(container_id=station_id).first()
+        if container:
+            container.device_status = 'ONLINE'
+            container.last_processed = timezone.now().strftime('%d %b %Y, %I:%M:%S %p')
+            container.save(update_fields=['device_status', 'last_processed', 'updated_at'])
+
         return Response({
             'status': 'online',
-            'gateway': 'WasteGuard IoT Telemetry Hub',
+            'station_id': station_id,
+            'gateway': 'WasteGuard Arduino Uno Telemetry Hub',
             'server_time': timezone.now().isoformat(),
             'supported_endpoints': {
                 'telemetry': 'POST /api/devices/sensor-data/',
@@ -226,9 +265,15 @@ class DevicePingView(APIView):
             }
         }, status=status.HTTP_200_OK)
 
+    def get(self, request):
+        return self._handle_ping(request)
+
+    def post(self, request):
+        return self._handle_ping(request)
+
 class DeviceConfigView(APIView):
     """
-    Station configuration & threshold query endpoint for ESP32:
+    Station configuration & threshold query endpoint for Arduino Uno:
     GET /api/devices/config/?container_id=STATION-01
     """
     permission_classes = [permissions.AllowAny]
@@ -237,18 +282,13 @@ class DeviceConfigView(APIView):
         container_id = request.query_params.get('container_id') or 'STATION-01'
         container = Container.objects.filter(container_id=container_id).first()
 
-        thresholds = getattr(settings, 'RISK_THRESHOLDS', {
-            'GAS_HIGH_PPM': 350.0,
-            'TEMP_HIGH_C': 35.0,
-            'MOISTURE_HIGH': 70.0,
-            'FILL_HIGH_PERCENT': 80.0,
-        })
-
         return Response({
             'container_id': container_id,
             'name': container.name if container else f'Station {container_id}',
+            'prototype_scope': 'Single-station Arduino Uno prototype (Metal, Wet, Dry)',
+            'sensors_confirmed': ['Metal Detection Sensor', 'Moisture / Wetness Sensor'],
+            'moisture_threshold_pct': 45.0,
             'assigned_stream': container.waste_category if container else 'DRY',
             'current_waste': container.current_waste if container else 'Dry',
-            'telemetry_interval_sec': 5,
-            'thresholds': thresholds
+            'telemetry_interval_sec': 3
         }, status=status.HTTP_200_OK)

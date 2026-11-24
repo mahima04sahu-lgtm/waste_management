@@ -3,94 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings | WasteGuard</title>
+  <title>Settings | WasteGuard Prototype</title>
+  <meta name="description" content="WasteGuard single-station Arduino Uno prototype settings and hardware telemetry configuration.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
-  <link rel="stylesheet" href="css/dashboard.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/wg-main.css">
 </head>
 <body>
-  <div class="app-container">
-    <aside class="sidebar">
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="app-sidebar">
       <div class="sidebar-brand">
         <div class="sidebar-logo">WG</div>
         <div>
           <div class="sidebar-name">WasteGuard</div>
-          <div class="sidebar-tagline">Campus Operations</div>
+          <div class="sidebar-tagline">Arduino Prototype</div>
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-        <a href="reviews.html" class="nav-item"><span class="nav-icon">🔍</span> Manual Reviews</a>
-        <a href="history.html" class="nav-item"><span class="nav-icon">📋</span> Activity History</a>
-        <a href="bins.html" class="nav-item"><span class="nav-icon">🏢</span> Station Management</a>
+        <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="history.html" class="nav-item" id="nav-history">
+          <span class="nav-icon">📋</span> Segregation History
+        </a>
+        <a href="analytics.html" class="nav-item" id="nav-analytics">
+          <span class="nav-icon">📈</span> Reports
+        </a>
         <div class="nav-divider"></div>
-        <a href="settings.html" class="nav-item active"><span class="nav-icon">⚙️</span> Settings</a>
+        <a href="settings.html" class="nav-item active" id="nav-settings">
+          <span class="nav-icon">⚙️</span> Settings
+        </a>
       </nav>
+      <div class="sidebar-footer">
+        <div class="user-pill" id="sidebar-user-pill">
+          <div class="user-avatar-sm" id="sidebar-avatar">O</div>
+          <div>
+            <div class="user-pill-name" id="sidebar-user-name">Operator</div>
+            <div class="user-pill-role" id="sidebar-user-role">PROTOTYPE LAB</div>
+          </div>
+        </div>
+        <button class="btn-signout" onclick="AuthManager.logout()">Sign Out</button>
+      </div>
     </aside>
 
-    <div class="main-wrapper">
-      <header class="top-header">
-        <div class="header-title-group">
-          <h1>WasteGuard Station Settings</h1>
-          <p>Classification Thresholds, ESP32 Station Telemetry &amp; System Configuration</p>
-        </div>
-        <div class="header-user-profile">
-          <div class="user-info-text">
-            <div class="user-name" id="nav-user-name">Loading...</div>
-            <div class="user-role" id="nav-user-role">OPERATOR</div>
-          </div>
-          <div class="user-avatar" id="nav-user-avatar">U</div>
-          <button class="btn btn-secondary btn-sm" onclick="AuthManager.logout()">Sign Out</button>
+    <!-- Main Content -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title">Prototype Hardware Settings</h1>
         </div>
       </header>
 
-
       <main class="page-content">
-        <div class="card" style="max-width:650px; margin-bottom:20px;">
-          <h3 class="card-title" style="margin-bottom:16px;">Risk Calculation Thresholds</h3>
-          
-          <div class="form-group">
-            <label class="form-label">Gas / VOC Anomaly Threshold (ppm)</label>
-            <input type="number" class="form-control" value="350" readonly>
-            <span class="text-muted" style="font-size:11px;">Trigger elevated risk level if VOC readings exceed this value.</span>
+        <!-- Station Identity Card -->
+        <div class="section-card" style="margin-bottom:20px; max-width:680px;">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Station Hardware Identity</h2>
+              <p class="section-sub">Single-station prototype configuration parameters</p>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">High Temperature Warning Threshold (°C)</label>
-            <input type="number" class="form-control" value="35" readonly>
-            <span class="text-muted" style="font-size:11px;">Flag container for potential decomposition / reaction heat.</span>
+          <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px; font-size:13px;">
+            <div>
+              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Assigned Prototype Station ID</label>
+              <input type="text" class="form-control" value="STATION-01" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Microcontroller Core</label>
+              <input type="text" class="form-control" value="Arduino Uno (ATmega328P)" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc;">
+            </div>
+            <div>
+              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Supported Output Categories</label>
+              <div style="display:flex; gap:8px; margin-top:4px;">
+                <span class="cat-badge cat-metal">🔩 Metal</span>
+                <span class="cat-badge cat-wet">🍃 Wet</span>
+                <span class="cat-badge cat-dry">📦 Dry (Residual)</span>
+              </div>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Moisture Hazard Threshold (%)</label>
-            <input type="number" class="form-control" value="70" readonly>
-            <span class="text-muted" style="font-size:11px;">Flag liquid spill hazard.</span>
-          </div>
-
-          <button class="btn btn-primary" onclick="Components.showToast('System settings updated successfully.', 'success')">Save Configuration</button>
         </div>
 
-        <div class="card" style="max-width:650px;">
-          <h3 class="card-title" style="margin-bottom:12px;">Hardware &amp; Sensor Ingestion Endpoints</h3>
-          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6; display:flex; flex-direction:column; gap:12px;">
+        <!-- Sensor Thresholds Card -->
+        <div class="section-card" style="margin-bottom:20px; max-width:680px;">
+          <div class="section-header">
             <div>
-              <strong>1. Telemetry Ingestion (ESP32 / Sensors):</strong><br>
-              <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/devices/sensor-data/</code><br>
-              <span class="text-muted" style="font-size:11px;">Payload fields: <code>container_id</code>, <code>proximity_detected</code>, <code>temperature</code>, <code>humidity</code>, <code>gas_indicator</code>, <code>moisture</code></span>
+              <h2 class="section-title">Sensor Calibration &amp; Thresholds</h2>
+              <p class="section-sub">Rule decision parameters for physical sensor triggers</p>
+            </div>
+          </div>
+          <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px; font-size:13px;">
+            <div>
+              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Inductive Metal Sensor Trigger Mode</label>
+              <input type="text" class="form-control" value="Digital High (Presence of Ferrous / Conductive Metal)" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc;">
+              <span style="font-size:11px; color:#64748b; margin-top:3px; display:block;">Triggering routes waste directly to the Metal compartment.</span>
             </div>
             <div>
-              <strong>2. Compartment Selection / Activation:</strong><br>
-              <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/containers/&lt;id&gt;/select-category/</code><br>
-              <span class="text-muted" style="font-size:11px;">Payload fields: <code>category</code> (DRY, WET, HAZARDOUS)</span>
+              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Moisture / Wetness Trigger Threshold (%)</label>
+              <input type="number" class="form-control" value="45" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace;">
+              <span style="font-size:11px; color:#64748b; margin-top:3px; display:block;">If no metal detected, moisture reading ≥ 45% routes waste to the Wet compartment.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingestion API Specification Card -->
+        <div class="section-card" style="max-width:680px;">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Hardware Telemetry Ingestion API</h2>
+              <p class="section-sub">HTTP endpoint for Arduino Uno Serial Bridge / Wi-Fi telemetry</p>
+            </div>
+          </div>
+          <div style="padding:16px 20px; display:flex; flex-direction:column; gap:16px; font-size:13px;">
+            <div>
+              <strong style="color:#0f172a;">1. Ingest Telemetry Event (Arduino / Sensor):</strong><br>
+              <code style="display:inline-block; background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:#10b981; margin:4px 0;">POST /api/devices/sensor-data/</code><br>
+              <span style="font-size:11.5px; color:#64748b;">Payload fields: <code>station_id</code>, <code>metal_detected</code> (bool/int), <code>moisture</code> (float %), <code>device_status</code></span>
             </div>
             <div>
-              <strong>3. Proximity Presence Trigger:</strong><br>
-              <code class="font-mono" style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:var(--accent-teal);">POST /api/containers/&lt;id&gt;/set-proximity/</code><br>
-              <span class="text-muted" style="font-size:11px;">Payload fields: <code>detected</code> (true / false)</span>
+              <strong style="color:#0f172a;">2. Sample JSON Telemetry Payload:</strong>
+              <pre style="background:#0f172a; color:#f8fafc; padding:12px; border-radius:6px; font-size:11.5px; margin-top:6px; overflow-x:auto;">{
+  "station_id": "STATION-01",
+  "metal_detected": true,
+  "moisture": 65.0,
+  "device_status": "ONLINE"
+}</pre>
+            </div>
+            <div>
+              <strong style="color:#0f172a;">3. Hardware Ping Health Check:</strong><br>
+              <code style="display:inline-block; background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:#10b981; margin:4px 0;">GET /api/devices/ping/</code>
             </div>
           </div>
         </div>

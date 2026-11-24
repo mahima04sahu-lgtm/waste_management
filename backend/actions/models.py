@@ -37,7 +37,7 @@ class Action(models.Model):
         choices=WasteCategory.choices,
         blank=True,
         default='',
-        help_text='Waste category this review is associated with (DRY/WET/HAZARDOUS), if applicable'
+        help_text='Waste category this review is associated with (METAL/WET/DRY), if applicable'
     )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     completed_at = models.DateTimeField(null=True, blank=True)

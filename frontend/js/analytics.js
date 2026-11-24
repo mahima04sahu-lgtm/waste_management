@@ -62,7 +62,7 @@ class AnalyticsManager {
           <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">WasteGuard Automated Segregation Stations</div>
           <div style="margin-top:10px; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
             &bull; Proximity detection with <strong>${eff.proximity_detections_today || 142}</strong> verified object events<br>
-            &bull; Tri-Bin stream segregation (Dry, Wet, Hazardous)<br>
+            &bull; 3-Stream physical segregation (Metal, Wet, Dry)<br>
             &bull; Cross-contamination rate kept under <strong>${eff.cross_contamination_rate_pct || 1.6}%</strong>
           </div>
         `;

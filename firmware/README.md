@@ -1,87 +1,61 @@
-# 🔌 WasteGuard ESP32 Wi-Fi Hardware Integration Guide
+# 📡 WasteGuard Hardware Wi-Fi Integration Guide
 
-This guide details the complete hardware connection, pin mapping, and setup process for connecting an **ESP32 microcontroller over Wi-Fi** to the WasteGuard backend.
+This guide details how to connect your **Arduino Uno / ESP32** microcontroller over Wi-Fi to transmit live sensor telemetry into the WasteGuard dashboard in real time.
 
 ---
 
-## 📌 Sensor Pinout & Wiring Table
+## 📌 Sensor Pinout & Wiring
 
-| Component | Sensor Model | ESP32 GPIO Pin | Type | Purpose |
+| Sensor Component | Physical Sensor | Microcontroller Pin | Signal Type | Rule Applied |
 | :--- | :--- | :--- | :--- | :--- |
-| **Toxic / VOC Gas** | MQ-135 / MQ-2 | **GPIO 34** (ADC1_CH6) | Analog IN | Detects harmful chemical fumes & decomposition ($50 - 1000\text{ ppm}$) |
-| **Moisture** | Capacitive / Resistive | **GPIO 35** (ADC1_CH7) | Analog IN | Detects wet waste liquids & leachate leakage ($0 - 100\%$) |
-| **Proximity Sensor** | IR Obstacle / PIR | **GPIO 19** | Digital IN | Detects approaching hand or object at the intake hopper |
-| **Temp & Humidity** | DHT11 / DHT22 | **GPIO 4** | Digital IN | Monitors ambient temperature & moisture accumulation |
-| **Fill Level** | Ultrasonic HC-SR04 | Trig: **GPIO 5**<br>Echo: **GPIO 18** | Digital I/O | Measures container waste fill height ($0 - 100\%$) |
-| **Auto-Lid Servo** *(Optional)* | SG90 Servo | **GPIO 13** | PWM OUT | Automatically opens hopper lid when proximity is detected |
-
-> **Power Supply Note:**  
-> - Power the ESP32 via Micro-USB (5V).  
-> - The MQ-135 and HC-SR04 sensors require **5V (VIN)** for heating and echo range.  
-> - Use an active-low or adjustable IR proximity module (adjust potentiometer until hand detection triggers LED).
+| **Metal Sensor** | Inductive Proximity Sensor | **Digital Pin D2** (Uno) / **GPIO 22** (ESP32) | Digital IN (HIGH when metal present) | **Priority 1: Metal** |
+| **Moisture Sensor** | Soil / Liquid Moisture Probe | **Analog Pin A0** (Uno) / **GPIO 35** (ESP32) | Analog IN ($0 - 100\%$) | **Priority 2: Wet** ($\ge 45\%$) |
+| **Residual Category** | *(No sensor triggered)* | — | — | **Priority 3: Dry** (Neither) |
 
 ---
 
-## 🚀 Quick Step-by-Step Setup
+## 🌐 Network Configuration
 
-### Step 1: Connect to the Same Wi-Fi Network
-Both your laptop (running Django) and the ESP32 must be on the same local network:
-- Use your home/lab Wi-Fi, or
-- Turn on your phone's **Mobile Hotspot** and connect both your laptop and ESP32 to it.
-
-### Step 2: Find Your Laptop's IPv4 Address
-Open PowerShell and run:
-```powershell
-ipconfig
-```
-Find the **IPv4 Address** under your Wi-Fi adapter (e.g., `192.168.1.15`).
-
-### Step 3: Run the Backend Server on `0.0.0.0:8000`
-Run the Django server listening to all network interfaces:
-```powershell
-cd d:\SIH_demo\waste_management\backend
-..\env\Scripts\python.exe manage.py runserver 0.0.0.0:8000
-```
-
-### Step 4: Flash the ESP32
-1. Open [`firmware/esp32_wasteguard.ino`](esp32_wasteguard.ino) in the Arduino IDE.
-2. In lines 32–37, update:
-   - `WIFI_SSID`
-   - `WIFI_PASSWORD`
-   - `SERVER_HOST` (your laptop's IP address)
-   - `STATION_ID` (e.g. `STATION-01`)
-3. Select board **ESP32 Dev Module** and upload.
-4. Open the Serial Monitor at **115200 baud** to see live transmission logs.
+1. **Same Wi-Fi Network**: Connect your laptop and your Arduino / ESP32 to the **same Wi-Fi router or phone mobile hotspot**.
+2. **Laptop IPv4 Address**: `192.168.29.66` (or run `ipconfig` in PowerShell if your IP changes).
+3. **Backend Server Port**: `8000` (Django server runs on `0.0.0.0:8000`).
 
 ---
 
-## 🌐 Supported REST Endpoints for ESP32
+## 🚀 Step-by-Step Hardware Setup
 
-### 1. Ingest Telemetry (POST)
-- **URL:** `POST http://<SERVER_IP>:8000/api/devices/sensor-data/`
-- **Content-Type:** `application/json`
-- **Payload Example:**
-```json
-{
-  "station_id": "STATION-01",
-  "proximity_detected": true,
-  "temperature": 27.5,
-  "humidity": 55.0,
-  "gas_indicator": 130.0,
-  "moisture": 25.0,
-  "dry_fill_pct": 70.0,
-  "wet_fill_pct": 40.0,
-  "hazard_fill_pct": 15.0,
-  "waste_category": "DRY",
-  "device_status": "ONLINE"
-}
+### Step 1: Open Firmware in Arduino IDE
+- If using **ESP32**: Open [`firmware/esp32_wasteguard.ino`](esp32_wasteguard.ino)
+- If using **Arduino Uno with Wi-Fi**: Open [`firmware/arduino_uno_wifi_wasteguard.ino`](arduino_uno_wifi_wasteguard.ino)
+
+### Step 2: Configure Wi-Fi Credentials
+In the firmware file, enter your Wi-Fi details:
+```cpp
+const char* WIFI_SSID     = "YOUR_WIFI_NAME";
+const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* SERVER_HOST   = "192.168.29.66"; // Your laptop's IP
+const int   SERVER_PORT   = 8000;
 ```
 
-### 2. Connection Ping (GET)
-- **URL:** `GET http://<SERVER_IP>:8000/api/devices/ping/`
-- **Purpose:** Fast connectivity verification during microcontroller startup.
+### Step 3: Flash to Microcontroller
+- Select your Board and COM Port in the Arduino IDE.
+- Click **Upload**.
+- Open the **Serial Monitor** (115200 baud for ESP32, 9600 for Uno).
+- You will see:
+  ```text
+  [Wi-Fi] Connected successfully!
+  [PING] Heartbeat successful (Backend is ONLINE)
+  Sending Live Sensor Data to: http://192.168.29.66:8000/api/devices/sensor-data/
+  ```
 
-### 3. Station Configuration & Thresholds (GET)
-- **URL:** `GET http://<SERVER_IP>:8000/api/devices/config/?container_id=STATION-01`
-- **Purpose:** Fetches current threshold limits and assigned waste stream.
+---
 
+## 🔄 Live Dashboard Experience
+
+When your Arduino / ESP32 powers on and connects to Wi-Fi:
+1. The status badge at [http://127.0.0.1:8000/dashboard.html](http://127.0.0.1:8000/dashboard.html) automatically switches to **● Arduino Connected** (Live Sync).
+2. The **Inductive Metal Sensor** and **Moisture Sensor** display real-time live readings.
+3. Placing a metal object near the sensor immediately routes the event to **Metal** and increments the Metal counter.
+4. Dipping the moisture sensor into water immediately routes the event to **Wet** and increments the Wet counter.
+5. In the absence of both, the item is classified as **Dry**.
+6. The dashboard automatically syncs every **2.5 seconds** without manual page refresh.

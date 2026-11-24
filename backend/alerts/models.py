@@ -9,7 +9,7 @@ class AlertSeverity(models.TextChoices):
 
 class AlertType(models.TextChoices):
     HIGH_RISK = 'HIGH_RISK', 'High Operational Risk'
-    CRITICAL_RISK = 'CRITICAL_RISK', 'Critical Biohazard Risk'
+    CRITICAL_RISK = 'CRITICAL_RISK', 'Critical Operational Risk'
     OVERFILLED = 'OVERFILLED', 'Container Overfilled'
     ABNORMAL_TEMP = 'ABNORMAL_TEMP', 'Abnormal Temperature'
     GAS_ANOMALY = 'GAS_ANOMALY', 'Toxic / Gas VOC Anomaly'

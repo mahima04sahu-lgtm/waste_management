@@ -58,35 +58,35 @@ class Command(BaseCommand):
             {
                 'id': 'STATION-01', 'name': 'WasteGuard Station 01', 'ward': 'Central Garden Zone', 'loc': 'Central Garden',
                 'cat': WasteCategory.DRY, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
-                'wet': 42.0, 'dry': 68.0, 'hazard': 24.0, 'current': 'Dry', 'last': '2 min ago',
+                'wet': 42.0, 'dry': 68.0, 'metal': 25.0, 'current': 'Dry', 'last': '2 min ago',
                 'proximity': True,
                 'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             },
             {
                 'id': 'STATION-02', 'name': 'WasteGuard Station 02', 'ward': 'Cafeteria & Dining', 'loc': 'Cafeteria',
                 'cat': WasteCategory.WET, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
-                'wet': 78.0, 'dry': 85.0, 'hazard': 12.0, 'current': 'Wet', 'last': '1 min ago',
+                'wet': 78.0, 'dry': 85.0, 'metal': 15.0, 'current': 'Wet', 'last': '1 min ago',
                 'proximity': True,
                 'mr_pending': True, 'mr_count': 2, 'mr_reason': 'Classification verification requested'
             },
             {
                 'id': 'STATION-03', 'name': 'WasteGuard Station 03', 'ward': 'Academic Wing', 'loc': 'Academic Block',
                 'cat': WasteCategory.DRY, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
-                'wet': 30.0, 'dry': 55.0, 'hazard': 10.0, 'current': 'Dry', 'last': '4 min ago',
+                'wet': 30.0, 'dry': 55.0, 'metal': 10.0, 'current': 'Dry', 'last': '4 min ago',
                 'proximity': False,
                 'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             },
             {
                 'id': 'STATION-04', 'name': 'WasteGuard Station 04', 'ward': 'Hostel Complex', 'loc': 'Hostel',
-                'cat': WasteCategory.HAZARDOUS, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
-                'wet': 65.0, 'dry': 72.0, 'hazard': 40.0, 'current': 'Hazard', 'last': '3 min ago',
+                'cat': WasteCategory.METAL, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
+                'wet': 15.0, 'dry': 45.0, 'metal': 60.0, 'current': 'Metal', 'last': '3 min ago',
                 'proximity': False,
-                'mr_pending': True, 'mr_count': 1, 'mr_reason': 'Hazardous waste stream review'
+                'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             },
             {
                 'id': 'STATION-05', 'name': 'WasteGuard Station 05', 'ward': 'Parking & Transport', 'loc': 'Parking Area',
                 'cat': WasteCategory.DRY, 'status': ContainerStatus.ACTIVE, 'dev': DeviceStatus.ONLINE,
-                'wet': 20.0, 'dry': 45.0, 'hazard': 5.0, 'current': 'Dry', 'last': '10 min ago',
+                'wet': 20.0, 'dry': 45.0, 'metal': 10.0, 'current': 'Dry', 'last': '10 min ago',
                 'proximity': False,
                 'mr_pending': False, 'mr_count': 0, 'mr_reason': ''
             }
@@ -108,7 +108,8 @@ class Command(BaseCommand):
                     'proximity_detected': cdata.get('proximity', False),
                     'wet_fill_pct': cdata['wet'],
                     'dry_fill_pct': cdata['dry'],
-                    'hazard_fill_pct': cdata['hazard'],
+                    'metal_fill_pct': cdata['metal'],
+                    'hazard_fill_pct': 0.0,
                     'current_waste': cdata['current'],
                     'last_processed': cdata['last'],
                     'manual_review_pending': cdata['mr_pending'],
@@ -117,7 +118,7 @@ class Command(BaseCommand):
                 }
             )
 
-            fill = max(cdata['wet'], cdata['dry'], cdata['hazard'])
+            fill = max(cdata['wet'], cdata['dry'], cdata['metal'])
             weight = round(fill * 0.35, 1)
             temp = 26.5
             humidity = 55.0
@@ -207,44 +208,68 @@ class Command(BaseCommand):
                     weight_collected=round(random.uniform(12.0, 28.0), 1),
                     fill_at_collection=round(random.uniform(80.0, 95.0), 1),
                     status=CollectionStatus.COMPLETED,
-                    notes="Standard biomedical collection completed safely."
+                    notes="Standard segregation collection completed safely."
                 )
 
-        # 3. Create Key Audit Log Entries
+        # 3. Create Key Prototype Audit Log Entries (Metal, Wet, Dry)
         AuditLog.objects.create(
             user=user_objects['admin'],
             action="SYSTEM_INITIALIZED",
             entity="System",
-            entity_id="GLOBAL",
-            metadata={'message': 'HazGuard Hospital System initialized successfully with demo thresholds.'}
+            entity_id="STATION-01",
+            metadata={'message': 'WasteGuard Prototype System initialized (Metal, Wet, Dry segregation).'}
         )
         AuditLog.objects.create(
-            user=user_objects['safety_officer'],
-            action="RISK_LEVEL_CHANGED",
-            entity="Container",
-            entity_id="H-014",
-            metadata={'previous_risk': 'MEDIUM', 'new_risk': 'HIGH', 'reason': 'Abnormal gas VOC + high moisture + hazardous vision class'}
+            action="SEGREGATION_EVENT",
+            entity="Station",
+            entity_id="STATION-01",
+            metadata={
+                'metal_detected': True,
+                'metal_reading': 1,
+                'moisture_value': 12.0,
+                'moisture_detected': False,
+                'predicted_category': 'Metal',
+                'rule_applied': 'Metal sensor detected inductive material',
+                'status': 'Completed',
+                'device_status': 'ONLINE'
+            }
         )
         AuditLog.objects.create(
-            user=user_objects['supervisor'],
-            action="ACTION_RECOMMENDED",
-            entity="Action",
-            entity_id="ISOLATE_H014",
-            metadata={'container_id': 'H-014', 'recommendation': 'ISOLATE', 'priority': 'HIGH'}
+            action="SEGREGATION_EVENT",
+            entity="Station",
+            entity_id="STATION-01",
+            metadata={
+                'metal_detected': False,
+                'metal_reading': 0,
+                'moisture_value': 68.0,
+                'moisture_detected': True,
+                'predicted_category': 'Wet',
+                'rule_applied': 'Moisture sensor detected wetness (68.0%)',
+                'status': 'Completed',
+                'device_status': 'ONLINE'
+            }
         )
         AuditLog.objects.create(
-            user=user_objects['raj_sharma'],
-            action="ISOLATION_CONFIRMED",
-            entity="Container",
-            entity_id="H-014",
-            metadata={'operator': 'Raj Sharma', 'status': 'IN_PROGRESS', 'location': 'Emergency Ward Triage Bay 3'}
+            action="SEGREGATION_EVENT",
+            entity="Station",
+            entity_id="STATION-01",
+            metadata={
+                'metal_detected': False,
+                'metal_reading': 0,
+                'moisture_value': 15.0,
+                'moisture_detected': False,
+                'predicted_category': 'Dry',
+                'rule_applied': 'Residual category (neither metal nor moisture detected)',
+                'status': 'Completed',
+                'device_status': 'ONLINE'
+            }
         )
 
         self.stdout.write(self.style.SUCCESS('\n======================================================='))
-        self.stdout.write(self.style.SUCCESS('HazGuard Demo Data Successfully Seeded!'))
+        self.stdout.write(self.style.SUCCESS('WasteGuard Demo Data Successfully Seeded!'))
         self.stdout.write(self.style.SUCCESS('Demo Accounts Available:'))
         self.stdout.write(self.style.SUCCESS('  1. ADMIN:          username="admin"          password="password123"'))
         self.stdout.write(self.style.SUCCESS('  2. SUPERVISOR:     username="supervisor"     password="password123"'))
         self.stdout.write(self.style.SUCCESS('  3. OPERATOR:       username="raj_sharma"     password="password123"'))
-        self.stdout.write(self.style.SUCCESS('  4. SAFETY OFFICER: username="safety_officer" password="password123"'))
+        self.stdout.write(self.style.SUCCESS('  4. VERIFICATION:   username="safety_officer" password="password123"'))
         self.stdout.write(self.style.SUCCESS('=======================================================\n'))

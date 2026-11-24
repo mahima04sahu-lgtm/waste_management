@@ -13,7 +13,7 @@ class ContainerSerializer(serializers.ModelSerializer):
             'id', 'container_id', 'name', 'hospital', 'location', 'ward',
             'status', 'capacity_liters', 'device_status', 'waste_category',
             'proximity_detected', 'current_waste', 'last_processed',
-            'wet_fill_pct', 'dry_fill_pct', 'hazard_fill_pct',
+            'wet_fill_pct', 'dry_fill_pct', 'metal_fill_pct',
             'manual_review_pending', 'manual_review_count', 'manual_review_reason',
             'created_at', 'updated_at',
             'latest_reading', 'latest_risk', 'latest_vision', 'latest_action'

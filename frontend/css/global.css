@@ -27,9 +27,9 @@
   --stream-wet-bg: #f0fdf4;
   --stream-wet-border: #bbf7d0;
 
-  --stream-hazard: #dc2626;
-  --stream-hazard-bg: #fef2f2;
-  --stream-hazard-border: #fecaca;
+  --stream-metal: #475569;
+  --stream-metal-bg: #f8fafc;
+  --stream-metal-border: #cbd5e1;
   
   /* Operational Status Colors */
   --status-critical: #dc2626;

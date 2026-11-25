@@ -8,6 +8,8 @@ from sensors.models import SensorReading
 from audit_logs.models import AuditLog
 from audit_logs.services import log_audit
 
+DEFAULT_DEVICE_API_KEY = "WG-STATION01-KEY-9842F1A63C2026"
+
 def _parse_bool(val, default=False):
     if val is None:
         return default
@@ -175,6 +177,7 @@ class DeviceTelemetryView(APIView):
         return Response({
             'status': 'success',
             'container_id': container_id,
+            'api_key': DEFAULT_DEVICE_API_KEY,
             'event_id': segregation_event.id,
             'timestamp': segregation_event.timestamp,
             'segregation_decision': predicted_category,
@@ -206,11 +209,12 @@ class DevicePingView(APIView):
         return Response({
             'status': 'online',
             'station_id': station_id,
+            'api_key': DEFAULT_DEVICE_API_KEY,
             'gateway': 'WasteGuard Arduino Uno Telemetry Hub',
             'server_time': timezone.now().isoformat(),
             'supported_endpoints': {
                 'telemetry': 'POST /api/devices/sensor-data/',
-                'config': 'GET /api/devices/config/?container_id=STATION-01',
+                'config': f'GET /api/devices/config/?container_id={station_id}',
                 'ping': 'GET /api/devices/ping/'
             }
         }, status=status.HTTP_200_OK)
@@ -234,6 +238,7 @@ class DeviceConfigView(APIView):
 
         return Response({
             'container_id': container_id,
+            'api_key': DEFAULT_DEVICE_API_KEY,
             'name': container.name if container else f'Station {container_id}',
             'prototype_scope': 'Single-station Arduino Uno prototype (Metal, Wet, Dry)',
             'sensors_confirmed': ['Metal Detection Sensor', 'Moisture / Wetness Sensor'],

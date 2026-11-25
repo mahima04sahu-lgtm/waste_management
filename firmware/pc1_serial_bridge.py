@@ -25,6 +25,7 @@ import sys
 # Target: Your WasteGuard Dashboard Laptop IP and Port
 SERVER_URL = "http://192.168.29.66:8000/api/devices/sensor-data/"
 HEALTH_URL = "http://192.168.29.66:8000/api/devices/ping/?station_id=STATION-01"
+DEVICE_API_KEY = "WG-STATION01-KEY-9842F1A63C2026"
 
 # Serial settings
 BAUD_RATE = 115200
@@ -48,7 +49,8 @@ def auto_detect_arduino():
 def test_server_connectivity():
     print(f"\n[1/2] Testing network link to WasteGuard Server ({SERVER_URL})...")
     try:
-        r = requests.get(HEALTH_URL, timeout=4)
+        headers = {"X-API-Key": DEVICE_API_KEY}
+        r = requests.get(HEALTH_URL, headers=headers, timeout=4)
         if r.status_code == 200:
             print(f"      \033[92m[CONNECTED]\033[0m WasteGuard server responded: {r.json()}")
             return True
@@ -97,7 +99,7 @@ def main():
                     
                     # Forward to WasteGuard Django server
                     t0 = time.time()
-                    resp = requests.post(SERVER_URL, json=payload, timeout=3)
+                    resp = requests.post(SERVER_URL, json=payload, headers={"Content-Type": "application/json", "X-API-Key": DEVICE_API_KEY}, timeout=3)
                     elapsed = (time.time() - t0) * 1000
 
                     if resp.status_code in (200, 201):

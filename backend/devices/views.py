@@ -37,9 +37,13 @@ class DeviceTelemetryView(APIView):
 
     def post(self, request):
         data = request.data
-        container_id = data.get('container_id') or data.get('station_id') or data.get('device_id')
+        container_id = data.get('container_id') or data.get('station_id') or data.get('device_id') or data.get('device')
         if not container_id:
-            return Response({'error': 'Missing container_id in payload'}, status=status.HTTP_400_BAD_REQUEST)
+            # Fallback to STATION-01 if called from compatibility endpoints (/api/sensors/update/)
+            if 'sensors' in request.path or 'update' in request.path:
+                container_id = 'STATION-01'
+            else:
+                return Response({'error': 'Missing container_id in payload'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 1. Fetch or initialize container
         container, created = Container.objects.get_or_create(
@@ -55,17 +59,22 @@ class DeviceTelemetryView(APIView):
         device_status = str(data.get('device_status', 'ONLINE')).upper()
         container.device_status = device_status
 
-        # Ingest metal detection sensor reading
+        # Ingest metal detection sensor reading (supports metal_detected, metal, inductive, and metal_increment)
+        metal_increment = _parse_float(data.get('metal_increment', 0.0), 0.0)
         metal_raw = data.get('metal_detected', data.get('metal', data.get('metal_sensor', data.get('inductive', False))))
-        metal_detected = _parse_bool(metal_raw, False)
+        metal_detected = _parse_bool(metal_raw, False) or (metal_increment > 0)
 
-        # Ingest moisture / wetness sensor reading
-        moisture = _parse_float(data.get('moisture', data.get('moist', data.get('wetness', data.get('soil_moisture', 0.0)))), 0.0)
-        moisture_raw = data.get('moisture_detected', data.get('is_wet'))
+        # Ingest moisture / wetness sensor reading (supports moisture, wet_value, wet_detected, wet_increment)
+        wet_val = data.get('wet_value')
+        moisture_input = wet_val if wet_val is not None else data.get('moisture', data.get('moist', data.get('wetness', data.get('soil_moisture', 0.0))))
+        moisture = _parse_float(moisture_input, 0.0)
+
+        wet_increment = _parse_float(data.get('wet_increment', 0.0), 0.0)
+        moisture_raw = data.get('moisture_detected', data.get('wet_detected', data.get('is_wet')))
         if moisture_raw is not None:
-            moisture_detected = _parse_bool(moisture_raw, False)
+            moisture_detected = _parse_bool(moisture_raw, False) or (wet_increment > 0)
         else:
-            moisture_detected = (moisture >= 45.0)
+            moisture_detected = (moisture >= 45.0) or (wet_increment > 0)
 
         # Ingest proximity presence (handles bool, int, string)
         proximity_raw = data.get('proximity_detected', data.get('proximity', data.get('presence', data.get('pir', data.get('ir')))))
@@ -173,9 +182,12 @@ class DeviceTelemetryView(APIView):
             }
         )
 
-        certainty_score = 98.5 if predicted_category == 'METAL' else (92.0 if predicted_category == 'WET' else 88.0)
+        cat_upper = str(predicted_category).upper()
+        certainty_score = 98.5 if cat_upper == 'METAL' else (92.0 if cat_upper == 'WET' else 88.0)
 
-        return Response({
+        request_id = data.get('request_id') or data.get('id')
+
+        resp_payload = {
             'status': 'success',
             'container_id': container_id,
             'api_key': DEFAULT_DEVICE_API_KEY,
@@ -189,7 +201,11 @@ class DeviceTelemetryView(APIView):
                 'metal_detected': metal_detected,
                 'moisture': moisture
             }
-        }, status=status.HTTP_201_CREATED)
+        }
+        if request_id:
+            resp_payload['request_id'] = request_id
+
+        return Response(resp_payload, status=status.HTTP_201_CREATED)
 
 class DevicePingView(APIView):
     """

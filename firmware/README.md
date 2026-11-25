@@ -1,61 +1,65 @@
-# 📡 WasteGuard Hardware Wi-Fi Integration Guide
+# WasteGuard Hardware & Firmware Integration Guide
 
-This guide details how to connect your **Arduino Uno / ESP32** microcontroller over Wi-Fi to transmit live sensor telemetry into the WasteGuard dashboard in real time.
-
----
-
-## 📌 Sensor Pinout & Wiring
-
-| Sensor Component | Physical Sensor | Microcontroller Pin | Signal Type | Rule Applied |
-| :--- | :--- | :--- | :--- | :--- |
-| **Metal Sensor** | Inductive Proximity Sensor | **Digital Pin D2** (Uno) / **GPIO 22** (ESP32) | Digital IN (HIGH when metal present) | **Priority 1: Metal** |
-| **Moisture Sensor** | Soil / Liquid Moisture Probe | **Analog Pin A0** (Uno) / **GPIO 35** (ESP32) | Analog IN ($0 - 100\%$) | **Priority 2: Wet** ($\ge 45\%$) |
-| **Residual Category** | *(No sensor triggered)* | — | — | **Priority 3: Dry** (Neither) |
+This directory contains everything required to connect your **physical Arduino Uno hardware** to the WasteGuard Dashboard.
 
 ---
 
-## 🌐 Network Configuration
+## Hardware Architecture (Two-PC Setup)
 
-1. **Same Wi-Fi Network**: Connect your laptop and your Arduino / ESP32 to the **same Wi-Fi router or phone mobile hotspot**.
-2. **Laptop IPv4 Address**: `192.168.29.66` (or run `ipconfig` in PowerShell if your IP changes).
-3. **Backend Server Port**: `8000` (Django server runs on `0.0.0.0:8000`).
-
----
-
-## 🚀 Step-by-Step Hardware Setup
-
-### Step 1: Open Firmware in Arduino IDE
-- If using **ESP32**: Open [`firmware/esp32_wasteguard.ino`](esp32_wasteguard.ino)
-- If using **Arduino Uno with Wi-Fi**: Open [`firmware/arduino_uno_wifi_wasteguard.ino`](arduino_uno_wifi_wasteguard.ino)
-
-### Step 2: Configure Wi-Fi Credentials
-In the firmware file, enter your Wi-Fi details:
-```cpp
-const char* WIFI_SSID     = "YOUR_WIFI_NAME";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* SERVER_HOST   = "192.168.29.66"; // Your laptop's IP
-const int   SERVER_PORT   = 8000;
+```text
+[ Physical Sensors ]
+         │
+         ▼
+[   Arduino Uno   ]
+         │ (USB Cable)
+         ▼
+┌──────────────────────────────────────────────┐
+│  PC 1 (Arduino IDE Machine)                  │
+│  1. Upload `wasteguard_uno.ino`              │
+│  2. Run `python pc1_serial_bridge.py`        │
+└──────────────────────┬───────────────────────┘
+                       │ (Local Wi-Fi Network)
+                       ▼
+┌──────────────────────────────────────────────┐
+│  PC 2 (Dashboard Server: 192.168.29.66)      │
+│  • Django Server (0.0.0.0:8000)              │
+│  • Web Dashboard displays live segregation   │
+└──────────────────────────────────────────────┘
 ```
 
-### Step 3: Flash to Microcontroller
-- Select your Board and COM Port in the Arduino IDE.
-- Click **Upload**.
-- Open the **Serial Monitor** (115200 baud for ESP32, 9600 for Uno).
-- You will see:
-  ```text
-  [Wi-Fi] Connected successfully!
-  [PING] Heartbeat successful (Backend is ONLINE)
-  Sending Live Sensor Data to: http://192.168.29.66:8000/api/devices/sensor-data/
-  ```
+---
+
+## 1. Physical Pin Wiring on Arduino Uno
+
+| Component | Sensor Model | Arduino Pin | Trigger Logic | Output Action |
+|:---|:---|:---|:---|:---|
+| **Metal Sensor** | LJ12A3-4-Z/BX | **Digital Pin 2** | `Active HIGH` (5V on metal) | Priority 1: Routes to **Metal Bin** |
+| **Object Proximity** | Optical / IR Beam | **Digital Pin 3** | `Active LOW` (Beam broken) | Begins sensor evaluation cycle |
+| **Moisture Sensor** | Capacitive / Soil Probe | **Analog Pin A0** | Reading `≥ 45.0%` | Priority 2: Routes to **Wet Bin** |
+| **Default Residual** | — | — | No metal AND moisture `< 45%` | Priority 3: Routes to **Dry Bin** |
+| **Primary Servo** | SG90 / MG996R | **PWM Pin 5** | 45° (Metal) / 90° (Pass) | Diverts item into metal chute |
+| **Secondary Servo**| SG90 / MG996R | **PWM Pin 6** | 135° (Wet) / 0° (Dry) | Diverts item into Wet or Dry bin |
 
 ---
 
-## 🔄 Live Dashboard Experience
+## 2. Setup on PC 1 (Arduino PC)
 
-When your Arduino / ESP32 powers on and connects to Wi-Fi:
-1. The status badge at [http://127.0.0.1:8000/dashboard.html](http://127.0.0.1:8000/dashboard.html) automatically switches to **● Arduino Connected** (Live Sync).
-2. The **Inductive Metal Sensor** and **Moisture Sensor** display real-time live readings.
-3. Placing a metal object near the sensor immediately routes the event to **Metal** and increments the Metal counter.
-4. Dipping the moisture sensor into water immediately routes the event to **Wet** and increments the Wet counter.
-5. In the absence of both, the item is classified as **Dry**.
-6. The dashboard automatically syncs every **2.5 seconds** without manual page refresh.
+1. Open **`wasteguard_uno.ino`** in the Arduino IDE on PC 1 and click **Upload** to flash the Arduino Uno.
+2. In your terminal on PC 1, install the 2 small requirements:
+   ```bash
+   pip install pyserial requests
+   ```
+3. Run the bridge script:
+   ```bash
+   python pc1_serial_bridge.py
+   ```
+   *The script will auto-detect the Arduino COM port and start streaming sensor data to `http://192.168.29.66:8000/api/devices/sensor-data/`.*
+
+---
+
+## 3. Verifying on PC 2 (Dashboard Laptop)
+
+Open your browser on this laptop:
+* **Dashboard**: `http://localhost:8000/dashboard.html` — Watch the live sensor HUD and certainty score update in real-time.
+* **Segregation History**: `http://localhost:8000/history.html` — Verify each logged segregation event.
+* **Settings & Diagnostics**: `http://localhost:8000/settings.html` — Run manual ping and test packet transmissions.

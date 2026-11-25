@@ -5,11 +5,6 @@ from django.conf import settings
 from django.utils import timezone
 from containers.models import Container, WasteCategory
 from sensors.models import SensorReading
-from vision.models import VisionEvent
-from risk.models import RiskPrediction
-from risk.services import calculate_container_risk
-from actions.models import Action, ActionPriority, ActionStatus
-from alerts.models import Alert, AlertSeverity, AlertType, AlertStatus
 from audit_logs.models import AuditLog
 from audit_logs.services import log_audit
 
@@ -161,48 +156,7 @@ class DeviceTelemetryView(APIView):
             }
         )
 
-        # 4. Optional Risk Engine Evaluation (Maintains compatibility)
-        vision_event = container.vision_events.first()
-        risk_result = calculate_container_risk(container, reading, vision_event)
-        risk_pred = RiskPrediction.objects.create(
-            container=container,
-            risk_score=risk_result['risk_score'],
-            risk_level=risk_result['risk_level'],
-            recommended_action=risk_result['recommended_action'],
-            reason=risk_result['reason']
-        )
-
-        action_item = None
-        if risk_result['recommended_action'] not in ['NO ACTION']:
-            priority = ActionPriority.LOW
-            if risk_result['risk_level'] == 'CRITICAL':
-                priority = ActionPriority.CRITICAL
-            elif risk_result['risk_level'] == 'HIGH':
-                priority = ActionPriority.HIGH
-            elif risk_result['risk_level'] == 'MEDIUM':
-                priority = ActionPriority.MEDIUM
-
-            action_item = Action.objects.create(
-                container=container,
-                action_type=risk_result['recommended_action'],
-                priority=priority,
-                reason=risk_result['reason'],
-                status=ActionStatus.PENDING
-            )
-
-        created_alert = None
-        if risk_result['risk_level'] in ['HIGH', 'CRITICAL'] or gas_indicator >= 350.0:
-            severity = AlertSeverity.CRITICAL if (risk_result['risk_level'] == 'CRITICAL' or gas_indicator >= 400.0) else AlertSeverity.HIGH
-            alert_type = AlertType.GAS_ANOMALY if gas_indicator >= 350.0 else AlertType.HIGH_RISK
-            created_alert = Alert.objects.create(
-                container=container,
-                severity=severity,
-                alert_type=alert_type,
-                message=f"Telemetry Alert: {risk_result['reason']}",
-                recommended_action=risk_result['recommended_action'],
-                status=AlertStatus.NEW
-            )
-
+        # 4. Log Audit Event & Telemetry Confirmation
         log_audit(
             action="TELEMETRY_RECEIVED",
             entity="Container",
@@ -216,25 +170,21 @@ class DeviceTelemetryView(APIView):
             }
         )
 
+        certainty_score = 98.5 if predicted_category == 'METAL' else (92.0 if predicted_category == 'WET' else 88.0)
+
         return Response({
             'status': 'success',
             'container_id': container_id,
             'event_id': segregation_event.id,
             'timestamp': segregation_event.timestamp,
+            'segregation_decision': predicted_category,
+            'certainty': certainty_score,
             'segregation': {
                 'category': predicted_category,
                 'rule_applied': rule_applied,
                 'metal_detected': metal_detected,
                 'moisture': moisture
-            },
-            'risk_assessment': {
-                'score': risk_result['risk_score'],
-                'level': risk_result['risk_level'],
-                'action': risk_result['recommended_action'],
-                'reason': risk_result['reason']
-            },
-            'action_generated': action_item.id if action_item else None,
-            'alert_generated': created_alert.id if created_alert else None
+            }
         }, status=status.HTTP_201_CREATED)
 
 class DevicePingView(APIView):

@@ -90,8 +90,6 @@ const DashboardController = {
         this._setOfflineState();
       }
 
-      this._updateAccuracyKPI();
-
       const events = eventsResp ? (eventsResp.results || eventsResp || []) : [];
       this._renderEventsTable(events);
 
@@ -148,65 +146,44 @@ const DashboardController = {
     const isOnline = !!(data.station && data.station.arduino_connected);
 
     const metalValEl = document.getElementById('metal-sensor-val');
+    const metalSubEl = document.getElementById('metal-sensor-sub');
     const metalBadgeEl = document.getElementById('metal-sensor-state-badge');
-    const metalDotEl = document.getElementById('metal-certainty-dot');
-    const metalTextEl = document.getElementById('metal-certainty-text');
 
     const moistValEl = document.getElementById('moisture-sensor-val');
+    const moistSubEl = document.getElementById('moisture-sensor-sub');
     const moistBadgeEl = document.getElementById('moisture-sensor-state-badge');
-    const moistDotEl = document.getElementById('moisture-certainty-dot');
-    const moistTextEl = document.getElementById('moisture-certainty-text');
 
     if (!hasData && !isOnline) {
-      if (metalValEl) metalValEl.textContent = 'Offline / No data';
+      if (metalValEl) metalValEl.textContent = 'Awaiting Data';
+      if (metalSubEl) metalSubEl.textContent = 'Digital Sensor Input: —';
       if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="status-badge status-offline">No Data</span>';
-      if (metalDotEl) metalDotEl.style.background = '#94a3b8';
-      if (metalTextEl) metalTextEl.textContent = 'Awaiting sensor transmission';
 
-      if (moistValEl) moistValEl.textContent = 'Offline / No data';
+      if (moistValEl) moistValEl.textContent = 'Awaiting Data';
+      if (moistSubEl) moistSubEl.textContent = 'Configured Threshold: 45.0% · Result: —';
       if (moistBadgeEl) moistBadgeEl.innerHTML = '<span class="status-badge status-offline">No Data</span>';
-      if (moistDotEl) moistDotEl.style.background = '#94a3b8';
-      if (moistTextEl) moistTextEl.textContent = 'Awaiting sensor transmission';
       return;
     }
 
-    // Metal Sensor & Signal Certainty
+    // Metal Sensor
     if (readings.metal_detected) {
-      if (metalValEl) metalValEl.textContent = 'Active (Metal Detected)';
-      if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="cat-badge cat-metal">🔩 Triggered</span>';
-      if (metalDotEl) metalDotEl.style.background = '#16a34a';
-      if (metalTextEl) metalTextEl.textContent = '100% Solid Inductive Signal (Definitive Metal)';
+      if (metalValEl) metalValEl.textContent = 'Detected';
+      if (metalSubEl) metalSubEl.textContent = 'Digital Sensor Input: HIGH (1)';
+      if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="cat-badge cat-metal">🔩 Detected</span>';
     } else {
-      if (metalValEl) metalValEl.textContent = 'Inactive (Clear)';
-      if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="status-badge status-online">Clear</span>';
-      if (metalDotEl) metalDotEl.style.background = '#0284c7';
-      if (metalTextEl) metalTextEl.textContent = '0% Inductive Field (Clear Non-Metallic)';
+      if (metalValEl) metalValEl.textContent = 'Not Detected';
+      if (metalSubEl) metalSubEl.textContent = 'Digital Sensor Input: LOW (0)';
+      if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="status-badge status-online">Not Detected</span>';
     }
 
-    // Moisture Sensor & Signal Certainty
+    // Moisture Sensor
     const moistPct = typeof readings.moisture_pct === 'number' ? readings.moisture_pct : 0.0;
-    if (moistValEl) moistValEl.textContent = `${moistPct.toFixed(1)}% Moisture`;
+    const isWet = moistPct >= 45.0;
+    if (moistValEl) moistValEl.textContent = `${moistPct.toFixed(1)}%`;
+    if (moistSubEl) moistSubEl.textContent = `Configured Threshold: 45.0% · Result: ${isWet ? 'Wet' : 'Dry (Residual)'}`;
     if (moistBadgeEl) {
-      if (moistPct >= 45.0) {
-        moistBadgeEl.innerHTML = '<span class="cat-badge cat-wet">🍃 Wet Detected</span>';
-      } else {
-        moistBadgeEl.innerHTML = '<span class="cat-badge cat-dry">📦 Dry (Residual)</span>';
-      }
-    }
-    if (moistDotEl && moistTextEl) {
-      if (moistPct >= 65.0) {
-        moistDotEl.style.background = '#16a34a';
-        moistTextEl.textContent = `High Wetness Signal (${moistPct.toFixed(1)}% — Strong Conductivity)`;
-      } else if (moistPct >= 45.0) {
-        moistDotEl.style.background = '#22c55e';
-        moistTextEl.textContent = `Moderate Wetness (${moistPct.toFixed(1)}% — Threshold Exceeded)`;
-      } else if (moistPct >= 30.0) {
-        moistDotEl.style.background = '#f59e0b';
-        moistTextEl.textContent = `Slight Moisture (${moistPct.toFixed(1)}% — Below Threshold)`;
-      } else {
-        moistDotEl.style.background = '#0284c7';
-        moistTextEl.textContent = `Dry Baseline (${moistPct.toFixed(1)}% — Non-Conductive)`;
-      }
+      moistBadgeEl.innerHTML = isWet
+        ? '<span class="cat-badge cat-wet">🍃 Wet Stream</span>'
+        : '<span class="cat-badge cat-dry">📦 Dry (Residual)</span>';
     }
   },
 
@@ -253,7 +230,7 @@ const DashboardController = {
     if (!events || events.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="8" class="table-loading" style="padding:28px 16px; color:#64748b;">
+          <td colspan="7" class="table-loading" style="padding:28px 16px; color:#64748b;">
             <div style="font-size:24px; margin-bottom:6px;">📡</div>
             <strong>No segregation events received yet.</strong><br>
             <span style="font-size:12px;">Power on the Arduino Uno prototype and transmit sensor readings to see live event logging.</span>
@@ -263,41 +240,25 @@ const DashboardController = {
       return;
     }
 
-    const verifications = this._getVerifications();
-
     tbody.innerHTML = events.map(evt => {
       const meta = evt.metadata || {};
       const ts = this._formatDate(evt.timestamp);
       const eventId = `#EVT-${evt.id}`;
       const metalStr = meta.metal_detected
         ? '<span class="cat-badge cat-metal">🔩 Detected</span>'
-        : '<span style="color:#64748b; font-size:12px;">Clear</span>';
+        : '<span style="color:#64748b; font-size:12px;">Not Detected</span>';
       
       const moistVal = typeof meta.moisture_value === 'number'
         ? `${Number(meta.moisture_value).toFixed(1)}%`
         : (meta.moisture_detected ? 'Wet' : 'Dry');
 
-      const moistStr = meta.moisture_detected || (meta.moisture_value && meta.moisture_value >= 45.0)
+      const isWet = meta.moisture_detected || (meta.moisture_value && meta.moisture_value >= 45.0);
+      const moistStr = isWet
         ? `<span class="cat-badge cat-wet">🍃 ${moistVal}</span>`
         : `<span style="font-size:12px; color:#475569;">${moistVal}</span>`;
 
       const catBadge = this._catBadge(meta.predicted_category || 'Dry');
       const statusBadge = '<span class="status-badge status-online">Segregated</span>';
-
-      const vState = verifications[String(evt.id)];
-      let evalCol = '';
-      if (vState === 'correct') {
-        evalCol = '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>';
-      } else if (vState === 'mismatch') {
-        evalCol = '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
-      } else {
-        evalCol = `
-          <div class="verify-btn-group">
-            <button class="btn-verify btn-verify-ok" data-verify-id="${evt.id}" data-verify-outcome="correct" title="Mark as correctly classified">✅ Correct</button>
-            <button class="btn-verify btn-verify-fail" data-verify-id="${evt.id}" data-verify-outcome="mismatch" title="Mark as misclassified">❌ Mismatch</button>
-          </div>
-        `;
-      }
 
       return `
         <tr>
@@ -307,7 +268,6 @@ const DashboardController = {
           <td>${moistStr}</td>
           <td>${catBadge}</td>
           <td>${statusBadge}</td>
-          <td id="verify-cell-${evt.id}">${evalCol}</td>
           <td style="text-align:right;">
             <button class="btn-secondary-sm" data-details-id="${evt.id}" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
               View Details
@@ -316,52 +276,6 @@ const DashboardController = {
         </tr>
       `;
     }).join('');
-  },
-
-  _getVerifications() {
-    try {
-      return JSON.parse(localStorage.getItem('wasteguard_live_verifications') || '{}');
-    } catch {
-      return {};
-    }
-  },
-
-  verifyEvent(evtId, outcome) {
-    if (!evtId || !outcome) return;
-    const verifications = this._getVerifications();
-    verifications[String(evtId)] = outcome;
-    try {
-      localStorage.setItem('wasteguard_live_verifications', JSON.stringify(verifications));
-    } catch (e) {
-      console.warn('[Dashboard] Could not save verification:', e);
-    }
-    this._updateAccuracyKPI();
-    const cell = document.getElementById(`verify-cell-${evtId}`);
-    if (cell) {
-      cell.innerHTML = outcome === 'correct'
-        ? '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>'
-        : '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
-    }
-  },
-
-  _updateAccuracyKPI() {
-    const verifications = this._getVerifications();
-    const values = Object.values(verifications);
-    const total = values.length;
-    const correct = values.filter(v => v === 'correct').length;
-
-    const valEl = document.getElementById('kpi-accuracy-val');
-    const ratioEl = document.getElementById('kpi-accuracy-ratio');
-    if (!valEl || !ratioEl) return;
-
-    if (total === 0) {
-      valEl.textContent = '—';
-      ratioEl.textContent = '0/0';
-    } else {
-      const pct = Math.round((correct / total) * 100);
-      valEl.textContent = `${pct}%`;
-      ratioEl.textContent = `${correct}/${total}`;
-    }
   },
 
   showDetails(evtId) {

@@ -25,19 +25,13 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     
-    # HazGuard Apps
+    # WasteGuard Apps
     'users.apps.UsersConfig',
     'containers.apps.ContainersConfig',
     'sensors.apps.SensorsConfig',
-    'vision.apps.VisionConfig',
-    'risk.apps.RiskConfig',
-    'actions.apps.ActionsConfig',
-    'alerts.apps.AlertsConfig',
-    'collection.apps.CollectionConfig',
     'analytics.apps.AnalyticsConfig',
     'audit_logs.apps.AuditLogsConfig',
     'devices.apps.DevicesConfig',
-    'demo.apps.DemoConfig',
 ]
 
 MIDDLEWARE = [

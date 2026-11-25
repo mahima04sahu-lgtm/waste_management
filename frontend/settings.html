@@ -66,39 +66,31 @@
           <div class="section-header">
             <div>
               <h2 class="section-title">Station Hardware Identity &amp; Microcontroller Core</h2>
-              <p class="section-sub">Single-station prototype configuration parameters, board specifications, and classification categories</p>
+              <p class="section-sub">Single-station prototype specifications and classification parameters</p>
             </div>
             <span class="verify-badge verify-correct">STATION-01 ACTIVE</span>
           </div>
-          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+          <div style="padding:22px 26px; display:flex; flex-direction:column; gap:20px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px 24px;">
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Assigned Prototype Station ID</label>
-                <input type="text" class="form-control" value="STATION-01" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-family:monospace; font-size:14px; font-weight:700; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Primary station identifier mapped across telemetry ingest and PostgreSQL/SQLite models.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Prototype Station ID</label>
+                <input type="text" class="form-control" value="STATION-01" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace; font-size:13.5px; font-weight:700; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Microcontroller Core Unit</label>
-                <input type="text" class="form-control" value="Arduino Uno (ATmega328P Rev3 — 16.0 MHz)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Processes sensor ADC/interrupt signals and commands servo mechanical diverters.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Microcontroller Core</label>
+                <input type="text" class="form-control" value="Arduino Uno (ATmega328P)" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Firmware Release &amp; Architecture</label>
-                <input type="text" class="form-control" value="WasteGuard-v4.2-UNO-Deterministic-Release" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Real-time sequential evaluation: Priority 1 Metal → Priority 2 Wet → Priority 3 Dry.</span>
-              </div>
-              <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Deployment Zone &amp; Enclosure</label>
-                <input type="text" class="form-control" value="Prototype Lab Bench 1 · Automated Chute Enclosure" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Physical testbed deployment for live segregation verification.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Firmware Version</label>
+                <input type="text" class="form-control" value="WasteGuard Uno v4.2" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
             </div>
-            <div style="border-top:1px solid #f1f5f9; padding-top:16px;">
-              <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Configured Physical Waste Streams (Strict 3 Categories)</label>
-              <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                <span class="cat-badge cat-metal" style="padding:8px 16px; font-size:12.5px; font-weight:700;">🔩 Metal Stream (Inductive Trigger)</span>
-                <span class="cat-badge cat-wet" style="padding:8px 16px; font-size:12.5px; font-weight:700;">🍃 Wet Stream (Moisture Conductivity ≥ 45%)</span>
-                <span class="cat-badge cat-dry" style="padding:8px 16px; font-size:12.5px; font-weight:700;">📦 Dry Stream (Residual / Non-Conductive)</span>
+            <div style="border-top:1px solid #f1f5f9; padding-top:14px;">
+              <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Classification Categories</label>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span class="cat-badge cat-metal" style="padding:6px 14px; font-size:12px; font-weight:700;">🔩 Metal Stream (Inductive Trigger)</span>
+                <span class="cat-badge cat-wet" style="padding:6px 14px; font-size:12px; font-weight:700;">🍃 Wet Stream (Moisture ≥ 45.0%)</span>
+                <span class="cat-badge cat-dry" style="padding:6px 14px; font-size:12px; font-weight:700;">📦 Dry Stream (Residual)</span>
               </div>
             </div>
           </div>
@@ -108,42 +100,28 @@
         <div class="section-card" style="width:100%;">
           <div class="section-header">
             <div>
-              <h2 class="section-title">Sensor Calibration, Thresholds &amp; Physical Pin Allocations</h2>
-              <p class="section-sub">Physical sensor inputs, logic trigger modes, debouncing, and classification threshold parameters</p>
+              <h2 class="section-title">Sensor Hardware &amp; Actuator Pin Allocations</h2>
+              <p class="section-sub">Implemented hardware sensors and mechanical diverter servo pin configuration</p>
             </div>
             <span class="live-pill"><span class="live-dot"></span> PINS CONFIGURED</span>
           </div>
-          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+          <div style="padding:22px 26px; display:flex; flex-direction:column; gap:20px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px 24px;">
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Inductive Metal Sensor (LJ12A3-4-Z/BX)</label>
-                <input type="text" class="form-control" value="Digital Pin 2 · Active HIGH (Interrupt 0)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Triggers Priority 1: Ferrous &amp; conductive metals route immediately to Metal compartment.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Inductive Metal Sensor Model &amp; Pin</label>
+                <input type="text" class="form-control" value="LJ12A3-4-Z/BX · Digital Pin 2" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Moisture / Wetness Trigger Threshold</label>
-                <input type="text" class="form-control" value="Analog Pin A0 · Trigger Threshold: ≥ 45.0%" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">ADC 10-bit reading normalized to 0-100%; non-metallic items ≥ 45% route to Wet compartment.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Moisture / Wetness Sensor Model &amp; Pin</label>
+                <input type="text" class="form-control" value="Resistive Soil/Water Probe · Analog Pin A0" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Object Entry Proximity Sensor</label>
-                <input type="text" class="form-control" value="Digital Pin 3 · Active LOW (Optical / IR Beam)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Detects item insertion at intake chute to begin sampling and classification cycle.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Moisture Classification Threshold</label>
+                <input type="text" class="form-control" value="45.0% (≥ 45.0% = Wet Stream)" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Ultrasonic Fill-Level Monitor (HC-SR04)</label>
-                <input type="text" class="form-control" value="Trigger: Digital Pin 9 | Echo: Digital Pin 10" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Calculates fill depth (cm) and compartment fill percentage across bins.</span>
-              </div>
-              <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Primary Diverter Actuator Servo</label>
-                <input type="text" class="form-control" value="PWM Digital Pin 5 · 180° Metal Gear Servo" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Flips chute mechanical flap to Metal bin position (45°) or pass-through (90°).</span>
-              </div>
-              <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Secondary Diverter Actuator Servo</label>
-                <input type="text" class="form-control" value="PWM Digital Pin 6 · 180° Metal Gear Servo" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Directs pass-through items into Wet compartment (135°) or Dry compartment (0°).</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Sorting Mechanism (Diverter Servos)</label>
+                <input type="text" class="form-control" value="Dual Servos · PWM Pins 5 &amp; 6" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
             </div>
           </div>
@@ -153,42 +131,28 @@
         <div class="section-card" style="width:100%;">
           <div class="section-header">
             <div>
-              <h2 class="section-title">Local Network &amp; Hardware Connectivity</h2>
-              <p class="section-sub">Wi-Fi LAN parameters for Arduino Uno and ESP32 telemetry bridge</p>
+              <h2 class="section-title">Telemetry Communications &amp; Host Parameters</h2>
+              <p class="section-sub">Network interface configuration for Arduino Uno telemetry transmission</p>
             </div>
-            <span class="live-pill"><span class="live-dot"></span> LAN ONLINE</span>
+            <span class="live-pill"><span class="live-dot"></span> LAN CONFIGURED</span>
           </div>
-          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+          <div style="padding:22px 26px; display:flex; flex-direction:column; gap:20px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px 24px;">
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Server Host IP (Current Wi-Fi LAN)</label>
-                <input type="text" class="form-control" value="192.168.29.66" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-family:monospace; font-size:14px; font-weight:700; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Target IP address configured in the Arduino sketch as <code>SERVER_HOST</code>.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Server Host IP</label>
+                <input type="text" class="form-control" value="192.168.29.66" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace; font-size:13px; font-weight:700; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Django Backend Port</label>
-                <input type="text" class="form-control" value="8000 (Binding 0.0.0.0:8000)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-family:monospace; font-size:14px; font-weight:700; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Active Django dev server binding accessible across local Wi-Fi subnet.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Backend Port</label>
+                <input type="text" class="form-control" value="8000" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace; font-size:13px; font-weight:700; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Serial Gateway Baud Rate</label>
-                <input type="text" class="form-control" value="115200 bps (8-N-1 Serial Mode)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Set Arduino IDE Serial Monitor and Python serial bridge to 115200 baud.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Serial Baud Rate</label>
+                <input type="text" class="form-control" value="115200 bps" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px; font-weight:600; color:#0f172a;">
               </div>
               <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Telemetry Transmission Interval</label>
-                <input type="text" class="form-control" value="Every 3000 ms (3.0s Live Cadence)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Periodic sensor telemetry packet and station heartbeat interval.</span>
-              </div>
-              <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">HTTP Timeout &amp; Retry Threshold</label>
-                <input type="text" class="form-control" value="5000 ms (Watchdog Auto-Retry)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Hardware watchdog will buffer readings locally if Wi-Fi network drops.</span>
-              </div>
-              <div>
-                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">REST Ingest Gateway Status</label>
-                <input type="text" class="form-control" value="Active · Background Daemon (Task-1387)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#15803d;">
-                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Django development server is running and actively processing incoming packets.</span>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Telemetry Ingestion API Endpoint</label>
+                <input type="text" class="form-control" value="/api/devices/sensor-data/" readonly style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace; font-size:13px; font-weight:600; color:#15803d;">
               </div>
             </div>
           </div>
@@ -230,7 +194,6 @@
   "station_id": "STATION-01",
   "metal_detected": true,
   "moisture": 65.0,
-  "proximity_detected": true,
   "device_status": "ONLINE"
 }</pre>
               </div>
@@ -240,7 +203,7 @@
   "status": "success",
   "station_id": "STATION-01",
   "segregation_decision": "METAL",
-  "certainty": 98.5,
+  "rule_applied": "Priority 1: Metal detected -> METAL",
   "timestamp": "2026-11-25T16:20:00Z"
 }</pre>
               </div>
@@ -302,7 +265,6 @@
             station_id: 'STATION-01',
             metal_detected: true,
             moisture: 18.5,
-            proximity_detected: true,
             device_status: 'ONLINE'
           })
         });

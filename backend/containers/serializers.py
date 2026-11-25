@@ -37,44 +37,11 @@ class ContainerSerializer(serializers.ModelSerializer):
         return None
 
     def get_latest_risk(self, obj):
-        risk = obj.risk_predictions.first()
-        if risk:
-            return {
-                'risk_score': risk.risk_score,
-                'risk_level': risk.risk_level,
-                'recommended_action': risk.recommended_action,
-                'reason': risk.reason,
-                'timestamp': risk.timestamp,
-            }
         return {'risk_score': 0, 'risk_level': 'LOW', 'recommended_action': 'NO ACTION', 'reason': 'Normal baseline'}
 
     def get_latest_vision(self, obj):
-        vision = obj.vision_events.first()
-        if vision:
-            return {
-                'predicted_class': vision.predicted_class,
-                'confidence': vision.confidence,
-                'contamination_score': vision.contamination_score,
-                'unknown_probability': vision.unknown_probability,
-                'exception_reason': vision.exception_reason,
-                'timestamp': vision.timestamp,
-            }
-        return None  # No classifier active on this branch — do not fabricate confidence values
-
+        return None
 
     def get_latest_action(self, obj):
-        action = obj.actions.exclude(status='COMPLETED').first()
-        if not action:
-            action = obj.actions.first()
-        if action:
-            return {
-                'id': action.id,
-                'action_type': action.action_type,
-                'priority': action.priority,
-                'reason': action.reason,
-                'status': action.status,
-                'assigned_to': action.assigned_to.username if action.assigned_to else None,
-                'created_at': action.created_at,
-            }
         return None
 

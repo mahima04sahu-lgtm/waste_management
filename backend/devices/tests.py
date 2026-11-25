@@ -2,7 +2,6 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from containers.models import Container
 from sensors.models import SensorReading
-from alerts.models import Alert, AlertType
 
 class DeviceTelemetryTests(APITestCase):
     """

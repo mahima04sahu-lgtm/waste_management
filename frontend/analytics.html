@@ -108,7 +108,7 @@
           <div class="section-header">
             <div>
               <h2 class="section-title">Stream Distribution Breakdown</h2>
-              <p class="section-sub">Actual percentage volume segregated by prototype hardware rules</p>
+              <p class="section-sub">Distribution of Recorded Segregation Events</p>
             </div>
           </div>
           <div class="events-table-wrap card-scrollable" style="max-height:175px; overflow-y:scroll !important; overflow-x:auto !important; padding-bottom:6px;">
@@ -118,7 +118,7 @@
                   <th>Output Category</th>
                   <th>Hardware Trigger Mechanism</th>
                   <th>Events Count</th>
-                  <th>Share (%)</th>
+                  <th>Event Share (%)</th>
                 </tr>
               </thead>
               <tbody id="reports-breakdown-body">
@@ -129,7 +129,7 @@
         </div>
 
         <!-- Hardware Rule Architecture Card -->
-        <div class="section-card">
+        <div class="section-card" style="margin-bottom:24px;">
           <div class="section-header">
             <div>
               <h2 class="section-title">Implemented Classification Architecture</h2>
@@ -153,7 +153,232 @@
             </div>
           </div>
         </div>
+
+        <!-- Prototype Testing and Evaluation Section -->
+        <div class="section-card" style="margin-bottom:24px;">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Prototype Testing &amp; Evaluation</h2>
+              <p class="section-sub">Empirical testing of rule-based classification accuracy and mechanical chute sorting performance</p>
+            </div>
+            <div>
+              <button type="button" class="btn-primary" onclick="ReportsManager.toggleTrialModal(true)" style="background:#16a34a; border-color:#15803d; color:#fff; font-size:12.5px; padding:7px 14px; border-radius:6px; cursor:pointer; font-weight:600;">
+                + Record Test Sample
+              </button>
+            </div>
+          </div>
+
+          <div style="padding:22px 24px; display:flex; flex-direction:column; gap:24px;">
+
+            <!-- A. Classification Accuracy Cards -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <h3 style="font-size:14px; font-weight:700; color:#0f172a;">A. Classification Accuracy</h3>
+                <span style="font-size:12px; color:#64748b; font-family:monospace; background:#f1f5f9; padding:2px 8px; border-radius:4px;">Accuracy = (Correct Classifications / Total Valid Trials) × 100</span>
+              </div>
+              
+              <div class="kpi-row" style="margin-bottom:16px;">
+                <div class="kpi-card kpi-total">
+                  <div class="kpi-icon">📋</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="test-total-samples">—</div>
+                    <div class="kpi-label">Total Test Samples</div>
+                  </div>
+                </div>
+                <div class="kpi-card kpi-metal">
+                  <div class="kpi-icon">✅</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="test-correct-samples">—</div>
+                    <div class="kpi-label">Correct Classifications</div>
+                  </div>
+                </div>
+                <div class="kpi-card kpi-wet">
+                  <div class="kpi-icon">❌</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="test-incorrect-samples">—</div>
+                    <div class="kpi-label">Incorrect Classifications</div>
+                  </div>
+                </div>
+                <div class="kpi-card kpi-dry">
+                  <div class="kpi-icon">🎯</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="test-accuracy-pct">—</div>
+                    <div class="kpi-label">Classification Accuracy (%)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Category-Wise Accuracy Table -->
+              <div class="events-table-wrap" style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <table class="events-table">
+                  <thead>
+                    <tr>
+                      <th>Output Stream</th>
+                      <th>Total Samples Tested</th>
+                      <th>Correct Classifications</th>
+                      <th>Misclassifications</th>
+                      <th>Category Accuracy (%)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="category-accuracy-body">
+                    <tr><td colspan="5" style="text-align:center; padding:16px; color:#64748b;">No Testing Data Available</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- B. Physical Sorting Evaluation Cards -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <h3 style="font-size:14px; font-weight:700; color:#0f172a;">B. Physical Sorting Evaluation</h3>
+                <span style="font-size:12px; color:#64748b; font-family:monospace; background:#f1f5f9; padding:2px 8px; border-radius:4px;">Sorting Success Rate = (Successfully Routed / Total Valid Sorting Trials) × 100</span>
+              </div>
+              
+              <div class="kpi-row" style="margin-bottom:16px;">
+                <div class="kpi-card kpi-total">
+                  <div class="kpi-icon">⚙️</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="sort-total-trials">—</div>
+                    <div class="kpi-label">Total Sorting Trials</div>
+                  </div>
+                </div>
+                <div class="kpi-card kpi-metal">
+                  <div class="kpi-icon">📥</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="sort-success-trials">—</div>
+                    <div class="kpi-label">Successful Sorting</div>
+                  </div>
+                </div>
+                <div class="kpi-card kpi-wet">
+                  <div class="kpi-icon">⚠️</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="sort-failed-trials">—</div>
+                    <div class="kpi-label">Failed Sorting</div>
+                  </div>
+                </div>
+                <div class="kpi-card kpi-dry">
+                  <div class="kpi-icon">🏆</div>
+                  <div class="kpi-body">
+                    <div class="kpi-value" id="sort-success-pct">—</div>
+                    <div class="kpi-label">Sorting Success Rate (%)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- C. Test Recording Table -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <div>
+                  <h3 style="font-size:14px; font-weight:700; color:#0f172a;">C. Recorded Test Samples</h3>
+                  <p style="font-size:12px; color:#64748b; margin-top:2px;">Independently verified physical trial records for Station 01</p>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" class="btn-secondary-sm" onclick="ReportsManager.clearTrials()" style="padding:4px 10px; font-size:11.5px; border-radius:5px; cursor:pointer; color:#ef4444; border-color:#fca5a5;">Clear All Records</button>
+                </div>
+              </div>
+
+              <div class="events-table-wrap" style="border:1px solid #e2e8f0; border-radius:8px; overflow-x:auto;">
+                <table class="events-table" style="min-width:960px;">
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>Sample Name / Description</th>
+                      <th>Actual Category</th>
+                      <th>Sensor Readings</th>
+                      <th>Assigned Category</th>
+                      <th>Classification</th>
+                      <th>Expected Compartment</th>
+                      <th>Actual Compartment</th>
+                      <th>Sorting Result</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody id="trial-records-body">
+                    <tr><td colspan="10" style="text-align:center; padding:22px; color:#64748b;">No Testing Data Available</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </main>
+    </div>
+  </div>
+
+  <!-- Operator Test Recording Modal -->
+  <div class="modal-backdrop" id="modal-record-trial" style="display:none;">
+    <div class="modal-card" style="max-width:560px;">
+      <div class="modal-head">
+        <h3 style="font-size:15px; font-weight:700; color:#0f172a;">Record Prototype Test Trial</h3>
+        <button onclick="ReportsManager.toggleTrialModal(false)" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b;">✕</button>
+      </div>
+      <form id="form-record-trial" onsubmit="ReportsManager.saveTrial(event)">
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:14px; font-size:13px; max-height:70vh; overflow-y:auto; padding:18px 20px;">
+          <div>
+            <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Sample Name / Description</label>
+            <input type="text" id="trial-sample-name" required placeholder="e.g. Aluminum Beverage Can, Orange Peel, Cardboard" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Independently Verified Actual Category</label>
+              <select id="trial-actual-cat" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; font-size:13px;" onchange="ReportsManager.syncExpectedComp()">
+                <option value="Metal">Metal</option>
+                <option value="Wet">Wet</option>
+                <option value="Dry">Dry (Residual)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Metal Sensor Input</label>
+              <select id="trial-sensor-metal" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; font-size:13px;" onchange="ReportsManager.autoEvalDecision()">
+                <option value="false">Not Detected (LOW / 0)</option>
+                <option value="true">Detected (HIGH / 1)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Moisture Sensor Reading (%)</label>
+              <input type="number" step="0.1" min="0" max="100" id="trial-sensor-moist" value="12.0" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" oninput="ReportsManager.autoEvalDecision()">
+            </div>
+            <div>
+              <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Arduino Assigned Category</label>
+              <select id="trial-assigned-cat" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-size:13px;">
+                <option value="Dry">Dry (Residual)</option>
+                <option value="Wet">Wet</option>
+                <option value="Metal">Metal</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Expected Compartment</label>
+              <select id="trial-expected-comp" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; font-size:13px;">
+                <option value="Metal">Metal Compartment</option>
+                <option value="Wet">Wet Compartment</option>
+                <option value="Dry">Dry Compartment</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Actual Compartment Reached</label>
+              <select id="trial-reached-comp" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#fff; font-size:13px;">
+                <option value="Metal">Metal Compartment</option>
+                <option value="Wet">Wet Compartment</option>
+                <option value="Dry">Dry Compartment</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label style="display:block; font-weight:600; color:#334155; margin-bottom:5px;">Remarks (Optional)</label>
+            <input type="text" id="trial-remarks" placeholder="e.g. Clean diverter actuation; sample routed directly" class="form-control" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+          </div>
+        </div>
+        <div class="modal-foot" style="display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e2e8f0;">
+          <button type="button" class="btn-secondary-sm" onclick="ReportsManager.toggleTrialModal(false)" style="padding:6px 14px; border-radius:6px; cursor:pointer;">Cancel</button>
+          <button type="submit" class="btn-primary" style="background:#16a34a; border-color:#15803d; color:#fff; padding:6px 16px; border-radius:6px; font-weight:600; cursor:pointer;">Save Trial</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -163,6 +388,11 @@
   <script>
     const ReportsManager = {
       async load() {
+        await this.loadSummary();
+        this.renderTestingEvaluation();
+      },
+
+      async loadSummary() {
         try {
           const resp = await ApiClient.get('/analytics/summary/?station_id=STATION-01');
           const kpis = resp.kpis || {};
@@ -188,20 +418,265 @@
             </tr>
             <tr>
               <td><span class="cat-badge cat-wet">🍃 Wet</span></td>
-              <td style="color:#64748b;">Moisture / conductivity sensor triggered (≥ 45%)</td>
+              <td style="color:#64748b;">Moisture / wetness sensor reading ≥ 45%</td>
               <td><strong>${wet}</strong></td>
               <td><span style="font-weight:700; color:#16a34a;">${pct(wet)}</span></td>
             </tr>
             <tr>
               <td><span class="cat-badge cat-dry">📦 Dry (Residual)</span></td>
-              <td style="color:#64748b;">Residual category (neither metal nor moisture detected)</td>
+              <td style="color:#64748b;">Residual category (neither metal nor wetness detected)</td>
               <td><strong>${dry}</strong></td>
               <td><span style="font-weight:700; color:#0284c7;">${pct(dry)}</span></td>
             </tr>
           `;
         } catch (e) {
-          console.warn('[Reports] Fetch error:', e);
+          console.warn('[Reports] Fetch summary error:', e);
         }
+      },
+
+      _getTrials() {
+        try {
+          return JSON.parse(localStorage.getItem('wasteguard_prototype_trials') || '[]');
+        } catch {
+          return [];
+        }
+      },
+
+      _saveTrials(trials) {
+        try {
+          localStorage.setItem('wasteguard_prototype_trials', JSON.stringify(trials));
+        } catch (e) {
+          console.warn('[Reports] Failed saving trials:', e);
+        }
+      },
+
+      renderTestingEvaluation() {
+        const trials = this._getTrials();
+        const total = trials.length;
+
+        const totalEl = document.getElementById('test-total-samples');
+        const correctEl = document.getElementById('test-correct-samples');
+        const incorrectEl = document.getElementById('test-incorrect-samples');
+        const accuracyPctEl = document.getElementById('test-accuracy-pct');
+        const catTbody = document.getElementById('category-accuracy-body');
+
+        const sortTotalEl = document.getElementById('sort-total-trials');
+        const sortSuccessEl = document.getElementById('sort-success-trials');
+        const sortFailedEl = document.getElementById('sort-failed-trials');
+        const sortSuccessPctEl = document.getElementById('sort-success-pct');
+        const recordsTbody = document.getElementById('trial-records-body');
+
+        if (total === 0) {
+          // Never display fabricated test results or unsupported accuracy percentages
+          if (totalEl) totalEl.textContent = '—';
+          if (correctEl) correctEl.textContent = '—';
+          if (incorrectEl) incorrectEl.textContent = '—';
+          if (accuracyPctEl) accuracyPctEl.textContent = 'No Data';
+
+          if (catTbody) {
+            catTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:18px; color:#64748b;">No Testing Data Available</td></tr>`;
+          }
+
+          if (sortTotalEl) sortTotalEl.textContent = '—';
+          if (sortSuccessEl) sortSuccessEl.textContent = '—';
+          if (sortFailedEl) sortFailedEl.textContent = '—';
+          if (sortSuccessPctEl) sortSuccessPctEl.textContent = 'No Data';
+
+          if (recordsTbody) {
+            recordsTbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:24px; color:#64748b;"><strong>No Testing Data Available</strong><br><span style="font-size:12px;">Use "+ Record Test Sample" above to record physical verification trials.</span></td></tr>`;
+          }
+          return;
+        }
+
+        // A. Classification Accuracy
+        const correctCount = trials.filter(t => t.classification_correct).length;
+        const incorrectCount = total - correctCount;
+        const accuracyPct = ((correctCount / total) * 100).toFixed(1);
+
+        if (totalEl) totalEl.textContent = total;
+        if (correctEl) correctEl.textContent = correctCount;
+        if (incorrectEl) incorrectEl.textContent = incorrectCount;
+        if (accuracyPctEl) accuracyPctEl.textContent = `${accuracyPct}%`;
+
+        // Category-wise Breakdown
+        const cats = [
+          { name: 'Metal', badge: '<span class="cat-badge cat-metal">🔩 Metal</span>' },
+          { name: 'Wet', badge: '<span class="cat-badge cat-wet">🍃 Wet</span>' },
+          { name: 'Dry', badge: '<span class="cat-badge cat-dry">📦 Dry</span>' }
+        ];
+
+        if (catTbody) {
+          catTbody.innerHTML = cats.map(c => {
+            const catTrials = trials.filter(t => (t.actual_category || '').toLowerCase().startsWith(c.name.toLowerCase()));
+            const cTotal = catTrials.length;
+            if (cTotal === 0) {
+              return `
+                <tr>
+                  <td>${c.badge}</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td style="color:#94a3b8; font-weight:600;">No Trials</td>
+                </tr>
+              `;
+            }
+            const cCorrect = catTrials.filter(t => t.classification_correct).length;
+            const cIncorrect = cTotal - cCorrect;
+            const cPct = ((cCorrect / cTotal) * 100).toFixed(1) + '%';
+            return `
+              <tr>
+                <td>${c.badge}</td>
+                <td><strong>${cTotal}</strong></td>
+                <td style="color:#15803d; font-weight:600;">${cCorrect}</td>
+                <td style="color:#b91c1c; font-weight:600;">${cIncorrect}</td>
+                <td><strong style="color:${cCorrect === cTotal ? '#15803d' : '#0f172a'};">${cPct}</strong></td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // B. Physical Sorting Evaluation
+        const validSortingTrials = trials.filter(t => t.actual_compartment);
+        const sortTotal = validSortingTrials.length;
+        const sortSuccess = validSortingTrials.filter(t => t.sorting_successful).length;
+        const sortFailed = sortTotal - sortSuccess;
+        const sortRate = sortTotal > 0 ? ((sortSuccess / sortTotal) * 100).toFixed(1) + '%' : '—';
+
+        if (sortTotalEl) sortTotalEl.textContent = sortTotal;
+        if (sortSuccessEl) sortSuccessEl.textContent = sortSuccess;
+        if (sortFailedEl) sortFailedEl.textContent = sortFailed;
+        if (sortSuccessPctEl) sortSuccessPctEl.textContent = sortRate;
+
+        // C. Records Table
+        if (recordsTbody) {
+          recordsTbody.innerHTML = trials.slice().reverse().map(t => {
+            const dt = new Date(t.timestamp);
+            const ts = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' ' + dt.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            const catBadge = t.actual_category === 'Metal'
+              ? '<span class="cat-badge cat-metal">🔩 Metal</span>'
+              : (t.actual_category === 'Wet' ? '<span class="cat-badge cat-wet">🍃 Wet</span>' : '<span class="cat-badge cat-dry">📦 Dry</span>');
+            
+            const assignedBadge = t.assigned_category === 'Metal'
+              ? '<span class="cat-badge cat-metal">🔩 Metal</span>'
+              : (t.assigned_category === 'Wet' ? '<span class="cat-badge cat-wet">🍃 Wet</span>' : '<span class="cat-badge cat-dry">📦 Dry</span>');
+
+            const classBadge = t.classification_correct
+              ? '<span class="verify-badge verify-correct">✅ Correct</span>'
+              : '<span class="verify-badge verify-mismatch">❌ Misclassified</span>';
+
+            const sortBadge = t.sorting_successful
+              ? '<span class="verify-badge verify-correct">✅ Successful</span>'
+              : '<span class="verify-badge verify-mismatch">❌ Failed</span>';
+
+            const sensorStr = `Metal: ${t.metal_sensor ? 'HIGH' : 'LOW'} · Moist: ${Number(t.moisture_sensor).toFixed(1)}%`;
+
+            return `
+              <tr>
+                <td style="white-space:nowrap; font-size:12px; color:#64748b;">${ts}</td>
+                <td><strong>${ReportsManager._esc(t.sample_name)}</strong></td>
+                <td>${catBadge}</td>
+                <td style="font-family:monospace; font-size:11.5px; color:#475569;">${sensorStr}</td>
+                <td>${assignedBadge}</td>
+                <td>${classBadge}</td>
+                <td style="font-size:12px; color:#475569;">${ReportsManager._esc(t.expected_compartment)}</td>
+                <td style="font-size:12px; font-weight:600; color:#0f172a;">${ReportsManager._esc(t.actual_compartment)}</td>
+                <td>${sortBadge}</td>
+                <td style="font-size:12px; color:#64748b;">${ReportsManager._esc(t.remarks || '—')}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      },
+
+      toggleTrialModal(show) {
+        const modal = document.getElementById('modal-record-trial');
+        if (!modal) return;
+        modal.style.display = show ? 'flex' : 'none';
+        if (show) {
+          modal.classList.add('active');
+          document.getElementById('trial-sample-name')?.focus();
+          this.syncExpectedComp();
+          this.autoEvalDecision();
+        } else {
+          modal.classList.remove('active');
+        }
+      },
+
+      syncExpectedComp() {
+        const actual = document.getElementById('trial-actual-cat')?.value || 'Metal';
+        const expSelect = document.getElementById('trial-expected-comp');
+        const reachedSelect = document.getElementById('trial-reached-comp');
+        if (expSelect) expSelect.value = actual;
+        if (reachedSelect) reachedSelect.value = actual;
+      },
+
+      autoEvalDecision() {
+        const metalInput = document.getElementById('trial-sensor-metal')?.value === 'true';
+        const moistInput = parseFloat(document.getElementById('trial-sensor-moist')?.value || '0');
+        const assignedSelect = document.getElementById('trial-assigned-cat');
+        if (!assignedSelect) return;
+
+        // Rule-based classification:
+        // 1. Metal detected → Metal
+        // 2. Otherwise, moisture reading ≥ 45% → Wet
+        // 3. Otherwise → Dry (Residual)
+        if (metalInput) {
+          assignedSelect.value = 'Metal';
+        } else if (moistInput >= 45.0) {
+          assignedSelect.value = 'Wet';
+        } else {
+          assignedSelect.value = 'Dry';
+        }
+      },
+
+      saveTrial(e) {
+        e.preventDefault();
+        const sampleName = (document.getElementById('trial-sample-name')?.value || '').trim();
+        const actualCat = document.getElementById('trial-actual-cat')?.value || 'Dry';
+        const metalSensor = document.getElementById('trial-sensor-metal')?.value === 'true';
+        const moistureSensor = parseFloat(document.getElementById('trial-sensor-moist')?.value || '0');
+        const assignedCat = document.getElementById('trial-assigned-cat')?.value || 'Dry';
+        const expectedComp = document.getElementById('trial-expected-comp')?.value || 'Dry';
+        const actualComp = document.getElementById('trial-reached-comp')?.value || 'Dry';
+        const remarks = (document.getElementById('trial-remarks')?.value || '').trim();
+
+        const isCorrect = actualCat.toLowerCase().startsWith(assignedCat.toLowerCase().slice(0, 3));
+        const isSorted = expectedComp === actualComp;
+
+        const newTrial = {
+          id: Date.now(),
+          timestamp: new Date().toISOString(),
+          sample_name: sampleName,
+          actual_category: actualCat,
+          metal_sensor: metalSensor,
+          moisture_sensor: moistureSensor,
+          assigned_category: assignedCat,
+          classification_correct: isCorrect,
+          expected_compartment: expectedComp,
+          actual_compartment: actualComp,
+          sorting_successful: isSorted,
+          remarks: remarks
+        };
+
+        const trials = this._getTrials();
+        trials.push(newTrial);
+        this._saveTrials(trials);
+
+        this.toggleTrialModal(false);
+        document.getElementById('form-record-trial')?.reset();
+        this.renderTestingEvaluation();
+      },
+
+      clearTrials() {
+        if (!confirm('Clear all recorded prototype test trials?')) return;
+        localStorage.removeItem('wasteguard_prototype_trials');
+        this.renderTestingEvaluation();
+      },
+
+      _esc(str) {
+        return String(str || '').replace(/[&<>"']/g, m => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[m]);
       }
     };
 

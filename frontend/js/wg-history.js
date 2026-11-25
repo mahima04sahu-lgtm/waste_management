@@ -85,7 +85,7 @@ const HistoryManager = {
     const tbody = document.getElementById('history-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = '<tr><td colspan="9" class="table-loading">Loading segregation history...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="table-loading">Loading segregation history...</td></tr>';
 
     const search = (document.getElementById('filter-action-search')?.value || '').trim();
     const catFilter = (document.getElementById('filter-category-select')?.value || '').trim();
@@ -126,7 +126,7 @@ const HistoryManager = {
       if (logs.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="table-loading" style="padding:28px 16px; color:#64748b;">
+            <td colspan="7" class="table-loading" style="padding:28px 16px; color:#64748b;">
               <div style="font-size:24px; margin-bottom:6px;">📋</div>
               <strong>No segregation records found.</strong><br>
               <span style="font-size:12px;">Events sent from the Arduino Uno prototype will be logged chronologically here.</span>
@@ -136,18 +136,15 @@ const HistoryManager = {
         return;
       }
 
-      const verifications = this._getVerifications();
-
       tbody.innerHTML = logs.map(log => {
         const meta = log.metadata || {};
         const ts = this._formatDate(log.timestamp);
         const eventId = `#EVT-${log.id}`;
-        const station = log.entity_id || 'STATION-01';
 
         // Metal reading
         const metalStr = meta.metal_detected
           ? '<span class="cat-badge cat-metal">🔩 Detected</span>'
-          : '<span style="color:#64748b; font-size:12px;">Clear</span>';
+          : '<span style="color:#64748b; font-size:12px;">Not Detected</span>';
 
         // Moisture reading
         const moistVal = typeof meta.moisture_value === 'number'
@@ -159,35 +156,18 @@ const HistoryManager = {
           ? `<span class="cat-badge cat-wet">🍃 ${moistVal}</span>`
           : `<span style="font-size:12px; color:#475569;">${moistVal}</span>`;
 
-        // Output Category
+        // Assigned Category (renamed from Predicted Category)
         const catBadge = this._catBadge(meta.predicted_category || 'Dry');
-        const statusBadge = `<span class="status-badge status-online">${this._esc(meta.status || 'Completed')}</span>`;
-
-        const vState = verifications[String(log.id)];
-        let evalCol = '';
-        if (vState === 'correct') {
-          evalCol = '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>';
-        } else if (vState === 'mismatch') {
-          evalCol = '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
-        } else {
-          evalCol = `
-            <div class="verify-btn-group">
-              <button class="btn-verify btn-verify-ok" data-verify-id="${log.id}" data-verify-outcome="correct" title="Mark as correctly classified">✅ Correct</button>
-              <button class="btn-verify btn-verify-fail" data-verify-id="${log.id}" data-verify-outcome="mismatch" title="Mark as misclassified">❌ Mismatch</button>
-            </div>
-          `;
-        }
+        const statusBadge = `<span class="status-badge status-online">Sorted</span>`;
 
         return `
           <tr>
             <td style="white-space:nowrap; font-size:12px; color:#64748b;">${ts}</td>
             <td><code style="font-size:11.5px; background:#f8fafc; padding:2px 6px; border-radius:4px; border:1px solid #e2e8f0;">${eventId}</code></td>
-            <td style="font-size:12.5px; font-weight:600; color:#0f172a;">${this._esc(station)}</td>
             <td>${metalStr}</td>
             <td>${moistStr}</td>
             <td>${catBadge}</td>
             <td>${statusBadge}</td>
-            <td id="verify-cell-${log.id}">${evalCol}</td>
             <td style="text-align:right;">
               <button class="btn-secondary-sm" data-details-id="${log.id}" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
                 View Details
@@ -199,7 +179,7 @@ const HistoryManager = {
 
     } catch (err) {
       console.error('[History] Fetch error:', err);
-      tbody.innerHTML = `<tr><td colspan="9" class="table-loading" style="color:#ef4444;">
+      tbody.innerHTML = `<tr><td colspan="7" class="table-loading" style="color:#ef4444;">
         ⚠ Failed to load history: ${this._esc(err.message || 'Check connection')}
       </td></tr>`;
     }

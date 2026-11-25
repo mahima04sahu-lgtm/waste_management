@@ -25,6 +25,7 @@ const HistoryManager = {
     const closeBtn = document.getElementById('btn-close-modal');
     const dismissBtn = document.getElementById('btn-dismiss-modal');
     const backdrop = document.getElementById('event-modal-backdrop');
+    const table = document.getElementById('history-table');
 
     let timer;
     if (searchInput) {
@@ -50,6 +51,23 @@ const HistoryManager = {
     if (backdrop) {
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) this._closeModal();
+      });
+    }
+
+    // Keyboard Escape to dismiss
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this._closeModal();
+    });
+
+    // Event delegation on table body for details clicks
+    if (table) {
+      table.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-details-id]');
+        if (trigger) {
+          e.preventDefault();
+          const id = trigger.getAttribute('data-details-id');
+          this.showDetails(id);
+        }
       });
     }
   },
@@ -144,7 +162,7 @@ const HistoryManager = {
             <td>${catBadge}</td>
             <td>${statusBadge}</td>
             <td style="text-align:right;">
-              <button class="btn-secondary-sm" onclick="HistoryManager.showDetails(${log.id})" style="padding:3px 9px; font-size:11.5px; border-radius:5px; cursor:pointer;">
+              <button class="btn-secondary-sm" data-details-id="${log.id}" onclick="HistoryManager.showDetails(${log.id})" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
                 View Details
               </button>
             </td>
@@ -161,9 +179,24 @@ const HistoryManager = {
   },
 
   showDetails(logId) {
-    const log = this._currentLogs.find(l => l.id === logId);
-    if (!log) return;
+    if (!logId) return;
+    const idStr = String(logId);
+    let log = (this._currentLogs || []).find(l => String(l.id) === idStr);
+    if (log) {
+      this._renderModal(log);
+      return;
+    }
+    // Fallback: fetch from API directly if not currently in cached page
+    ApiClient.get(`/audit-logs/${idStr}/`).then(fetched => {
+      if (fetched) {
+        this._renderModal(fetched);
+      }
+    }).catch(err => {
+      console.error('[History] Failed to load event details:', err);
+    });
+  },
 
+  _renderModal(log) {
     const meta = log.metadata || {};
     const modal = document.getElementById('event-modal-backdrop');
     const title = document.getElementById('modal-event-title');
@@ -172,7 +205,7 @@ const HistoryManager = {
     if (title) title.textContent = `Event Details — #EVT-${log.id}`;
 
     const metalText = meta.metal_detected ? 'Triggered (Inductive Ferrous Metal)' : 'Clear (No Metal Detected)';
-    const moistVal = typeof meta.moisture_value === 'number' ? `${meta.moisture_value.toFixed(1)}%` : '0.0%';
+    const moistVal = typeof meta.moisture_value === 'number' ? `${meta.moisture_value.toFixed(1)}%` : (meta.moisture_detected ? 'Wet' : '0.0%');
     const ruleText = meta.rule_applied || (meta.metal_detected ? 'Metal detected → Metal' : (meta.moisture_detected ? 'Moisture detected → Wet' : 'Neither detected → Dry (Residual)'));
     const category = meta.predicted_category || 'Dry';
 
@@ -213,12 +246,18 @@ const HistoryManager = {
       `;
     }
 
-    if (modal) modal.style.display = 'flex';
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
   },
 
   _closeModal() {
     const modal = document.getElementById('event-modal-backdrop');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
   },
 
   _catBadge(category) {
@@ -267,3 +306,5 @@ const HistoryManager = {
     })[m]);
   }
 };
+
+window.HistoryManager = HistoryManager;

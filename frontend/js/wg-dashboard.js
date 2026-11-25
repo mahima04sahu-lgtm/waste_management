@@ -12,6 +12,7 @@ const DashboardController = {
 
   async init() {
     this._setupRefreshBtn();
+    this._setupModalControls();
     await this._load();
     // Auto-refresh live prototype data every 2.5 seconds for instant hardware sync
     this.pollTimer = setInterval(() => this._load(true), 2500);
@@ -26,6 +27,36 @@ const DashboardController = {
       await this._load();
       setTimeout(() => { if (icon) icon.style.transform = ''; }, 500);
     });
+  },
+
+  _setupModalControls() {
+    const closeBtn = document.getElementById('btn-close-modal');
+    const dismissBtn = document.getElementById('btn-dismiss-modal');
+    const backdrop = document.getElementById('event-modal-backdrop');
+    const table = document.getElementById('events-table');
+
+    if (closeBtn) closeBtn.addEventListener('click', () => this._closeModal());
+    if (dismissBtn) dismissBtn.addEventListener('click', () => this._closeModal());
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) this._closeModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this._closeModal();
+    });
+
+    if (table) {
+      table.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-details-id]');
+        if (trigger) {
+          e.preventDefault();
+          const id = trigger.getAttribute('data-details-id');
+          this.showDetails(id);
+        }
+      });
+    }
   },
 
   async _load(background = false) {
@@ -177,10 +208,12 @@ const DashboardController = {
     const tbody = document.getElementById('events-table-body');
     if (!tbody) return;
 
+    this._currentEvents = events || [];
+
     if (!events || events.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6" class="table-loading" style="padding:28px 16px; color:#64748b;">
+          <td colspan="7" class="table-loading" style="padding:28px 16px; color:#64748b;">
             <div style="font-size:24px; margin-bottom:6px;">📡</div>
             <strong>No segregation events received yet.</strong><br>
             <span style="font-size:12px;">Power on the Arduino Uno prototype and transmit sensor readings to see live event logging.</span>
@@ -217,9 +250,99 @@ const DashboardController = {
           <td>${moistStr}</td>
           <td>${catBadge}</td>
           <td>${statusBadge}</td>
+          <td style="text-align:right;">
+            <button class="btn-secondary-sm" data-details-id="${evt.id}" onclick="DashboardController.showDetails(${evt.id})" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
+              View Details
+            </button>
+          </td>
         </tr>
       `;
     }).join('');
+  },
+
+  showDetails(evtId) {
+    if (!evtId) return;
+    const idStr = String(evtId);
+    let log = (this._currentEvents || []).find(l => String(l.id) === idStr);
+    if (log) {
+      this._renderModal(log);
+      return;
+    }
+    ApiClient.get(`/audit-logs/${idStr}/`).then(fetched => {
+      if (fetched) this._renderModal(fetched);
+    }).catch(err => {
+      console.error('[Dashboard] Failed to load event details:', err);
+    });
+  },
+
+  _renderModal(log) {
+    const meta = log.metadata || {};
+    const modal = document.getElementById('event-modal-backdrop');
+    const title = document.getElementById('modal-event-title');
+    const body = document.getElementById('modal-event-body');
+
+    if (title) title.textContent = `Event Details — #EVT-${log.id}`;
+
+    const metalText = meta.metal_detected ? 'Triggered (Inductive Ferrous Metal)' : 'Clear (No Metal Detected)';
+    const moistVal = typeof meta.moisture_value === 'number' ? `${meta.moisture_value.toFixed(1)}%` : (meta.moisture_detected ? 'Wet' : '0.0%');
+    const ruleText = meta.rule_applied || (meta.metal_detected ? 'Metal detected → Metal' : (meta.moisture_detected ? 'Moisture detected → Wet' : 'Neither detected → Dry (Residual)'));
+    const category = meta.predicted_category || 'Dry';
+
+    if (body) {
+      body.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:14px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <span style="color:#64748b;">Timestamp</span>
+            <strong>${this._formatDate(log.timestamp)}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <span style="color:#64748b;">Target Prototype Station</span>
+            <strong>${this._esc(log.entity_id || 'STATION-01')}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <span style="color:#64748b;">Metal Sensor Reading</span>
+            <strong style="color:${meta.metal_detected ? '#0f172a' : '#64748b'};">${metalText}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <span style="color:#64748b;">Moisture Sensor Reading</span>
+            <strong>${moistVal} (Threshold: ≥ 45.0%)</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <span style="color:#64748b;">Output Category</span>
+            <div>${this._catBadge(category)}</div>
+          </div>
+          <div style="border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <div style="color:#64748b; margin-bottom:4px;">Rule Classification Decision</div>
+            <div style="padding:8px 10px; background:#f8fafc; border-left:3px solid #10b981; border-radius:0 6px 6px 0; font-family:monospace; font-size:12px; color:#0f172a;">
+              ${this._esc(ruleText)}
+            </div>
+          </div>
+          <div>
+            <div style="color:#64748b; margin-bottom:4px;">Raw Event Payload</div>
+            <pre style="background:#0f172a; color:#f8fafc; padding:10px; border-radius:6px; font-size:11px; overflow-x:auto;">${this._esc(JSON.stringify(meta, null, 2))}</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+    }
+  },
+
+  _closeModal() {
+    const modal = document.getElementById('event-modal-backdrop');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
+  },
+
+  _esc(str) {
+    return String(str || '').replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[m]);
   },
 
   _catBadge(category) {
@@ -262,3 +385,5 @@ const DashboardController = {
     }
   }
 };
+
+window.DashboardController = DashboardController;

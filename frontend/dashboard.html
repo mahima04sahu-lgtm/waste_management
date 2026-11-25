@@ -194,12 +194,29 @@
                   <th>Moisture Sensor</th>
                   <th>Predicted Category</th>
                   <th>Status</th>
+                  <th style="text-align:right;">Payload</th>
                 </tr>
               </thead>
               <tbody id="events-table-body">
-                <tr><td colspan="6" class="table-loading">Loading segregation events...</td></tr>
+                <tr><td colspan="7" class="table-loading">Loading segregation events...</td></tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- Event Details Modal Dialog -->
+        <div class="modal-backdrop" id="event-modal-backdrop" style="display:none;">
+          <div class="modal-card">
+            <div class="modal-head">
+              <h3 style="font-size:15px; font-weight:700; color:#0f172a;" id="modal-event-title">Segregation Event Details</h3>
+              <button id="btn-close-modal" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b;">✕</button>
+            </div>
+            <div class="modal-body" id="modal-event-body">
+              <!-- Rendered dynamically -->
+            </div>
+            <div class="modal-foot">
+              <button class="btn-secondary-sm" id="btn-dismiss-modal" style="padding:6px 14px; border-radius:6px; cursor:pointer;">Close</button>
+            </div>
           </div>
         </div>
       </main>

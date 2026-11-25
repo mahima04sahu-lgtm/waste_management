@@ -633,13 +633,18 @@ html, body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15,23,42,0.5);
-  backdrop-filter: blur(2px);
-  z-index: 100;
-  display: flex;
+  background: rgba(15,23,42,0.6);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 24px;
+}
+
+.modal-backdrop.active,
+.modal-backdrop[style*="display: flex"] {
+  display: flex !important;
 }
 
 .modal-card {

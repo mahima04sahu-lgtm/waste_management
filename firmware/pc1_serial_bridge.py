@@ -12,23 +12,38 @@ Usage:
   python pc1_serial_bridge.py
 """
 
-import serial
-import serial.tools.list_ports
+try:
+    import serial
+    import serial.tools.list_ports
+except ImportError:
+    serial = None
+
 import requests
 import json
 import time
 import sys
+import os
+
+# Try loading .env if available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+except Exception:
+    pass
 
 # ==============================================================================
-# CONFIGURATION
+# CONFIGURATION (loaded from .env or fallback defaults)
 # ==============================================================================
-# Target: Your WasteGuard Dashboard Laptop IP and Port
-SERVER_URL = "http://192.168.29.66:8000/api/devices/sensor-data/"
-HEALTH_URL = "http://192.168.29.66:8000/api/devices/ping/?station_id=STATION-01"
-DEVICE_API_KEY = "WG-STATION01-KEY-9842F1A63C2026"
+SERVER_HOST = os.getenv("SERVER_HOST_IP", "192.168.29.66")
+SERVER_PORT = os.getenv("SERVER_PORT", "8000")
+BASE_URL = os.getenv("SERVER_BASE_URL", f"http://{SERVER_HOST}:{SERVER_PORT}")
+SERVER_URL = os.getenv("DEVICE_TELEMETRY_URL", f"{BASE_URL}/api/devices/sensor-data/")
+HEALTH_URL = os.getenv("DEVICE_PING_URL", f"{BASE_URL}/api/devices/ping/?station_id=STATION-01")
+DEVICE_API_KEY = os.getenv("DEVICE_API_KEY", "WG-STATION01-KEY-9842F1A63C2026")
 
 # Serial settings
-BAUD_RATE = 115200
+BAUD_RATE = int(os.getenv("SERIAL_BAUD_RATE", 115200))
 # Leave as None to auto-detect Arduino port, or set explicitly e.g. "COM3" / "/dev/ttyACM0"
 MANUAL_PORT = None 
 

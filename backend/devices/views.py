@@ -5,10 +5,11 @@ from django.conf import settings
 from django.utils import timezone
 from containers.models import Container, WasteCategory
 from sensors.models import SensorReading
+import os
 from audit_logs.models import AuditLog
 from audit_logs.services import log_audit
 
-DEFAULT_DEVICE_API_KEY = "WG-STATION01-KEY-9842F1A63C2026"
+DEFAULT_DEVICE_API_KEY = getattr(settings, 'DEVICE_API_KEY', os.getenv('DEVICE_API_KEY', 'WG-STATION01-KEY-9842F1A63C2026'))
 
 def _parse_bool(val, default=False):
     if val is None:

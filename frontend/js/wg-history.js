@@ -59,7 +59,7 @@ const HistoryManager = {
       if (e.key === 'Escape') this._closeModal();
     });
 
-    // Event delegation on table body for details clicks
+    // Event delegation on table body for details clicks & live verifications
     if (table) {
       table.addEventListener('click', (e) => {
         const trigger = e.target.closest('[data-details-id]');
@@ -67,6 +67,15 @@ const HistoryManager = {
           e.preventDefault();
           const id = trigger.getAttribute('data-details-id');
           this.showDetails(id);
+          return;
+        }
+
+        const verifyBtn = e.target.closest('[data-verify-id]');
+        if (verifyBtn) {
+          e.preventDefault();
+          const id = verifyBtn.getAttribute('data-verify-id');
+          const outcome = verifyBtn.getAttribute('data-verify-outcome');
+          this.verifyEvent(id, outcome);
         }
       });
     }
@@ -76,7 +85,7 @@ const HistoryManager = {
     const tbody = document.getElementById('history-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = '<tr><td colspan="8" class="table-loading">Loading segregation history...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="table-loading">Loading segregation history...</td></tr>';
 
     const search = (document.getElementById('filter-action-search')?.value || '').trim();
     const catFilter = (document.getElementById('filter-category-select')?.value || '').trim();
@@ -117,7 +126,7 @@ const HistoryManager = {
       if (logs.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="table-loading" style="padding:28px 16px; color:#64748b;">
+            <td colspan="9" class="table-loading" style="padding:28px 16px; color:#64748b;">
               <div style="font-size:24px; margin-bottom:6px;">📋</div>
               <strong>No segregation records found.</strong><br>
               <span style="font-size:12px;">Events sent from the Arduino Uno prototype will be logged chronologically here.</span>
@@ -126,6 +135,8 @@ const HistoryManager = {
         `;
         return;
       }
+
+      const verifications = this._getVerifications();
 
       tbody.innerHTML = logs.map(log => {
         const meta = log.metadata || {};
@@ -152,6 +163,21 @@ const HistoryManager = {
         const catBadge = this._catBadge(meta.predicted_category || 'Dry');
         const statusBadge = `<span class="status-badge status-online">${this._esc(meta.status || 'Completed')}</span>`;
 
+        const vState = verifications[String(log.id)];
+        let evalCol = '';
+        if (vState === 'correct') {
+          evalCol = '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>';
+        } else if (vState === 'mismatch') {
+          evalCol = '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
+        } else {
+          evalCol = `
+            <div class="verify-btn-group">
+              <button class="btn-verify btn-verify-ok" data-verify-id="${log.id}" data-verify-outcome="correct" title="Mark as correctly classified">✅ Correct</button>
+              <button class="btn-verify btn-verify-fail" data-verify-id="${log.id}" data-verify-outcome="mismatch" title="Mark as misclassified">❌ Mismatch</button>
+            </div>
+          `;
+        }
+
         return `
           <tr>
             <td style="white-space:nowrap; font-size:12px; color:#64748b;">${ts}</td>
@@ -161,8 +187,9 @@ const HistoryManager = {
             <td>${moistStr}</td>
             <td>${catBadge}</td>
             <td>${statusBadge}</td>
+            <td id="verify-cell-${log.id}">${evalCol}</td>
             <td style="text-align:right;">
-              <button class="btn-secondary-sm" data-details-id="${log.id}" onclick="HistoryManager.showDetails(${log.id})" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
+              <button class="btn-secondary-sm" data-details-id="${log.id}" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
                 View Details
               </button>
             </td>
@@ -172,9 +199,34 @@ const HistoryManager = {
 
     } catch (err) {
       console.error('[History] Fetch error:', err);
-      tbody.innerHTML = `<tr><td colspan="8" class="table-loading" style="color:#ef4444;">
+      tbody.innerHTML = `<tr><td colspan="9" class="table-loading" style="color:#ef4444;">
         ⚠ Failed to load history: ${this._esc(err.message || 'Check connection')}
       </td></tr>`;
+    }
+  },
+
+  _getVerifications() {
+    try {
+      return JSON.parse(localStorage.getItem('wasteguard_live_verifications') || '{}');
+    } catch {
+      return {};
+    }
+  },
+
+  verifyEvent(evtId, outcome) {
+    if (!evtId || !outcome) return;
+    const verifications = this._getVerifications();
+    verifications[String(evtId)] = outcome;
+    try {
+      localStorage.setItem('wasteguard_live_verifications', JSON.stringify(verifications));
+    } catch (e) {
+      console.warn('[History] Could not save verification:', e);
+    }
+    const cell = document.getElementById(`verify-cell-${evtId}`);
+    if (cell) {
+      cell.innerHTML = outcome === 'correct'
+        ? '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>'
+        : '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
     }
   },
 

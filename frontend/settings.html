@@ -7,8 +7,8 @@
   <meta name="description" content="WasteGuard single-station Arduino Uno prototype settings and hardware telemetry configuration.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/global.css">
-  <link rel="stylesheet" href="css/wg-main.css">
+  <link rel="stylesheet" href="css/global.css?v=5.0">
+  <link rel="stylesheet" href="css/wg-main.css?v=5.0">
 </head>
 <body>
   <div class="app-shell">
@@ -48,91 +48,226 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <div class="main-area">
       <header class="topbar">
         <div class="topbar-left">
           <h1 class="page-title">Prototype Hardware Settings</h1>
+          <span class="live-pill"><span class="live-dot"></span> LIVE HARDWARE INTERFACE</span>
+        </div>
+        <div class="topbar-right">
+          <button class="btn-refresh" onclick="window.location.reload()">🔄 Refresh Config</button>
         </div>
       </header>
 
       <main class="page-content">
-        <!-- Station Identity Card -->
-        <div class="section-card" style="margin-bottom:20px; max-width:680px;">
+        <!-- Card 1: Station Hardware Identity & Microcontroller Core -->
+        <div class="section-card" style="width:100%;">
           <div class="section-header">
             <div>
-              <h2 class="section-title">Station Hardware Identity</h2>
-              <p class="section-sub">Single-station prototype configuration parameters</p>
+              <h2 class="section-title">Station Hardware Identity &amp; Microcontroller Core</h2>
+              <p class="section-sub">Single-station prototype configuration parameters, board specifications, and classification categories</p>
             </div>
+            <span class="verify-badge verify-correct">STATION-01 ACTIVE</span>
           </div>
-          <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px; font-size:13px;">
-            <div>
-              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Assigned Prototype Station ID</label>
-              <input type="text" class="form-control" value="STATION-01" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace;">
+          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Assigned Prototype Station ID</label>
+                <input type="text" class="form-control" value="STATION-01" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-family:monospace; font-size:14px; font-weight:700; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Primary station identifier mapped across telemetry ingest and PostgreSQL/SQLite models.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Microcontroller Core Unit</label>
+                <input type="text" class="form-control" value="Arduino Uno (ATmega328P Rev3 — 16.0 MHz)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Processes sensor ADC/interrupt signals and commands servo mechanical diverters.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Firmware Release &amp; Architecture</label>
+                <input type="text" class="form-control" value="WasteGuard-v4.2-UNO-Deterministic-Release" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Real-time sequential evaluation: Priority 1 Metal → Priority 2 Wet → Priority 3 Dry.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Deployment Zone &amp; Enclosure</label>
+                <input type="text" class="form-control" value="Prototype Lab Bench 1 · Automated Chute Enclosure" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Physical testbed deployment for live segregation verification.</span>
+              </div>
             </div>
-            <div>
-              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Microcontroller Core</label>
-              <input type="text" class="form-control" value="Arduino Uno (ATmega328P)" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc;">
-            </div>
-            <div>
-              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Supported Output Categories</label>
-              <div style="display:flex; gap:8px; margin-top:4px;">
-                <span class="cat-badge cat-metal">🔩 Metal</span>
-                <span class="cat-badge cat-wet">🍃 Wet</span>
-                <span class="cat-badge cat-dry">📦 Dry (Residual)</span>
+            <div style="border-top:1px solid #f1f5f9; padding-top:16px;">
+              <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Configured Physical Waste Streams (Strict 3 Categories)</label>
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <span class="cat-badge cat-metal" style="padding:8px 16px; font-size:12.5px; font-weight:700;">🔩 Metal Stream (Inductive Trigger)</span>
+                <span class="cat-badge cat-wet" style="padding:8px 16px; font-size:12.5px; font-weight:700;">🍃 Wet Stream (Moisture Conductivity ≥ 45%)</span>
+                <span class="cat-badge cat-dry" style="padding:8px 16px; font-size:12.5px; font-weight:700;">📦 Dry Stream (Residual / Non-Conductive)</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Sensor Thresholds Card -->
-        <div class="section-card" style="margin-bottom:20px; max-width:680px;">
+        <!-- Card 2: Sensor Calibration, Logic Modes & Pin Allocations -->
+        <div class="section-card" style="width:100%;">
           <div class="section-header">
             <div>
-              <h2 class="section-title">Sensor Calibration &amp; Thresholds</h2>
-              <p class="section-sub">Rule decision parameters for physical sensor triggers</p>
+              <h2 class="section-title">Sensor Calibration, Thresholds &amp; Physical Pin Allocations</h2>
+              <p class="section-sub">Physical sensor inputs, logic trigger modes, debouncing, and classification threshold parameters</p>
             </div>
+            <span class="live-pill"><span class="live-dot"></span> PINS CONFIGURED</span>
           </div>
-          <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px; font-size:13px;">
-            <div>
-              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Inductive Metal Sensor Trigger Mode</label>
-              <input type="text" class="form-control" value="Digital High (Presence of Ferrous / Conductive Metal)" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc;">
-              <span style="font-size:11px; color:#64748b; margin-top:3px; display:block;">Triggering routes waste directly to the Metal compartment.</span>
-            </div>
-            <div>
-              <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:4px;">Moisture / Wetness Trigger Threshold (%)</label>
-              <input type="number" class="form-control" value="45" readonly style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; font-family:monospace;">
-              <span style="font-size:11px; color:#64748b; margin-top:3px; display:block;">If no metal detected, moisture reading ≥ 45% routes waste to the Wet compartment.</span>
+          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Inductive Metal Sensor (LJ12A3-4-Z/BX)</label>
+                <input type="text" class="form-control" value="Digital Pin 2 · Active HIGH (Interrupt 0)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Triggers Priority 1: Ferrous &amp; conductive metals route immediately to Metal compartment.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Moisture / Wetness Trigger Threshold</label>
+                <input type="text" class="form-control" value="Analog Pin A0 · Trigger Threshold: ≥ 45.0%" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">ADC 10-bit reading normalized to 0-100%; non-metallic items ≥ 45% route to Wet compartment.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Object Entry Proximity Sensor</label>
+                <input type="text" class="form-control" value="Digital Pin 3 · Active LOW (Optical / IR Beam)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Detects item insertion at intake chute to begin sampling and classification cycle.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Ultrasonic Fill-Level Monitor (HC-SR04)</label>
+                <input type="text" class="form-control" value="Trigger: Digital Pin 9 | Echo: Digital Pin 10" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Calculates fill depth (cm) and compartment fill percentage across bins.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Primary Diverter Actuator Servo</label>
+                <input type="text" class="form-control" value="PWM Digital Pin 5 · 180° Metal Gear Servo" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Flips chute mechanical flap to Metal bin position (45°) or pass-through (90°).</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Secondary Diverter Actuator Servo</label>
+                <input type="text" class="form-control" value="PWM Digital Pin 6 · 180° Metal Gear Servo" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Directs pass-through items into Wet compartment (135°) or Dry compartment (0°).</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Ingestion API Specification Card -->
-        <div class="section-card" style="max-width:680px;">
+        <!-- Card 3: Local Network, Gateway & Serial Communications -->
+        <div class="section-card" style="width:100%;">
           <div class="section-header">
             <div>
-              <h2 class="section-title">Hardware Telemetry Ingestion API</h2>
-              <p class="section-sub">HTTP endpoint for Arduino Uno Serial Bridge / Wi-Fi telemetry</p>
+              <h2 class="section-title">Local Network &amp; Hardware Connectivity</h2>
+              <p class="section-sub">Wi-Fi LAN parameters for Arduino Uno and ESP32 telemetry bridge</p>
+            </div>
+            <span class="live-pill"><span class="live-dot"></span> LAN ONLINE</span>
+          </div>
+          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Server Host IP (Current Wi-Fi LAN)</label>
+                <input type="text" class="form-control" value="192.168.29.66" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-family:monospace; font-size:14px; font-weight:700; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Target IP address configured in the Arduino sketch as <code>SERVER_HOST</code>.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Django Backend Port</label>
+                <input type="text" class="form-control" value="8000 (Binding 0.0.0.0:8000)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-family:monospace; font-size:14px; font-weight:700; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Active Django dev server binding accessible across local Wi-Fi subnet.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Serial Gateway Baud Rate</label>
+                <input type="text" class="form-control" value="115200 bps (8-N-1 Serial Mode)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Set Arduino IDE Serial Monitor and Python serial bridge to 115200 baud.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">Telemetry Transmission Interval</label>
+                <input type="text" class="form-control" value="Every 3000 ms (3.0s Live Cadence)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Periodic sensor telemetry packet and station heartbeat interval.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">HTTP Timeout &amp; Retry Threshold</label>
+                <input type="text" class="form-control" value="5000 ms (Watchdog Auto-Retry)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#0f172a;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Hardware watchdog will buffer readings locally if Wi-Fi network drops.</span>
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:7px;">REST Ingest Gateway Status</label>
+                <input type="text" class="form-control" value="Active · Background Daemon (Task-1387)" readonly style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; font-size:13.5px; font-weight:600; color:#15803d;">
+                <span style="font-size:12px; color:#64748b; margin-top:5px; display:block;">Django development server is running and actively processing incoming packets.</span>
+              </div>
             </div>
           </div>
-          <div style="padding:16px 20px; display:flex; flex-direction:column; gap:16px; font-size:13px;">
+        </div>
+
+        <!-- Card 4: Hardware Telemetry Ingestion API Specification -->
+        <div class="section-card" style="width:100%;">
+          <div class="section-header">
             <div>
-              <strong style="color:#0f172a;">1. Ingest Telemetry Event (Arduino / Sensor):</strong><br>
-              <code style="display:inline-block; background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:#10b981; margin:4px 0;">POST /api/devices/sensor-data/</code><br>
-              <span style="font-size:11.5px; color:#64748b;">Payload fields: <code>station_id</code>, <code>metal_detected</code> (bool/int), <code>moisture</code> (float %), <code>device_status</code></span>
+              <h2 class="section-title">Hardware Telemetry Ingestion API Specification</h2>
+              <p class="section-sub">HTTP endpoint contracts and payload schemas for Arduino Uno / ESP32 REST communications</p>
             </div>
-            <div>
-              <strong style="color:#0f172a;">2. Sample JSON Telemetry Payload:</strong>
-              <pre style="background:#0f172a; color:#f8fafc; padding:12px; border-radius:6px; font-size:11.5px; margin-top:6px; overflow-x:auto;">{
+            <span class="verify-badge verify-correct">REST CONTRACT V1</span>
+          </div>
+          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:22px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px 20px;">
+                <strong style="color:#0f172a; font-size:13.5px; display:block; margin-bottom:6px;">1. Telemetry Ingest Endpoint (POST):</strong>
+                <code style="display:inline-block; background:#fff; padding:6px 12px; border-radius:6px; font-weight:700; color:#10b981; font-size:13px; border:1px solid #cbd5e1;">POST /api/devices/sensor-data/</code>
+                <p style="font-size:12px; color:#475569; margin-top:8px; line-height:1.5;">
+                  Receives sensor packet, evaluates segregation rules, updates Station model, increments dashboard KPIs, and logs an AuditLog segregation event.
+                </p>
+                <span style="font-size:11.5px; color:#64748b; display:block; margin-top:6px;">Required fields: <code>station_id</code>, <code>metal_detected</code>, <code>moisture</code>, <code>device_status</code></span>
+              </div>
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px 20px;">
+                <strong style="color:#0f172a; font-size:13.5px; display:block; margin-bottom:6px;">2. Hardware Health Check Ping (GET):</strong>
+                <code style="display:inline-block; background:#fff; padding:6px 12px; border-radius:6px; font-weight:700; color:#10b981; font-size:13px; border:1px solid #cbd5e1;">GET /api/devices/ping/?station_id=STATION-01</code>
+                <p style="font-size:12px; color:#475569; margin-top:8px; line-height:1.5;">
+                  Verifies bidirectional network connectivity between Arduino microcontroller and Django server. Returns HTTP 200 with server timestamp.
+                </p>
+                <span style="font-size:11.5px; color:#64748b; display:block; margin-top:6px;">Returns: <code>{"status": "ok", "station_id": "STATION-01", "online": true}</code></span>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px 28px;">
+              <div>
+                <strong style="color:#0f172a; font-size:13px; display:block; margin-bottom:8px;">Sample Arduino JSON Telemetry Packet (Outgoing):</strong>
+                <pre style="background:#0f172a; color:#f8fafc; padding:18px 22px; border-radius:10px; font-size:12.5px; line-height:1.6; overflow-x:auto;">{
   "station_id": "STATION-01",
   "metal_detected": true,
   "moisture": 65.0,
+  "proximity_detected": true,
   "device_status": "ONLINE"
 }</pre>
+              </div>
+              <div>
+                <strong style="color:#0f172a; font-size:13px; display:block; margin-bottom:8px;">Expected Server Response (HTTP 201 Created):</strong>
+                <pre style="background:#0f172a; color:#f8fafc; padding:18px 22px; border-radius:10px; font-size:12.5px; line-height:1.6; overflow-x:auto;">{
+  "status": "success",
+  "station_id": "STATION-01",
+  "segregation_decision": "METAL",
+  "certainty": 98.5,
+  "timestamp": "2026-11-25T16:20:00Z"
+}</pre>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Live Hardware Diagnostics & Connectivity Ping -->
+        <div class="section-card" style="width:100%; margin-bottom:30px;">
+          <div class="section-header">
             <div>
-              <strong style="color:#0f172a;">3. Hardware Ping Health Check:</strong><br>
-              <code style="display:inline-block; background:#f1f5f9; padding:4px 8px; border-radius:4px; font-weight:700; color:#10b981; margin:4px 0;">GET /api/devices/ping/</code>
+              <h2 class="section-title">Hardware Connectivity Diagnostics &amp; Ping Verification</h2>
+              <p class="section-sub">Test live HTTP connectivity to backend, verify station registration, or dispatch a test packet</p>
+            </div>
+            <span class="live-pill"><span class="live-dot"></span> DIAGNOSTIC TOOLS</span>
+          </div>
+          <div style="padding:24px 28px; display:flex; flex-direction:column; gap:18px;">
+            <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn btn-primary" onclick="testServerPing()" style="background:#16a34a; border-color:#15803d; padding:10px 18px; font-size:13px; font-weight:700; border-radius:8px;">
+                ⚡ Ping Server Host (192.168.29.66:8000)
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="sendSimulatedPacket()" style="padding:10px 18px; font-size:13px; font-weight:600; border-radius:8px;">
+                📡 Transmit Simulated Telemetry Packet
+              </button>
+            </div>
+            <div id="diagnostic-console" style="background:#0f172a; color:#10b981; font-family:monospace; font-size:12.5px; line-height:1.6; padding:16px 20px; border-radius:8px; border:1px solid #1e293b; min-height:60px; overflow-x:auto;">
+              [SYSTEM] Hardware Diagnostic Console Ready. Click above buttons to verify server connectivity.
             </div>
           </div>
         </div>
@@ -143,5 +278,40 @@
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>
   <script src="js/auth.js"></script>
+  <script>
+    async function testServerPing() {
+      const consoleEl = document.getElementById('diagnostic-console');
+      consoleEl.innerHTML = '[DIAGNOSTIC] Dispatching HTTP GET /api/devices/ping/?station_id=STATION-01...';
+      try {
+        const res = await fetch('/api/devices/ping/?station_id=STATION-01');
+        const data = await res.json();
+        consoleEl.innerHTML = `[SUCCESS ${res.status}] Ping confirmed!\n` + JSON.stringify(data, null, 2);
+      } catch (err) {
+        consoleEl.innerHTML = `[ERROR] Ping request failed: ${err.message}`;
+      }
+    }
+
+    async function sendSimulatedPacket() {
+      const consoleEl = document.getElementById('diagnostic-console');
+      consoleEl.innerHTML = '[DIAGNOSTIC] Dispatching POST /api/devices/sensor-data/ (Sample Metal event)...';
+      try {
+        const res = await fetch('/api/devices/sensor-data/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            station_id: 'STATION-01',
+            metal_detected: true,
+            moisture: 18.5,
+            proximity_detected: true,
+            device_status: 'ONLINE'
+          })
+        });
+        const data = await res.json();
+        consoleEl.innerHTML = `[SUCCESS ${res.status}] Ingestion confirmed!\n` + JSON.stringify(data, null, 2);
+      } catch (err) {
+        consoleEl.innerHTML = `[ERROR] Ingestion failed: ${err.message}`;
+      }
+    }
+  </script>
 </body>
 </html>

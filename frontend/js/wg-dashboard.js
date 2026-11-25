@@ -54,6 +54,15 @@ const DashboardController = {
           e.preventDefault();
           const id = trigger.getAttribute('data-details-id');
           this.showDetails(id);
+          return;
+        }
+
+        const verifyBtn = e.target.closest('[data-verify-id]');
+        if (verifyBtn) {
+          e.preventDefault();
+          const id = verifyBtn.getAttribute('data-verify-id');
+          const outcome = verifyBtn.getAttribute('data-verify-outcome');
+          this.verifyEvent(id, outcome);
         }
       });
     }
@@ -80,6 +89,8 @@ const DashboardController = {
       } else {
         this._setOfflineState();
       }
+
+      this._updateAccuracyKPI();
 
       const events = eventsResp ? (eventsResp.results || eventsResp || []) : [];
       this._renderEventsTable(events);
@@ -138,27 +149,41 @@ const DashboardController = {
 
     const metalValEl = document.getElementById('metal-sensor-val');
     const metalBadgeEl = document.getElementById('metal-sensor-state-badge');
+    const metalDotEl = document.getElementById('metal-certainty-dot');
+    const metalTextEl = document.getElementById('metal-certainty-text');
+
     const moistValEl = document.getElementById('moisture-sensor-val');
     const moistBadgeEl = document.getElementById('moisture-sensor-state-badge');
+    const moistDotEl = document.getElementById('moisture-certainty-dot');
+    const moistTextEl = document.getElementById('moisture-certainty-text');
 
     if (!hasData && !isOnline) {
       if (metalValEl) metalValEl.textContent = 'Offline / No data';
       if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="status-badge status-offline">No Data</span>';
+      if (metalDotEl) metalDotEl.style.background = '#94a3b8';
+      if (metalTextEl) metalTextEl.textContent = 'Awaiting sensor transmission';
+
       if (moistValEl) moistValEl.textContent = 'Offline / No data';
       if (moistBadgeEl) moistBadgeEl.innerHTML = '<span class="status-badge status-offline">No Data</span>';
+      if (moistDotEl) moistDotEl.style.background = '#94a3b8';
+      if (moistTextEl) moistTextEl.textContent = 'Awaiting sensor transmission';
       return;
     }
 
-    // Metal Sensor
+    // Metal Sensor & Signal Certainty
     if (readings.metal_detected) {
       if (metalValEl) metalValEl.textContent = 'Active (Metal Detected)';
       if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="cat-badge cat-metal">🔩 Triggered</span>';
+      if (metalDotEl) metalDotEl.style.background = '#16a34a';
+      if (metalTextEl) metalTextEl.textContent = '100% Solid Inductive Signal (Definitive Metal)';
     } else {
       if (metalValEl) metalValEl.textContent = 'Inactive (Clear)';
       if (metalBadgeEl) metalBadgeEl.innerHTML = '<span class="status-badge status-online">Clear</span>';
+      if (metalDotEl) metalDotEl.style.background = '#0284c7';
+      if (metalTextEl) metalTextEl.textContent = '0% Inductive Field (Clear Non-Metallic)';
     }
 
-    // Moisture Sensor
+    // Moisture Sensor & Signal Certainty
     const moistPct = typeof readings.moisture_pct === 'number' ? readings.moisture_pct : 0.0;
     if (moistValEl) moistValEl.textContent = `${moistPct.toFixed(1)}% Moisture`;
     if (moistBadgeEl) {
@@ -166,6 +191,21 @@ const DashboardController = {
         moistBadgeEl.innerHTML = '<span class="cat-badge cat-wet">🍃 Wet Detected</span>';
       } else {
         moistBadgeEl.innerHTML = '<span class="cat-badge cat-dry">📦 Dry (Residual)</span>';
+      }
+    }
+    if (moistDotEl && moistTextEl) {
+      if (moistPct >= 65.0) {
+        moistDotEl.style.background = '#16a34a';
+        moistTextEl.textContent = `High Wetness Signal (${moistPct.toFixed(1)}% — Strong Conductivity)`;
+      } else if (moistPct >= 45.0) {
+        moistDotEl.style.background = '#22c55e';
+        moistTextEl.textContent = `Moderate Wetness (${moistPct.toFixed(1)}% — Threshold Exceeded)`;
+      } else if (moistPct >= 30.0) {
+        moistDotEl.style.background = '#f59e0b';
+        moistTextEl.textContent = `Slight Moisture (${moistPct.toFixed(1)}% — Below Threshold)`;
+      } else {
+        moistDotEl.style.background = '#0284c7';
+        moistTextEl.textContent = `Dry Baseline (${moistPct.toFixed(1)}% — Non-Conductive)`;
       }
     }
   },
@@ -213,7 +253,7 @@ const DashboardController = {
     if (!events || events.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="table-loading" style="padding:28px 16px; color:#64748b;">
+          <td colspan="8" class="table-loading" style="padding:28px 16px; color:#64748b;">
             <div style="font-size:24px; margin-bottom:6px;">📡</div>
             <strong>No segregation events received yet.</strong><br>
             <span style="font-size:12px;">Power on the Arduino Uno prototype and transmit sensor readings to see live event logging.</span>
@@ -222,6 +262,8 @@ const DashboardController = {
       `;
       return;
     }
+
+    const verifications = this._getVerifications();
 
     tbody.innerHTML = events.map(evt => {
       const meta = evt.metadata || {};
@@ -242,6 +284,21 @@ const DashboardController = {
       const catBadge = this._catBadge(meta.predicted_category || 'Dry');
       const statusBadge = '<span class="status-badge status-online">Segregated</span>';
 
+      const vState = verifications[String(evt.id)];
+      let evalCol = '';
+      if (vState === 'correct') {
+        evalCol = '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>';
+      } else if (vState === 'mismatch') {
+        evalCol = '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
+      } else {
+        evalCol = `
+          <div class="verify-btn-group">
+            <button class="btn-verify btn-verify-ok" data-verify-id="${evt.id}" data-verify-outcome="correct" title="Mark as correctly classified">✅ Correct</button>
+            <button class="btn-verify btn-verify-fail" data-verify-id="${evt.id}" data-verify-outcome="mismatch" title="Mark as misclassified">❌ Mismatch</button>
+          </div>
+        `;
+      }
+
       return `
         <tr>
           <td style="white-space:nowrap; font-size:12px; color:#64748b;">${ts}</td>
@@ -250,14 +307,61 @@ const DashboardController = {
           <td>${moistStr}</td>
           <td>${catBadge}</td>
           <td>${statusBadge}</td>
+          <td id="verify-cell-${evt.id}">${evalCol}</td>
           <td style="text-align:right;">
-            <button class="btn-secondary-sm" data-details-id="${evt.id}" onclick="DashboardController.showDetails(${evt.id})" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
+            <button class="btn-secondary-sm" data-details-id="${evt.id}" style="padding:4px 10px; font-size:12px; font-weight:600; border-radius:5px; cursor:pointer;">
               View Details
             </button>
           </td>
         </tr>
       `;
     }).join('');
+  },
+
+  _getVerifications() {
+    try {
+      return JSON.parse(localStorage.getItem('wasteguard_live_verifications') || '{}');
+    } catch {
+      return {};
+    }
+  },
+
+  verifyEvent(evtId, outcome) {
+    if (!evtId || !outcome) return;
+    const verifications = this._getVerifications();
+    verifications[String(evtId)] = outcome;
+    try {
+      localStorage.setItem('wasteguard_live_verifications', JSON.stringify(verifications));
+    } catch (e) {
+      console.warn('[Dashboard] Could not save verification:', e);
+    }
+    this._updateAccuracyKPI();
+    const cell = document.getElementById(`verify-cell-${evtId}`);
+    if (cell) {
+      cell.innerHTML = outcome === 'correct'
+        ? '<span class="verify-badge verify-correct" title="Verified as correct category during physical trial">✅ Correct</span>'
+        : '<span class="verify-badge verify-mismatch" title="Flagged as misclassification during physical trial">❌ Mismatch</span>';
+    }
+  },
+
+  _updateAccuracyKPI() {
+    const verifications = this._getVerifications();
+    const values = Object.values(verifications);
+    const total = values.length;
+    const correct = values.filter(v => v === 'correct').length;
+
+    const valEl = document.getElementById('kpi-accuracy-val');
+    const ratioEl = document.getElementById('kpi-accuracy-ratio');
+    if (!valEl || !ratioEl) return;
+
+    if (total === 0) {
+      valEl.textContent = '—';
+      ratioEl.textContent = '0/0';
+    } else {
+      const pct = Math.round((correct / total) * 100);
+      valEl.textContent = `${pct}%`;
+      ratioEl.textContent = `${correct}/${total}`;
+    }
   },
 
   showDetails(evtId) {
@@ -361,6 +465,7 @@ const DashboardController = {
     this._setVal('kpi-metal-val', '0');
     this._setVal('kpi-wet-val', '0');
     this._setVal('kpi-dry-val', '0');
+    this._updateAccuracyKPI();
     const badgeWrap = document.getElementById('station-conn-badge');
     if (badgeWrap) badgeWrap.innerHTML = '<span class="status-badge status-offline">○ Offline</span>';
     const metalValEl = document.getElementById('metal-sensor-val');

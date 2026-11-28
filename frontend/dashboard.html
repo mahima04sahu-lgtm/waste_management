@@ -3,155 +3,229 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | WasteGuard Campus Platform</title>
-  <link rel="stylesheet" href="css/global.css">
-  <link rel="stylesheet" href="css/dashboard.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/responsive.css">
+  <title>Dashboard | WasteGuard Prototype</title>
+  <meta name="description" content="WasteGuard single-station Arduino Uno prototype dashboard — real-time Metal, Wet, and Dry waste segregation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css?v=5.0">
+  <link rel="stylesheet" href="css/wg-main.css?v=5.0">
 </head>
 <body>
-  <div class="app-container">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="app-sidebar">
       <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">WG</div>
+        <div class="sidebar-logo">WG</div>
         <div>
-          <div class="sidebar-brand-text">WasteGuard</div>
-          <div class="sidebar-brand-sub">Campus Automated Stations</div>
+          <div class="sidebar-name">WasteGuard</div>
+          <div class="sidebar-tagline">Arduino Prototype</div>
         </div>
       </div>
       <nav class="sidebar-nav">
-        <a href="dashboard.html" class="nav-item active">
+        <a href="dashboard.html" class="nav-item active" id="nav-dashboard">
           <span class="nav-icon">📊</span> Dashboard
         </a>
-        <a href="scanner.html" class="nav-item">
-          <span class="nav-icon">📷</span> AI Waste Scanner
+        <a href="history.html" class="nav-item" id="nav-history">
+          <span class="nav-icon">📋</span> Segregation History
         </a>
-        <a href="bins.html" class="nav-item">
-          <span class="nav-icon">🏢</span> Waste Stations
+        <a href="analytics.html" class="nav-item" id="nav-analytics">
+          <span class="nav-icon">📈</span> Reports
         </a>
-        <a href="actions.html" class="nav-item">
-          <span class="nav-icon">⚠️</span> Manual Reviews
-        </a>
-        <a href="alerts.html" class="nav-item">
-          <span class="nav-icon">🔔</span> Station Alerts
-        </a>
-        <a href="collection.html" class="nav-item">
-          <span class="nav-icon">🚛</span> Collection & Dispatches
-        </a>
-        <a href="analytics.html" class="nav-item">
-          <span class="nav-icon">📈</span> Waste Analytics
-        </a>
-
-        <div class="nav-section-title">ADMINISTRATION</div>
-        <a href="settings.html" class="nav-item" data-role-min="SUPERVISOR">
-          <span class="nav-icon">⚙️</span> Station Settings
+        <div class="nav-divider"></div>
+        <a href="settings.html" class="nav-item" id="nav-settings">
+          <span class="nav-icon">⚙️</span> Settings
         </a>
       </nav>
+      <div class="sidebar-footer">
+        <div class="user-pill" id="sidebar-user-pill">
+          <div class="user-avatar-sm" id="sidebar-avatar">O</div>
+          <div>
+            <div class="user-pill-name" id="sidebar-user-name">Operator</div>
+            <div class="user-pill-role" id="sidebar-user-role">PROTOTYPE LAB</div>
+          </div>
+        </div>
+        <button class="btn-signout" onclick="AuthManager.logout()">Sign Out</button>
+      </div>
     </aside>
 
-    <!-- Main Content -->
-    <div class="main-wrapper">
-      <!-- Top Header Navbar -->
-      <header class="top-header">
-        <div class="header-title-group">
-          <h1>WasteGuard Operational Dashboard</h1>
-          <p>Campus Automated Sorting Stations &amp; Real-Time Network Monitoring</p>
+    <!-- Main Content Area -->
+    <div class="main-area">
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title">Prototype Dashboard</h1>
+          <span class="live-pill" id="live-pill">
+            <span class="live-dot" id="live-dot"></span> <span id="live-text">Live Sync</span>
+          </span>
         </div>
-        <div class="header-user-profile">
-          <a href="scanner.html" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; margin-right:12px; text-decoration:none;">
-            <span>📷</span> Open Scanner
-          </a>
-          <div class="user-info-text">
-            <div class="user-name" id="nav-user-name">Loading...</div>
-            <div class="user-role" id="nav-user-role">OPERATOR</div>
-          </div>
-          <div class="user-avatar" id="nav-user-avatar">U</div>
-          <button class="btn btn-secondary btn-sm" onclick="AuthManager.logout()">Sign Out</button>
+        <div class="topbar-right">
+          <button class="btn-refresh" id="btn-refresh" title="Refresh data">
+            <span id="refresh-icon">↻</span> Refresh
+          </button>
+          <span class="last-updated" id="last-updated-label">—</span>
         </div>
       </header>
 
-      <!-- Main Page Content -->
       <main class="page-content">
-        <!-- KPI Cards Row -->
-        <div class="kpi-grid">
-          <div class="kpi-card" id="kpi-card-total">
-            <div class="kpi-label">WasteGuard Stations</div>
-            <div class="kpi-value" id="kpi-total-containers">5</div>
-            <div class="kpi-sub">Campus Deployed Units</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Active &amp; Online</div>
-            <div class="kpi-value" id="kpi-active-containers" style="color:var(--status-low);">5</div>
-            <div class="kpi-sub">Live Sorting Active</div>
-          </div>
-          <div class="kpi-card" id="kpi-card-high-risk" style="border-left:4px solid #faad14;">
-            <div class="kpi-label" style="color:#d48806;">Manual Reviews</div>
-            <div class="kpi-value" id="kpi-high-risk" style="color:#d48806;">2</div>
-            <div class="kpi-sub">Classification Verification</div>
-          </div>
-          <div class="kpi-card" style="border-left:4px solid var(--status-high);">
-            <div class="kpi-label" style="color:var(--status-high);">Collection Required</div>
-            <div class="kpi-value" id="kpi-collection-required" style="color:var(--status-high);">2</div>
-            <div class="kpi-sub">Bin Fill &gt; 80%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Offline Stations</div>
-            <div class="kpi-value" id="kpi-offline-devices" style="color:var(--status-offline);">0</div>
-            <div class="kpi-sub">All Stations Online</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Total Waste Processed</div>
-            <div class="kpi-value" id="kpi-total-waste">428 kg</div>
-            <div class="kpi-sub">Automated Sorting Today</div>
-          </div>
-        </div>
-
-        <!-- Manual Review Alerts Section -->
-        <div class="manual-review-alert-card" id="manual-review-alert-section">
-          <div class="manual-review-header">
-            <span>⚠️</span> <span>Manual Review Required</span>
-          </div>
-          <div class="manual-review-list" id="manual-review-list-body">
-            <div class="manual-review-item">
-              <div>
-                <strong>Station 02 — Cafeteria</strong><br>
-                <span style="font-size:12px; color:#d48806;">Low-confidence classification detected — 2 items awaiting verification</span>
-              </div>
-              <a href="bin-details.html?id=STATION-02" class="btn btn-secondary btn-sm">Review Station 02 →</a>
-            </div>
-            <div class="manual-review-item">
-              <div>
-                <strong>Station 04 — Hostel</strong><br>
-                <span style="font-size:12px; color:#d48806;">Manual review pending — 1 item</span>
-              </div>
-              <a href="bin-details.html?id=STATION-04" class="btn btn-secondary btn-sm">Review Station 04 →</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- WasteGuard Stations Overview Grid (Station 01 | Station 02 | Station 03 | Station 04) -->
-        <div class="card" style="margin-top:16px;">
-          <div class="card-header">
+        <!-- Physical Station Status HUD Banner -->
+        <div class="station-hud-banner">
+          <div class="station-hud-left">
+            <div class="station-avatar">01</div>
             <div>
-              <h2 class="card-title">WasteGuard Automated Sorting Stations</h2>
-              <p class="card-subtitle">Live 3-bin status (Wet / Dry / Hazard) and processing activity per station</p>
+              <div class="station-hud-title" id="station-name-label">WasteGuard Prototype Unit (Station 01)</div>
+              <div class="station-hud-sub">Single-Station Architecture · Arduino Uno Core · Metal &amp; Moisture Sensors</div>
             </div>
-            <input type="text" id="dashboard-table-search" class="form-control" style="width:240px; font-size:12px;" placeholder="Search Station or Location...">
           </div>
-          
-          <div class="station-grid" id="dashboard-stations-grid">
-            <div style="text-align:center; padding:30px; grid-column:1/-1; color:var(--text-muted);">Loading WasteGuard Stations...</div>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div id="station-conn-badge">
+              <span class="status-badge status-offline">Checking Connection...</span>
+            </div>
+            <div style="font-size:12px; color:#64748b;" id="station-last-seen-wrap">
+              Last Event: <strong id="station-last-seen" style="color:#0f172a;">No events received</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Core Metric KPI Cards -->
+        <div class="kpi-row" id="kpi-row">
+          <div class="kpi-card kpi-total" id="kpi-total">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-total-val">—</div>
+              <div class="kpi-label">Total Events</div>
+            </div>
+          </div>
+          <div class="kpi-card kpi-metal" id="kpi-metal">
+            <div class="kpi-icon">🔩</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-metal-val">—</div>
+              <div class="kpi-label">Metal Category</div>
+            </div>
+          </div>
+          <div class="kpi-card kpi-wet" id="kpi-wet">
+            <div class="kpi-icon">🍃</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-wet-val">—</div>
+              <div class="kpi-label">Wet Category</div>
+            </div>
+          </div>
+          <div class="kpi-card kpi-dry" id="kpi-dry">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-body">
+              <div class="kpi-value" id="kpi-dry-val">—</div>
+              <div class="kpi-label">Dry (Residual)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Physical Sensor Readings HUD -->
+        <div class="sensor-hud-grid">
+          <div class="sensor-hud-card">
+            <div class="sensor-hud-info">
+              <h4>Inductive Metal Sensor</h4>
+              <div class="sensor-hud-value" id="metal-sensor-val">—</div>
+              <span style="font-size:12px; color:#64748b;" id="metal-sensor-sub">Digital Sensor Input: —</span>
+            </div>
+            <div id="metal-sensor-state-badge">
+              <span class="status-badge status-offline">Awaiting Data</span>
+            </div>
+          </div>
+
+          <div class="sensor-hud-card">
+            <div class="sensor-hud-info">
+              <h4>Moisture / Wetness Sensor</h4>
+              <div class="sensor-hud-value" id="moisture-sensor-val">—</div>
+              <span style="font-size:12px; color:#64748b;" id="moisture-sensor-sub">Configured Threshold: 45.0% · Result: —</span>
+            </div>
+            <div id="moisture-sensor-state-badge">
+              <span class="status-badge status-offline">Awaiting Data</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Distribution (Real DB Records) -->
+        <div class="section-card" style="margin-bottom:24px;">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Actual Category Distribution</h2>
+              <p class="section-sub">Computed strictly from real completed segregation events in database</p>
+            </div>
+          </div>
+          <div id="distribution-chart-container">
+            <div class="dist-bar-wrap" id="dist-bar">
+              <div class="dist-bar-seg" id="seg-metal" style="width:0%; background:#64748b;" title="Metal"></div>
+              <div class="dist-bar-seg" id="seg-wet" style="width:0%; background:#16a34a;" title="Wet"></div>
+              <div class="dist-bar-seg" id="seg-dry" style="width:0%; background:#0284c7;" title="Dry"></div>
+            </div>
+            <div class="dist-legend">
+              <div class="dist-legend-item">
+                <span class="dist-dot" style="background:#64748b;"></span>
+                <span>Metal: <strong id="pct-metal">0%</strong> (<span id="cnt-metal">0</span>)</span>
+              </div>
+              <div class="dist-legend-item">
+                <span class="dist-dot" style="background:#16a34a;"></span>
+                <span>Wet: <strong id="pct-wet">0%</strong> (<span id="cnt-wet">0</span>)</span>
+              </div>
+              <div class="dist-legend-item">
+                <span class="dist-dot" style="background:#0284c7;"></span>
+                <span>Dry: <strong id="pct-dry">0%</strong> (<span id="cnt-dry">0</span>)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Segregation Events Table -->
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Recent Segregation Events</h2>
+              <p class="section-sub">Live rule-based classification stream for Station 01</p>
+            </div>
+            <a href="history.html" class="btn-link">View Full History →</a>
+          </div>
+
+          <div class="events-table-wrap">
+            <table class="events-table" id="events-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Event ID</th>
+                  <th>Metal Sensor</th>
+                  <th>Moisture Reading</th>
+                  <th>Assigned Category</th>
+                  <th>Sorting Status</th>
+                  <th style="text-align:right;">Details</th>
+                </tr>
+              </thead>
+              <tbody id="events-table-body">
+                <tr><td colspan="7" class="table-loading">Loading segregation events...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Event Details Modal Dialog -->
+        <div class="modal-backdrop" id="event-modal-backdrop" style="display:none;">
+          <div class="modal-card">
+            <div class="modal-head">
+              <h3 style="font-size:15px; font-weight:700; color:#0f172a;" id="modal-event-title">Segregation Event Details</h3>
+              <button id="btn-close-modal" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b;">✕</button>
+            </div>
+            <div class="modal-body" id="modal-event-body">
+              <!-- Rendered dynamically -->
+            </div>
+            <div class="modal-foot">
+              <button class="btn-secondary-sm" id="btn-dismiss-modal" style="padding:6px 14px; border-radius:6px; cursor:pointer;">Close</button>
+            </div>
           </div>
         </div>
       </main>
     </div>
   </div>
 
-
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/wg-dashboard.js"></script>
 </body>
 </html>

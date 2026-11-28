@@ -1,15 +1,24 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file (checked in backend/ and project root)
+load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR.parent / '.env')
+
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-hazguard-sih2026-hospital-safety-secret-key')
-
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
-
 ALLOWED_HOSTS = ['*']
+
+# Prototype Station & Hardware Network Configuration
+SERVER_HOST_IP = os.getenv('SERVER_HOST_IP', '192.168.29.66')
+SERVER_PORT = os.getenv('SERVER_PORT', '8000')
+STATION_ID = os.getenv('STATION_ID', 'STATION-01')
+DEVICE_API_KEY = os.getenv('DEVICE_API_KEY', 'WG-STATION01-KEY-9842F1A63C2026')
 
 # Application definition
 INSTALLED_APPS = [
@@ -25,19 +34,13 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     
-    # HazGuard Apps
+    # WasteGuard Apps
     'users.apps.UsersConfig',
     'containers.apps.ContainersConfig',
     'sensors.apps.SensorsConfig',
-    'vision.apps.VisionConfig',
-    'risk.apps.RiskConfig',
-    'actions.apps.ActionsConfig',
-    'alerts.apps.AlertsConfig',
-    'collection.apps.CollectionConfig',
     'analytics.apps.AnalyticsConfig',
     'audit_logs.apps.AuditLogsConfig',
     'devices.apps.DevicesConfig',
-    'demo.apps.DemoConfig',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +148,11 @@ RISK_THRESHOLDS = {
     'MOISTURE_HIGH': 70.0,
     'FILL_HIGH_PERCENT': 80.0,
 }
+
+# Review / Classification Confidence Thresholds (Configurable)
+# NOTE: Auto-flagging based on confidence requires a future vision classifier
+# that writes VisionEvent rows. This threshold has no runtime effect currently.
+REVIEW_THRESHOLDS = {
+    'CONFIDENCE_LOW_PCT': 60.0,  # Flag for review if classifier confidence < this value
+}
+

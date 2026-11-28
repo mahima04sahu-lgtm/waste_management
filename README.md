@@ -1,54 +1,67 @@
-# 🛡️ HazGuard: Intelligent Hospital Waste Handling & Worker Safety System
+# ♻️ WasteGuard: Automated Waste Segregation Prototype (Metal / Wet / Dry)
 
-> **SIH 2026 Official Software Prototype**  
-> A serious **hospital operations platform** designed to monitor biomedical waste containers, identify abnormal biohazard conditions, prioritize collection, reduce unnecessary manual exposure, and safely dispatch isolation and specialist handling protocols.
+> **SIH 2026 Prototype System**  
+> A single-station, Arduino Uno-based, rule-based automated waste segregation prototype that accurately categorizes waste into **Metal**, **Wet**, and **Dry** streams using physical inductive and moisture sensors.
 
 ---
 
 ## 📋 Table of Contents
 - [System Overview](#-system-overview)
-- [Core Operational Paradigm](#-core-operational-paradigm)
+- [Rule-Based Segregation Logic](#-rule-based-segregation-logic)
+- [Hardware Architecture](#-hardware-architecture)
 - [User Roles & Permissions](#-user-roles--permissions)
 - [Technology Stack](#-technology-stack)
-- [Project Directory Structure](#-project-directory-structure)
-- [Quick Start Guide](#-quick-start-guide)
+- [Dashboard & Web Interface](#-dashboard--web-interface)
 - [REST API Endpoints](#-rest-api-endpoints)
-- [IoT Hardware / ESP32 Ingestion API](#-iot-hardware--esp32-ingestion-api)
+- [Arduino / Hardware Ingestion API](#-arduino--hardware-ingestion-api)
+- [Quick Start Guide](#-quick-start-guide)
 - [Demo Accounts](#-demo-accounts)
-- [License](#-license)
 
 ---
 
 ## 🔬 System Overview
 
-HazGuard is designed specifically for **hospital waste-management departments**, biomedical safety officers, facility managers, and healthcare operators. Unlike consumer IoT dustbin applications, HazGuard converts raw sensor telemetry and AI vision classifications into **prioritized operational decisions** backed by clinical rationale.
+WasteGuard is designed for automated, physical segregation at the point of disposal. The system focuses on a **single physical station** (`STATION-01`) equipped with confirmed sensor hardware:
+1. **Inductive Metal Sensor**: Detects metallic / ferrous objects.
+2. **Moisture / Conductivity Sensor**: Measures moisture level for wet waste detection.
 
-### Key Capabilities:
-- **Real-Time Telemetry Processing**: Continuous tracking of fill level, weight, temperature, humidity, VOC gas indicators, and moisture.
-- **AI Camera Vision Analysis**: Probabilistic classification of waste contents (`BIOHAZARD`, `SHARPS`, `HAZARD`, `NORMAL`, `UNKNOWN`).
-- **Automated Risk Engine**: 0–100 normalized risk score calculation categorizing risk levels (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
-- **Priority Action Queue**: Automated dispatch recommendation (`ISOLATE`, `SPECIALIST REQUIRED`, `MECHANICALLY TRANSFER`, `INSPECT`, `HANDLE NOW`, `CLEAN / MAINTENANCE`).
-- **Traceability Audit Log**: Full timeline recording of every operational event, risk escalation, and user action.
-- **Safety Analytics**: Measured comparison showing a **78% reduction in manual handling exposure** for biomedical workers.
+### Categorization Output:
+- 🔩 **Metal**: Metallic / ferrous waste (cans, foil, bottle caps).
+- 🍃 **Wet**: Organic / moisture-rich waste (food waste, fruit peels, liquid residuals).
+- 📦 **Dry**: Residual non-metallic dry waste (paper, dry packaging, cardboard, plastic).
 
 ---
 
-## ⚖️ Core Operational Paradigm
+## ⚖️ Rule-Based Segregation Logic
 
-To enforce clinical safety standards, HazGuard strictly demarcates three data tiers:
+The system follows strict, deterministic physical rules:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 1. SENSOR FACTS (Empirical Physical Telemetry)                               │
-│    e.g., Temp = 31.2°C, VOC Gas = 420 ppm, Fill = 87%, Weight = 24.2 kg     │
+│ 1. METAL CHECK (Priority 1)                                                 │
+│    Is inductive metal sensor triggered?                                     │
+│    ──► YES: Route to METAL compartment                                      │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 2. AI VISION INFERENCES (Probabilistic Analysis)                             │
-│    e.g., Classification = HAZARD, Confidence = 94%, Unknown Prob = 3%       │
+│ 2. MOISTURE CHECK (Priority 2)                                              │
+│    Is moisture reading ≥ 45.0% or wetness detected?                         │
+│    ──► YES: Route to WET compartment                                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ 3. OPERATIONAL DECISIONS (Recommended Handling Action)                       │
-│    e.g., Action = ISOLATE, Reason = VOC Gas Spike + Liquid Hazard + AI Hazard│
+│ 3. RESIDUAL DRY WASTE (Priority 3)                                          │
+│    Neither metal nor moisture detected.                                     │
+│    ──► Route to DRY compartment (residual)                                  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 🔌 Hardware Architecture
+
+- **Microcontroller**: Arduino Uno / ESP32
+- **Sensors**:
+  - Inductive Proximity / Metal Sensor (Digital Input)
+  - Analog Soil / Soil Moisture Sensor (Analog Input, 0–100%)
+- **Communication**: HTTP POST to `/api/devices/sensor-data/`
+- **Station ID**: `STATION-01`
 
 ---
 
@@ -56,206 +69,101 @@ To enforce clinical safety standards, HazGuard strictly demarcates three data ti
 
 | Role | Target Persona | Key Capabilities |
 | :--- | :--- | :--- |
-| **ADMIN** | Hospital System Administrator | User management, ward configuration, system threshold settings, full audit logs |
-| **SUPERVISOR** | Biomedical Waste Supervisor | Ward point monitoring, collection approvals, worker safety tracking, analytics |
-| **OPERATOR** | Biomedical Operations Staff | Container inspection, isolation confirmation, collection pickup completions |
-| **SAFETY OFFICER** | Hospital Safety & Infection Control | High-risk container monitoring, incident response, specialist handling approvals |
+| **ADMIN** | System Administrator | Sensor calibration, threshold configuration, audit logs |
+| **SUPERVISOR** | Operations Supervisor | Station monitoring, event verification, reports |
+| **OPERATOR** | Field Operator | Physical inspection, hardware maintenance, pickup |
+| **VERIFICATION** | Verification Analyst | Ground-truth verification trials, accuracy audit |
 
 ---
 
 ## 💻 Technology Stack
 
-### Frontend
-- **Language**: HTML5, CSS3, Vanilla JavaScript (ES6+)
-- **API Communication**: Native Fetch API
-- **Design System**: Ergonomic, clinical visual hierarchy (Light surface, neutral gray backgrounds, subtle teal accents, status color coding)
-- **Frameworks**: None (Pure modular JS & CSS)
-
-### Backend
-- **Core Framework**: Python 3.12+, Django 5.0
-- **API Layer**: Django REST Framework (DRF)
-- **Authentication**: Token Authentication & Django Session Auth
-- **Database**: PostgreSQL (with automatic zero-config SQLite fallback for local development)
-- **Static Assets**: WhiteNoise
+- **Backend**: Python 3.14, Django 6.0, Django REST Framework
+- **Database**: SQLite 3 (`db.sqlite3`)
+- **Frontend**: Clean Vanilla JavaScript (ES6+), Modern Responsive CSS, HTML5
+- **Visual Identity**: Clean WasteGuard green-and-white theme
+- **Authentication**: Token-based / Session authentication
 
 ---
 
-## 📁 Project Directory Structure
+## 🖥️ Dashboard & Web Interface
 
-```text
-d:\react/
-├── README.md                 # System documentation & setup guide
-├── requirements.txt          # Complete Python dependencies
-├── backend/
-│   ├── manage.py             # Django management CLI entrypoint
-│   ├── config/               # Project settings, URLs, WSGI/ASGI configuration
-│   ├── users/                # User roles & employee profiles
-│   ├── containers/           # Hospital waste container registry
-│   ├── sensors/              # Sensor telemetry readings history
-│   ├── vision/               # AI vision camera classification events
-│   ├── risk/                 # Modular Risk Engine rule system & service
-│   ├── actions/              # Priority Action Queue dispatcher
-│   ├── alerts/               # Real-time alert matrix & status resolver
-│   ├── collection/           # Collection records & tare weight logging
-│   ├── analytics/            # Safety analytics & BEFORE vs AFTER metrics
-│   ├── audit_logs/           # Full traceability timeline service
-│   ├── devices/              # IoT ESP32 telemetry ingestion endpoint
-│   └── demo/                 # Seed data management command (seed_demo_data)
-└── frontend/
-    ├── index.html            # Portal intro & landing page
-    ├── login.html            # Clinical login page with demo role shortcuts
-    ├── dashboard.html        # Main operations center (KPIs, Action Queue, Bins Table)
-    ├── bins.html             # Container registry & filter matrix
-    ├── bin-details.html      # Deep inspection (Fact vs Inference vs Decision)
-    ├── actions.html          # Priority Action Queue manager
-    ├── alerts.html           # Real-time alert resolution matrix
-    ├── collection.html       # Waste pickup verification & tare weight logger
-    ├── analytics.html        # Safety analytics (Exposure BEFORE vs AFTER)
-    ├── settings.html         # Risk thresholds & ESP32 API documentation
-    ├── css/
-    │   ├── global.css        # Clinical color tokens, typography & badges
-    │   ├── dashboard.css     # App header, sidebar & grid layouts
-    │   ├── components.css    # Action cards, tier boxes, modals & toasts
-    │   └── responsive.css    # Responsive workstation adaptivity
-    └── js/
-        ├── api.js            # Fetch client wrapper with auto host detection
-        ├── auth.js           # Session manager & role permission guard
-        ├── dashboard.js      # Dashboard controller & live auto-polling
-        ├── bins.js           # Container table filter & search
-        ├── bin-details.js    # 3-Tier inspection & sparkline graph rendering
-        ├── actions.js        # Action queue confirm & complete handlers
-        ├── alerts.js         # Alert acknowledge & resolve handlers
-        ├── collection.js     # Dispatch queue manager
-        ├── analytics.js      # Waste volume & exposure metric cards
-        └── components.js     # Modals, toasts & status badges
+1. **Dashboard** (`/dashboard.html`): Real-time station HUD for `STATION-01`, live sensor telemetry, 4 KPI cards (Total, Metal, Wet, Dry), stream distribution bar, recent segregation events.
+2. **Segregation History** (`/history.html`): Readable event history table with timestamp, event ID, station, metal reading, moisture reading, predicted category, status, and JSON payload viewer modal.
+3. **Test Verification** (`/reviews.html`): Ground-truth verification tool for logging physical test trials against rule predictions, calculating verified accuracy.
+4. **Reports** (`/analytics.html`): Distribution breakdown and segregation statistics based on actual database records.
+5. **Settings** (`/settings.html`): Sensor calibration thresholds, Arduino Uno payload specs, and connection diagnostics.
+
+---
+
+## 🌐 REST API Endpoints
+
+| Resource | Method | Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **Hardware Ingest** | `POST` | `/api/devices/sensor-data/` | Ingest sensor data from Arduino / ESP32 |
+| **Station Ping** | `GET` | `/api/devices/ping/` | Check station connection status |
+| **Station Config** | `GET` | `/api/devices/config/` | Retrieve active calibration thresholds |
+| **Audit Logs** | `GET` | `/api/audit-logs/` | Query segregation event history |
+| **Station Details** | `GET` | `/api/containers/` | Station status and compartment levels |
+| **Select Stream** | `POST` | `/api/containers/<id>/select-category/` | Select stream (METAL, WET, DRY) |
+| **Analytics** | `GET` | `/api/analytics/summary/` | Event counts and category distribution |
+
+---
+
+## 📡 Arduino / Hardware Ingestion API
+
+### Endpoint:
+```http
+POST /api/devices/sensor-data/
+Content-Type: application/json
+```
+
+### Ingestion Payload:
+```json
+{
+  "container_id": "STATION-01",
+  "metal_detected": true,
+  "moisture": 14.5,
+  "device_status": "ONLINE"
+}
+```
+
+### Ingestion Response:
+```json
+{
+  "status": "success",
+  "container_id": "STATION-01",
+  "predicted_category": "Metal",
+  "rule_applied": "Metal sensor detected inductive material",
+  "sensor_reading": {
+    "metal_detected": true,
+    "moisture": 14.5,
+    "device_status": "ONLINE"
+  }
+}
 ```
 
 ---
 
 ## 🚀 Quick Start Guide
 
-### 1. Clone or Open Project
-Navigate to the root directory:
-```bash
-cd d:\react
-```
-
-### 2. Create & Activate Virtual Environment (`env`)
-
-**Windows (PowerShell):**
+### 1. Start Django Server
 ```powershell
-python -m venv env
-.\env\Scripts\activate
+Set-Location -Path "d:\SIH_demo\waste_management\backend"
+..\env\Scripts\python.exe manage.py runserver 127.0.0.1:8000
 ```
 
-**Linux / macOS:**
-```bash
-python3 -m venv env
-source env/bin/activate
-```
-
-### 3. Install Required Libraries
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run Migrations & Seed Demo Data
-```bash
-cd backend
-python manage.py makemigrations
-python manage.py migrate
-python manage.py seed_demo_data
-```
-
-### 5. Launch the Server
-```bash
-python manage.py runserver 0.0.0.0:8000
-```
-
-### 6. Access the System in Browser
-Open your browser and navigate to:
-👉 **[http://localhost:8000/login.html](http://localhost:8000/login.html)**
+### 2. Access the Dashboard
+Open your browser at:
+`http://127.0.0.1:8000/dashboard.html`
 
 ---
 
-## 🔌 REST API Endpoints
+## 🔐 Demo Accounts
 
-| Resource | Method | Endpoint | Description |
-| :--- | :--- | :--- | :--- |
-| **Auth** | `POST` | `/api/auth/login/` | User authentication & Token generation |
-| **Auth** | `POST` | `/api/auth/logout/` | User session logout |
-| **Auth** | `GET` | `/api/auth/me/` | Current authenticated user profile |
-| **Containers** | `GET` | `/api/containers/` | Container list with ward/risk filters |
-| **Containers** | `GET` | `/api/containers/<id>/` | Detailed container inspection payload |
-| **Sensors** | `GET` | `/api/sensors/?container_id=H-014` | Sensor telemetry history |
-| **Vision** | `GET` | `/api/vision/events/?container_id=H-014` | AI camera vision event logs |
-| **Risk** | `GET` | `/api/risk/?container_id=H-014` | Risk score prediction records |
-| **Actions** | `GET` | `/api/actions/` | Priority action queue items |
-| **Actions** | `POST` | `/api/actions/<id>/confirm/` | Authorize and confirm action |
-| **Actions** | `POST` | `/api/actions/<id>/complete/` | Complete operational action |
-| **Alerts** | `GET` | `/api/alerts/` | System biohazard alerts matrix |
-| **Alerts** | `POST` | `/api/alerts/<id>/acknowledge/` | Acknowledge active alert |
-| **Alerts** | `POST` | `/api/alerts/<id>/resolve/` | Resolve alert |
-| **Collection** | `GET` | `/api/collection/` | Collection dispatch queue |
-| **Collection** | `POST` | `/api/collection/<id>/complete/` | Log pickup completion & weight |
-| **Analytics** | `GET` | `/api/analytics/summary/` | Hospital metrics & exposure stats |
-| **Audit Logs**| `GET` | `/api/audit-logs/` | System traceability audit timeline |
-| **Devices** | `POST` | `/api/devices/sensor-data/` | IoT Telemetry Ingestion Endpoint |
-
----
-
-## 📡 IoT Hardware / ESP32 Ingestion API
-
-To connect physical ESP32 nodes or sensor simulators:
-
-**Endpoint:** `POST http://localhost:8000/api/devices/sensor-data/`
-
-**Sample Payload:**
-```json
-{
-  "container_id": "H-014",
-  "weight": 24.2,
-  "fill_level": 87,
-  "temperature": 31.2,
-  "humidity": 68,
-  "gas_indicator": 420,
-  "moisture": 72,
-  "device_status": "ONLINE"
-}
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "container_id": "H-014",
-  "risk_assessment": {
-    "score": 82,
-    "level": "HIGH",
-    "action": "ISOLATE",
-    "reason": "Abnormal elevated VOC/gas indicator (>400 ppm) + High moisture / liquid hazard detected (72%) + High fill level (87%)"
-  },
-  "action_generated": 1,
-  "alert_generated": 1
-}
-```
-
----
-
-## 🔑 Demo Accounts
-
-Use any of these demo accounts to test role-based capabilities:
-
-| Role | Username | Password | Employee ID | Primary Ward |
-| :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `admin` | `password123` | `EMP-001` | Administration |
-| **Supervisor** | `supervisor` | `password123` | `EMP-002` | Biomedical Waste Dept |
-| **Operator** | `raj_sharma` | `password123` | `EMP-003` | Emergency & ICU Wards |
-| **Safety Officer** | `safety_officer` | `password123` | `EMP-004` | Hospital Safety Division |
-
-*(You can also use the Quick Role Selector buttons directly on the login page at [http://localhost:8000/login.html](http://localhost:8000/login.html))*
-
----
-
-## 📜 License
-SIH 2026 Project Prototype — Built for Intelligent Hospital Waste Handling & Worker Safety System (HazGuard).
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin` | `password123` |
+| **Supervisor** | `supervisor` | `password123` |
+| **Operator** | `raj_sharma` | `password123` |
+| **Verification** | `safety_officer` | `password123` |

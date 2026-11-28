@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Segregation History | WasteGuard</title>
+  <meta name="description" content="WasteGuard single-station Arduino prototype — complete chronological segregation history.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css?v=5.0">
+  <link rel="stylesheet" href="css/wg-main.css?v=5.0">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">WG</div>
+        <div>
+          <div class="sidebar-name">WasteGuard</div>
+          <div class="sidebar-tagline">Arduino Prototype</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="history.html" class="nav-item active" id="nav-history">
+          <span class="nav-icon">📋</span> Segregation History
+        </a>
+        <a href="analytics.html" class="nav-item" id="nav-analytics">
+          <span class="nav-icon">📈</span> Reports
+        </a>
+        <div class="nav-divider"></div>
+        <a href="settings.html" class="nav-item" id="nav-settings">
+          <span class="nav-icon">⚙️</span> Settings
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-pill" id="sidebar-user-pill">
+          <div class="user-avatar-sm" id="sidebar-avatar">O</div>
+          <div>
+            <div class="user-pill-name" id="sidebar-user-name">Operator</div>
+            <div class="user-pill-role" id="sidebar-user-role">PROTOTYPE LAB</div>
+          </div>
+        </div>
+        <button class="btn-signout" onclick="AuthManager.logout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title">Segregation History</h1>
+        </div>
+        <div class="topbar-right" style="gap:10px;">
+          <select id="filter-category-select" class="filter-select" style="padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:12.5px; background:#fff;">
+            <option value="">All Categories</option>
+            <option value="Metal">Metal</option>
+            <option value="Wet">Wet</option>
+            <option value="Dry">Dry</option>
+          </select>
+          <input type="text" id="filter-action-search" class="filter-input" placeholder="Search event ID or rule..." style="padding:6px 12px; border-radius:6px; border:1px solid #cbd5e1; font-size:12.5px;">
+        </div>
+      </header>
+
+      <main class="page-content">
+        <div class="section-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Physical Event Timeline</h2>
+              <p class="section-sub">Chronological event log of sensor readings and rule-based sorting decisions — most recent first</p>
+            </div>
+            <div>
+              <button class="btn-secondary-sm" id="btn-reload-history" style="padding:5px 12px; border-radius:6px; cursor:pointer;">↻ Refresh Log</button>
+            </div>
+          </div>
+
+          <div class="events-table-wrap">
+            <table class="events-table" id="history-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Event ID</th>
+                  <th>Metal Sensor</th>
+                  <th>Moisture Reading</th>
+                  <th>Assigned Category</th>
+                  <th>Sorting Status</th>
+                  <th style="text-align:right;">Details</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <tr><td colspan="7" class="table-loading">Loading segregation history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-row" id="history-pagination">
+            <button class="btn-secondary-sm" id="btn-prev-page" disabled onclick="HistoryManager.prevPage()">← Previous</button>
+            <span id="page-label">Page 1</span>
+            <button class="btn-secondary-sm" id="btn-next-page" onclick="HistoryManager.nextPage()">Next →</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Event Details Modal Dialog -->
+  <div class="modal-backdrop" id="event-modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 style="font-size:15px; font-weight:700; color:#0f172a;" id="modal-event-title">Segregation Event Details</h3>
+        <button id="btn-close-modal" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b;">✕</button>
+      </div>
+      <div class="modal-body" id="modal-event-body">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="modal-foot">
+        <button class="btn-secondary-sm" id="btn-dismiss-modal" style="padding:6px 14px; border-radius:6px; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/wg-history.js"></script>
+</body>
+</html>
